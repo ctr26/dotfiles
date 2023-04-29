@@ -43,3 +43,8 @@ type = "git-repo"
 url = "https://github.com/dexpota/kitty-themes.git"
 refreshPeriod = "168h"
 
+
+[".config/polybar/polybar-scripts"]
+type = "git-repo"
+url = "https://github.com/polybar/polybar-scripts"
+refreshPeriod = "168h"
