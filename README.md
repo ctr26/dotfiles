@@ -2,4 +2,4 @@
 
 Instal chezmoi
 
-  chezmoi init --apply ctr26/dotfiles
+    chezmoi init --apply ctr26/dotfiles
