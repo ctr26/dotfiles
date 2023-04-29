@@ -117,8 +117,8 @@ fi
 autoload -U promptinit; promptinit
 prompt pure
 
-source '/usr/share/zsh-antidote/antidote.zsh'
-antidote load
+# source '/usr/share/zsh-antidote/antidote.zsh'
+# antidote load
 
 source $ZSH/oh-my-zsh.sh
 
