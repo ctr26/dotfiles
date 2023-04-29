@@ -114,6 +114,8 @@ if [[ ! -d $ZSH_CACHE_DIR ]]; then
   mkdir $ZSH_CACHE_DIR
 fi
 
+fpath+=($HOME/.zsh/pure)
+
 autoload -U promptinit; promptinit
 prompt pure
 
