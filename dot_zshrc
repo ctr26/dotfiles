@@ -109,7 +109,9 @@ ZSH_THEME="robbyrussell"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+ZSH_TMUX_AUTOSTART=true
 ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
+
 if [[ ! -d $ZSH_CACHE_DIR ]]; then
   mkdir $ZSH_CACHE_DIR
 fi
@@ -143,4 +145,5 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+
 
