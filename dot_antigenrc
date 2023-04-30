@@ -1,0 +1,44 @@
+# Load the oh-my-zsh's library.
+antigen use oh-my-zsh
+
+# Bundles from the default repo (robbyrussell's oh-my-zsh).
+antigen bundle git
+antigen bundle pip
+antigen bundle docker
+antigen bundle autojump
+antigen bundle colorize
+antigen bundle magic-enter
+
+antigen bundle lein
+antigen bundle command-not-found
+
+
+antigen bundle git
+antigen bundle autojump
+antigen bundle sudo
+antigen bundle z
+antigen bundle colorize
+antigen bundle cp
+antigen bundle zsh-syntax-highlighting
+antigen bundle zsh-autosuggestions
+antigen bundle docker
+antigen bundle tmux
+antigen bundle tmuxinator
+antigen bundle vim
+antigen bundle neovim/neovim
+
+
+antigen bundle sudo
+antigen bundle z
+antigen bundle cp
+antigen bundle tmux
+
+# Additional bundles
+antigen bundle zsh-users/zsh-syntax-highlighting
+antigen bundle zsh-users/zsh-autosuggestions
+antigen bundle zsh-users/zsh-completions
+antigen bundle ael-code/zsh-colored-man-pages
+antigen bundle esc/conda-zsh-completion
+
+# Tell Antigen that you're done.
+antigen apply
