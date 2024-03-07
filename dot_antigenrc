@@ -1,3 +1,4 @@
+
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
 
@@ -5,34 +6,19 @@ antigen use oh-my-zsh
 antigen bundle git
 antigen bundle pip
 antigen bundle docker
-antigen bundle autojump
 antigen bundle colorize
 antigen bundle magic-enter
-
 antigen bundle lein
 antigen bundle command-not-found
-
-
-antigen bundle git
-antigen bundle autojump
-antigen bundle sudo
-antigen bundle z
-antigen bundle colorize
-antigen bundle cp
-antigen bundle zsh-syntax-highlighting
-antigen bundle zsh-autosuggestions
 antigen bundle docker
-antigen bundle tmux
-antigen bundle tmuxinator
 antigen bundle vim
 antigen bundle neovim/neovim
-
-
 antigen bundle sudo
 antigen bundle z
 antigen bundle cp
-antigen bundle tmux
-
+# Broken
+# antigen bundle tmux
+antigen bundle tmuxinator
 # Additional bundles
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle zsh-users/zsh-autosuggestions
