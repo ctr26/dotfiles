@@ -143,9 +143,9 @@ else
         . "$HOME/miniconda3/etc/profile.d/conda.sh"
     else
         export PATH="$HOME/miniconda3/bin:$PATH"
-       # {{- if eq .chezmoi.os "darwin" -}}
+        {{- if eq .chezmoi.os "darwin" }}
         export PATH="/opt/homebrew/Caskroom/miniconda/base/bin:$PATH"
-        # {{ end -}}
+        {{ end }}
     fi
 fi
 unset __conda_setup
