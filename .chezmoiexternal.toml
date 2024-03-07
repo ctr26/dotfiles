@@ -58,3 +58,8 @@ refreshPeriod = "168h"
 type = "git-repo"
 url = "https://github.com/zsh-users/antigen.git"
 refreshPeriod = "168h"
+
+[".autojump"]
+type = "git-repo"
+url = "https://github.com/wting/autojump.git"
+refreshPeriod = "168h"
