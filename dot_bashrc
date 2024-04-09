@@ -17,3 +17,5 @@ export PATH
 
 # User specific aliases and functions
 
+[[ -s .autojump/bin/autojump.sh ]] && source  .autojump/bin/autojump.sh
+export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
