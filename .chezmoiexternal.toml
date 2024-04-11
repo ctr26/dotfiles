@@ -35,7 +35,7 @@ refreshPeriod = "168h"
 
 [".config/nvim"]
 type = "git-repo"
-url = "https://github.com/AstroNvim/AstroNvim.git"
+url = "https://github.com/AstroNvim/template.git"
 refreshPeriod = "168h"
 
 [".config/kitty/kitty-themes"]
@@ -59,7 +59,7 @@ type = "git-repo"
 url = "https://github.com/zsh-users/antigen.git"
 refreshPeriod = "168h"
 
-[".autojump"]
+[".local/share/autojump"]
 type = "git-repo"
 url = "https://github.com/wting/autojump.git"
 refreshPeriod = "168h"
