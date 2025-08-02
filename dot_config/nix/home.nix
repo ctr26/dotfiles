@@ -80,8 +80,10 @@
     polybar               # Status bar
     rofi                  # Application launcher
     
-    # Fonts
-    (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "JetBrainsMono" ]; })
+    # Fonts (new nerd-fonts structure)
+    nerd-fonts.fira-code
+    nerd-fonts.droid-sans-mono
+    nerd-fonts.jetbrains-mono
   ];
 
   # ============================================================================
