@@ -59,7 +59,7 @@
         program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-home" ''
           set -e
           echo "🏠 Deploying home-manager configuration..."
-          ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake github:ctr26/dotfiles#ctr26
+          ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake github:ctr26/dotfiles#ctr26 --no-write-lock-file
           echo "✅ Home configuration deployed!"
         '');
       };
@@ -103,7 +103,7 @@
           case $choice in
             1)
               echo "🏠 Deploying home-manager configuration..."
-              ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake github:ctr26/dotfiles#ctr26
+              ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake github:ctr26/dotfiles#ctr26 --no-write-lock-file
               echo "✅ Home configuration deployed!"
               ;;
             2)
