@@ -21,6 +21,9 @@ chezmoi init --apply ctr26/dotfiles
 # Temporary flakes (no config files written, always get latest)
 NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home
 
+# With automatic backup of existing files (recommended for existing systems)
+NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home -- --backup-extension backup
+
 # Or permanently enable flakes, then deploy
 mkdir -p ~/.config/nix && echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf && nix run github:ctr26/dotfiles#deploy-home
 ```
@@ -61,6 +64,9 @@ sh <(curl -L https://nixos.org/nix/install) --daemon
 
 # Deploy configuration
 nix run github:ctr26/dotfiles#deploy-home
+
+# If you have existing dotfiles, backup automatically:
+nix run github:ctr26/dotfiles#deploy-home -- --backup-extension backup
 ```
 
 ### 🔧 Traditional (Cross-platform)
@@ -222,6 +228,42 @@ The name and email will be used in template files like `dot_gitconfig.tmpl` and 
 2. Create a feature branch
 3. Test changes with both deployment methods
 4. Submit a pull request
+
+## 🚨 Troubleshooting
+
+### Home Manager: "Existing file would be clobbered"
+
+When deploying to a system with existing dotfiles, you'll see:
+```
+Existing file '/home/user/.bashrc' would be clobbered
+```
+
+**Solutions:**
+
+1. **Automatic backup (recommended):**
+   ```bash
+   nix run github:ctr26/dotfiles#deploy-home -- --backup-extension backup
+   ```
+
+2. **Manual backup:**
+   ```bash
+   mv ~/.bashrc ~/.bashrc.old
+   mv ~/.zshrc ~/.zshrc.old
+   # Then run deployment again
+   ```
+
+3. **Remove existing files (if not needed):**
+   ```bash
+   rm ~/.bashrc ~/.zshrc ~/.config/kitty/kitty.conf
+   # Then run deployment again
+   ```
+
+### NixOS Module Configuration
+
+For NixOS module deployment, set backup extension in configuration:
+```nix
+home-manager.backupFileExtension = "backup";
+```
 
 ## 📞 Support
 
