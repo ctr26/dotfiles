@@ -139,22 +139,17 @@
   
   # Activation script to automatically apply chezmoi dotfiles
   home.activation.chezmoi = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    # Check if chezmoi is available
-    if command -v chezmoi >/dev/null 2>&1; then
-      echo "🎯 Applying dotfiles with chezmoi..."
-      
-      # Check if chezmoi is initialized
-      if [ ! -d "$HOME/.local/share/chezmoi" ]; then
-        echo "📦 Initializing chezmoi for the first time..."
-        ${pkgs.chezmoi}/bin/chezmoi init --apply https://github.com/ctr26/dotfiles.git
-      else
-        echo "🔄 Updating dotfiles..."
-        ${pkgs.chezmoi}/bin/chezmoi update --apply
-      fi
-      
-      echo "✅ Chezmoi dotfiles applied successfully!"
+    echo "🎯 Applying dotfiles with chezmoi..."
+    
+    # Check if chezmoi is initialized
+    if [ ! -d "$HOME/.local/share/chezmoi" ]; then
+      echo "📦 Initializing chezmoi for the first time..."
+      ${pkgs.chezmoi}/bin/chezmoi init --apply https://github.com/ctr26/dotfiles.git
     else
-      echo "⚠️  Chezmoi not found, skipping dotfile deployment"
+      echo "🔄 Updating dotfiles..."
+      ${pkgs.chezmoi}/bin/chezmoi update --apply
     fi
+    
+    echo "✅ Chezmoi dotfiles applied successfully!"
   '';
 }
