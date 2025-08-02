@@ -6,8 +6,7 @@
 
 {
   imports = [
-    # Include the results of the hardware scan.
-    /etc/nixos/hardware-configuration.nix
+    # Hardware configuration will be imported by the flake
   ];
 
   # Bootloader

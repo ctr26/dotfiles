@@ -16,7 +16,12 @@
       nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
-          ./dot_config/nix/configuration.nix
+          ({ config, pkgs, ... }: {
+            imports = [
+              ./dot_config/nix/configuration.nix
+              ./dot_config/nix/hardware-configuration-stub.nix
+            ];
+          })
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
@@ -70,7 +75,22 @@
         program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-system" ''
           set -e
           echo "🖥️  Deploying NixOS configuration..."
-          sudo nixos-rebuild switch --flake github:ctr26/dotfiles#nixos
+          
+          # Check if we're in the dotfiles directory
+          if [ -f "./flake.nix" ]; then
+            # Local deployment - copy hardware configuration if it exists
+            if [ -f "/etc/nixos/hardware-configuration.nix" ]; then
+              echo "📋 Found system hardware configuration"
+              sudo nixos-rebuild switch --flake .#nixos --impure
+            else
+              echo "⚠️  No hardware configuration found, using stub configuration"
+              sudo nixos-rebuild switch --flake .#nixos
+            fi
+          else
+            # Remote deployment
+            sudo nixos-rebuild switch --flake github:ctr26/dotfiles#nixos --impure
+          fi
+          
           echo "✅ System configuration deployed!"
         '');
       };
@@ -108,7 +128,20 @@
               ;;
             2)
               echo "🖥️  Deploying NixOS configuration..."
-              sudo nixos-rebuild switch --flake github:ctr26/dotfiles#nixos
+              # Check if we're in the dotfiles directory
+              if [ -f "./flake.nix" ]; then
+                # Local deployment - copy hardware configuration if it exists
+                if [ -f "/etc/nixos/hardware-configuration.nix" ]; then
+                  echo "📋 Found system hardware configuration"
+                  sudo nixos-rebuild switch --flake .#nixos --impure
+                else
+                  echo "⚠️  No hardware configuration found, using stub configuration"
+                  sudo nixos-rebuild switch --flake .#nixos
+                fi
+              else
+                # Remote deployment
+                sudo nixos-rebuild switch --flake github:ctr26/dotfiles#nixos --impure
+              fi
               echo "✅ System configuration deployed!"
               ;;
             3)
