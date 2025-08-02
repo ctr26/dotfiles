@@ -17,200 +17,82 @@
   # Enable nix-index for command-not-found functionality
   programs.nix-index.enable = true;
 
-  # Shell configuration
-  programs.zsh = {
-    enable = true;
-    enableCompletion = true;
-    autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
-    
-    oh-my-zsh = {
-      enable = true;
-      plugins = [
-        "git"
-        "sudo"
-        "docker"
-        "tmux"
-        "autojump"
-        "colorize"
-        "cp"
-      ];
-      theme = "robbyrussell";
-    };
+  # ============================================================================
+  # PACKAGES ONLY - Let chezmoi manage all dotfiles and configurations
+  # ============================================================================
 
-    initExtra = ''
-      # Pure prompt setup
-      fpath+=($HOME/.zsh/pure)
-      autoload -U promptinit; promptinit
-      prompt pure
-
-      # tmux configuration
-      ZSH_TMUX_AUTOSTART=true
-      ZSH_TMUX_AUTOCONNECT=false
-      ZSH_TMUX_AUTOSTART_ONCE=false
-      ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
-
-      if [[ ! -d $ZSH_CACHE_DIR ]]; then
-        mkdir $ZSH_CACHE_DIR
-      fi
-
-      # Antigen setup
-      source $HOME/antigen/antigen.zsh
-      antigen init $HOME/.antigenrc
-    '';
-  };
-
-  programs.bash = {
-    enable = true;
-    initExtra = ''
-      # User specific environment
-      if ! [[ "$PATH" =~ "$HOME/.local/bin:$HOME/bin:" ]]
-      then
-          PATH="$HOME/.local/bin:$HOME/bin:$PATH"
-      fi
-      export PATH
-
-      # Autojump
-      [[ -s .autojump/bin/autojump.sh ]] && source .autojump/bin/autojump.sh
-      export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
-    '';
-  };
-
-  # Git configuration
-  programs.git = {
-    enable = true;
-    # userName and userEmail should be set via template variables
-    # or overridden in the NixOS configuration
-    extraConfig = {
-      init.defaultBranch = "main";
-      pull.rebase = true;
-      push.autoSetupRemote = true;
-    };
-  };
-
-  # Vim configuration
-  programs.vim = {
-    enable = true;
-    settings = {
-      number = true;
-    };
-    plugins = with pkgs.vimPlugins; [
-      vim-fugitive
-      vim-surround
-      nerdtree
-      vim-repeat
-      vim-commentary
-      vim-sensible
-      vim-markdown
-      fzf-vim
-      onedark-vim
-      nvim-web-devicons
-      nvim-tree-lua
-      nvim-lspconfig
-      nvim-cmp
-      cmp-nvim-lsp
-      cmp-buffer
-      cmp-path
-      cmp-cmdline
-      cmp-vsnip
-      vim-vsnip
-      vimwiki
-    ];
-  };
-
-  # Neovim with AstroNvim-like setup
-  programs.neovim = {
+  # Shell programs (install only, no config)
+  programs.zsh.enable = true;         # Install ZSH
+  programs.bash.enable = true;        # Install Bash
+  
+  # Development tools (install only, no config)
+  programs.git.enable = true;         # Install Git (chezmoi manages ~/.gitconfig)
+  programs.vim.enable = true;         # Install Vim (chezmoi manages ~/.vimrc)
+  programs.neovim = {                 # Install Neovim
     enable = true;
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;
   };
+  
+  # Terminal multiplexer (install only, no config)
+  programs.tmux.enable = true;        # Install tmux (chezmoi manages ~/.tmux.conf)
+  
+  # Terminal emulator (install only, no config)  
+  programs.kitty.enable = true;       # Install Kitty (chezmoi manages ~/.config/kitty/)
 
-  # tmux configuration
-  programs.tmux = {
-    enable = true;
-    mouse = true;
-    keyMode = "vi";
-    escapeTime = 10;
-    extraConfig = ''
-      set-option -g detach-on-destroy off
-      
-      # Catppuccin theme
-      set -g @catppuccin_flavour 'mocha'
-      set -g @catppuccin_user "on"
-      set -g @catppuccin_host "on"
-    '';
-    plugins = with pkgs.tmuxPlugins; [
-      sensible
-      yank
-      open
-      {
-        plugin = catppuccin;
-        extraConfig = ''
-          set -g @catppuccin_flavour 'mocha'
-        '';
-      }
-    ];
-  };
-
-  # Kitty terminal
-  programs.kitty = {
-    enable = true;
-    settings = {
-      background_opacity = "0.95";
-      confirm_os_window_close = 0;
-      shell = "${pkgs.tmux}/bin/tmux";
-    };
-    theme = "Catppuccin-Mocha";
-  };
-
-  # Development tools
+  # ============================================================================
+  # PACKAGE INSTALLATION - Home Manager handles packages, chezmoi handles configs
+  # ============================================================================
+  
   home.packages = with pkgs; [
-    # System utilities
-    autojump
-    fzf
-    ripgrep
-    fd
-    tree
-    htop
-    curl
-    wget
-    unzip
+    # System utilities (packages only)
+    autojump              # Directory jumping
+    fzf                   # Fuzzy finder
+    ripgrep               # Fast grep
+    fd                    # Fast find
+    tree                  # Directory tree
+    htop                  # Process monitor
+    curl                  # HTTP client
+    wget                  # File downloader
+    unzip                 # Archive extraction
     
-    # Development tools
-    git
-    gh
-    docker
-    docker-compose
+    # Development tools (packages only)
+    git                   # Version control
+    gh                    # GitHub CLI
+    docker                # Container runtime
+    docker-compose        # Container orchestration
     
     # Languages and runtimes
-    nodejs
-    python3
-    go
-    rust-analyzer
+    nodejs                # JavaScript runtime
+    python3               # Python interpreter
+    go                    # Go compiler
+    rust-analyzer         # Rust language server
     
-    # Editors and IDEs
-    vscode
+    # Editors and IDEs (packages only)
+    vscode                # Visual Studio Code
     
-    # Terminal multiplexer and utilities
-    tmux
+    # Terminal utilities (packages only)
+    tmux                  # Terminal multiplexer
     
     # Window management (if using X11/i3)
-    i3
-    polybar
-    rofi
+    i3                    # Window manager
+    polybar               # Status bar
+    rofi                  # Application launcher
     
     # Fonts
     (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "JetBrainsMono" ]; })
   ];
+
+  # ============================================================================
+  # SYSTEM SERVICES - Things that make sense for Home Manager to handle
+  # ============================================================================
 
   # Font configuration
   fonts.fontconfig.enable = true;
 
   # XDG configuration
   xdg.enable = true;
-  
-  # File associations and desktop entries
   xdg.mimeApps.enable = true;
 
   # Service management
@@ -222,48 +104,26 @@
     };
   };
 
-  # Session variables
+  # Session variables (system-level environment)
   home.sessionVariables = {
     EDITOR = "nvim";
     BROWSER = "firefox";
     DOCKER_HOST = "unix://$XDG_RUNTIME_DIR/docker.sock";
   };
 
-  # File management for dotfiles that need manual symlinking
-  # Note: Most files are managed by chezmoi, these are additional symlinks
-  home.file = {
-    # These would typically be managed by chezmoi
-    # Uncomment if you want home-manager to override chezmoi management
-    # ".antigenrc".source = ../../dot_antigenrc;
-    # ".condarc".source = ../../dot_condarc;
-    
-    # i3 configuration (if not using chezmoi for this)
-    # ".config/i3/config".source = ../i3/config;
-    
-    # Additional files that chezmoi doesn't handle well
-  };
-
-  # External dependencies that need to be cloned
-  home.activation = {
-    setupExternalDeps = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      # Setup oh-my-zsh (handled by programs.zsh.oh-my-zsh.enable)
-      
-      # Setup Pure prompt
-      if [ ! -d "$HOME/.zsh/pure" ]; then
-        ${pkgs.git}/bin/git clone https://github.com/sindresorhus/pure.git "$HOME/.zsh/pure"
-      fi
-      
-      # Setup Antigen
-      if [ ! -d "$HOME/antigen" ]; then
-        ${pkgs.git}/bin/git clone https://github.com/zsh-users/antigen.git "$HOME/antigen"
-      fi
-      
-      # Setup autojump (if not using package)
-      if [ ! -d "$HOME/.local/share/autojump" ]; then
-        ${pkgs.git}/bin/git clone https://github.com/wting/autojump.git "$HOME/.local/share/autojump"
-        cd "$HOME/.local/share/autojump"
-        ./install.py
-      fi
-    '';
-  };
+  # ============================================================================
+  # NO FILE MANAGEMENT - Let chezmoi handle ALL dotfiles and configurations
+  # ============================================================================
+  
+  # NOTE: We deliberately do NOT use:
+  # - programs.git.userName/userEmail (chezmoi manages ~/.gitconfig)
+  # - programs.zsh.initExtra (chezmoi manages ~/.zshrc)
+  # - programs.tmux.extraConfig (chezmoi manages ~/.tmux.conf)
+  # - programs.vim.plugins (chezmoi manages ~/.vimrc)
+  # - programs.kitty.settings (chezmoi manages ~/.config/kitty/kitty.conf)
+  # - home.file.* (chezmoi manages all home directory files)
+  
+  # This creates a clean separation:
+  # - Home Manager: Package installation + system services
+  # - Chezmoi: All configuration files and dotfiles
 }

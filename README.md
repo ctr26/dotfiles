@@ -18,8 +18,8 @@ chezmoi init --apply ctr26/dotfiles
 
 **Or use Home Manager directly (requires flakes):**
 ```bash
-# Temporary flakes (no config files written)
-NIX_CONFIG="experimental-features = nix-command flakes" nix run github:ctr26/dotfiles#deploy-home
+# Temporary flakes (no config files written, always get latest)
+NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home
 
 # Or permanently enable flakes, then deploy
 mkdir -p ~/.config/nix && echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf && nix run github:ctr26/dotfiles#deploy-home

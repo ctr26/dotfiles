@@ -138,6 +138,7 @@ info "Next steps:"
 echo "  1. Restart your shell or run: exec \$SHELL"
 echo "  2. Update git user info if needed: git config --global user.name 'John Doe'"
 echo "  3. Update git user email: git config --global user.email 'john.doe@example.com'"
+echo "  4. Authenticate with GitHub: gh auth login"
 
 if [ "$SYSTEM_TYPE" = "traditional" ]; then
     echo "  4. Consider switching to NixOS for full system management!"
