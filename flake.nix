@@ -98,12 +98,22 @@
           USERNAME=''${1:-$USER}
           echo "🏠 Deploying home-manager configuration for user: $USERNAME..."
           
-          # Check if configuration exists for this user
-          if nix eval --raw .#homeConfigurations.$USERNAME.activationPackage 2>/dev/null; then
-            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake .#$USERNAME
+          # Determine flake reference (local vs remote)
+          if [ -f "./flake.nix" ]; then
+            FLAKE_REF="."
+            echo "📁 Using local flake"
           else
-            echo "No specific configuration for $USERNAME, using current user config..."
-            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake .#current
+            FLAKE_REF="github:ctr26/dotfiles"
+            echo "🌐 Using remote flake: $FLAKE_REF"
+          fi
+          
+          # Check if configuration exists for this user
+          if nix eval --raw "$FLAKE_REF#homeConfigurations.$USERNAME.activationPackage" 2>/dev/null; then
+            echo "✅ Found configuration for $USERNAME"
+            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake "$FLAKE_REF#$USERNAME" --no-write-lock-file
+          else
+            echo "⚠️  No specific configuration for $USERNAME, using current user config..."
+            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake "$FLAKE_REF#current" --no-write-lock-file
           fi
           
           echo "✅ Home configuration deployed!"
@@ -165,24 +175,31 @@
           echo ""
           read -p "Enter choice (1-4): " choice
           
+          # Determine flake reference (local vs remote)
+          if [ -f "./flake.nix" ]; then
+            FLAKE_REF="."
+          else
+            FLAKE_REF="github:ctr26/dotfiles"
+          fi
+          
           case $choice in
             1)
               echo "🏠 Deploying home-manager configuration for $USER..."
-              nix run .#deploy-home
+              nix run "$FLAKE_REF#deploy-home"
               ;;
             2)
               read -p "Enter username: " username
               echo "🏠 Deploying home-manager configuration for $username..."
-              nix run .#deploy-home -- $username
+              nix run "$FLAKE_REF#deploy-home" -- $username
               ;;
             3)
               read -p "Enter hostname (default: nixos): " hostname
               hostname=''${hostname:-nixos}
               echo "🖥️  Deploying NixOS configuration for $hostname..."
-              nix run .#deploy-system -- $hostname
+              nix run "$FLAKE_REF#deploy-system" -- $hostname
               ;;
             4)
-              nix run .#update
+              nix run "$FLAKE_REF#update"
               ;;
             *)
               echo "❌ Invalid choice"
