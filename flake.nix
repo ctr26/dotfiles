@@ -59,7 +59,7 @@
         program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-home" ''
           set -e
           echo "🏠 Deploying home-manager configuration..."
-          ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake .#ctr26
+          ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake github:ctr26/dotfiles#ctr26
           echo "✅ Home configuration deployed!"
         '');
       };
@@ -70,7 +70,7 @@
         program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-system" ''
           set -e
           echo "🖥️  Deploying NixOS configuration..."
-          sudo nixos-rebuild switch --flake .#nixos
+          sudo nixos-rebuild switch --flake github:ctr26/dotfiles#nixos
           echo "✅ System configuration deployed!"
         '');
       };
@@ -103,12 +103,12 @@
           case $choice in
             1)
               echo "🏠 Deploying home-manager configuration..."
-              ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake .#ctr26
+              ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake github:ctr26/dotfiles#ctr26
               echo "✅ Home configuration deployed!"
               ;;
             2)
               echo "🖥️  Deploying NixOS configuration..."
-              sudo nixos-rebuild switch --flake .#nixos
+              sudo nixos-rebuild switch --flake github:ctr26/dotfiles#nixos
               echo "✅ System configuration deployed!"
               ;;
             3)
