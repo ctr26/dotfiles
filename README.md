@@ -4,6 +4,25 @@ A modern dotfiles repository with dual management systems for maximum flexibilit
 
 ## 🚀 Quick Install
 
+### NixOS Users
+If you don't have git installed yet:
+```bash
+# Install git, chezmoi, and python3 temporarily
+nix-shell -p git chezmoi python3
+```
+
+Then proceed with installation:
+```bash
+chezmoi init --apply ctr26/dotfiles
+```
+
+**Or use Home Manager directly (requires flakes):**
+```bash
+# Enable flakes first, then deploy
+mkdir -p ~/.config/nix && echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf && nix run github:ctr26/dotfiles#deploy-home
+```
+
+### All Other Systems
 **One command to rule them all:**
 ```bash
 curl -sSL https://raw.githubusercontent.com/ctr26/dotfiles/main/install.sh | bash
