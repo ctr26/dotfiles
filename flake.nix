@@ -65,9 +65,8 @@
       
       # Specific user configurations
       "ctr26" = mkHomeConfig "ctr26";
-      
-      # Dynamic configuration based on current user
-      "current" = mkHomeConfig (builtins.getEnv "USER");
+      "nixos" = mkHomeConfig "nixos";
+      "root" = mkHomeConfig "root";
     };
 
     # Development shell for working with this flake
@@ -112,8 +111,8 @@
             echo "✅ Found configuration for $USERNAME"
             ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake "$FLAKE_REF#$USERNAME" --no-write-lock-file
           else
-            echo "⚠️  No specific configuration for $USERNAME, using current user config..."
-            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake "$FLAKE_REF#current" --no-write-lock-file
+            echo "⚠️  No specific configuration for $USERNAME, using default config..."
+            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake "$FLAKE_REF#user" --no-write-lock-file
           fi
           
           echo "✅ Home configuration deployed!"
