@@ -5,9 +5,6 @@
   # Home Manager needs a bit of information about you and the paths it should
   # manage. These are set via flake parameters.
   # home.username and home.homeDirectory are provided by the flake
-  # Default values (will be overridden by flake)
-  home.username = lib.mkDefault "user";
-  home.homeDirectory = lib.mkDefault "/home/user";
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release

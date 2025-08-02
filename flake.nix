@@ -94,7 +94,27 @@
         type = "app";
         program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-home" ''
           set -e
-          USERNAME=''${1:-$USER}
+          
+          # Parse arguments - separate username from home-manager args
+          USERNAME=""
+          HM_ARGS=()
+          
+          for arg in "$@"; do
+            if [[ "$arg" == --* ]]; then
+              # This is a home-manager argument
+              HM_ARGS+=("$arg")
+            elif [ -z "$USERNAME" ]; then
+              # First non-flag argument is the username
+              USERNAME="$arg"
+            else
+              # Additional arguments for home-manager
+              HM_ARGS+=("$arg")
+            fi
+          done
+          
+          # Default to current user if no username provided
+          USERNAME=''${USERNAME:-$USER}
+          
           echo "🏠 Deploying home-manager configuration for user: $USERNAME..."
           
           # Determine flake reference (local vs remote)
@@ -109,10 +129,10 @@
           # Check if configuration exists for this user
           if nix eval --raw "$FLAKE_REF#homeConfigurations.$USERNAME.activationPackage" 2>/dev/null; then
             echo "✅ Found configuration for $USERNAME"
-            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake "$FLAKE_REF#$USERNAME" --no-write-lock-file
+            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake "$FLAKE_REF#$USERNAME" --no-write-lock-file "''${HM_ARGS[@]}"
           else
             echo "⚠️  No specific configuration for $USERNAME, using default config..."
-            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake "$FLAKE_REF#user" --no-write-lock-file
+            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake "$FLAKE_REF#user" --no-write-lock-file "''${HM_ARGS[@]}"
           fi
           
           echo "✅ Home configuration deployed!"
