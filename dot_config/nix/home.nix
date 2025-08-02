@@ -1,6 +1,8 @@
 { config, pkgs, lib, ... }:
 
 {
+  # Allow unfree packages (like VSCode)
+  nixpkgs.config.allowUnfree = true;
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "ctr26";
@@ -70,7 +72,7 @@
     rust-analyzer         # Rust language server
     
     # Editors and IDEs (packages only)
-    vscode                # Visual Studio Code
+    # vscode              # Visual Studio Code (unfree - uncomment if needed)
     
     # Terminal utilities (packages only)
     tmux                  # Terminal multiplexer
