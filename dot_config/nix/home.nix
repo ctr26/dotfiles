@@ -139,15 +139,25 @@
   
   # Activation script to automatically apply chezmoi dotfiles
   home.activation.chezmoi = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    echo "🎯 Applying dotfiles with chezmoi..."
+    echo "🎯 Setting up chezmoi for user: $USER..."
+    
+    # Set HOME explicitly to avoid any confusion
+    export HOME="${config.home.homeDirectory}"
     
     # Check if chezmoi is initialized
     if [ ! -d "$HOME/.local/share/chezmoi" ]; then
       echo "📦 Initializing chezmoi for the first time..."
-      ${pkgs.chezmoi}/bin/chezmoi init --apply https://github.com/ctr26/dotfiles.git
+      # Initialize without applying to avoid the username check issue
+      ${pkgs.chezmoi}/bin/chezmoi init https://github.com/ctr26/dotfiles.git --apply=false
+      
+      # Now apply with proper environment
+      echo "🔄 Applying dotfiles..."
+      ${pkgs.chezmoi}/bin/chezmoi apply --force
     else
       echo "🔄 Updating dotfiles..."
-      ${pkgs.chezmoi}/bin/chezmoi update --apply
+      # Update without the problematic script execution
+      cd "$HOME/.local/share/chezmoi" && ${pkgs.git}/bin/git pull
+      ${pkgs.chezmoi}/bin/chezmoi apply --force
     fi
     
     echo "✅ Chezmoi dotfiles applied successfully!"
