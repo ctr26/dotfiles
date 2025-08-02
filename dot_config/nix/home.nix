@@ -1,12 +1,10 @@
 { config, pkgs, lib, ... }:
 
 {
-  # Allow unfree packages (like VSCode)
-  nixpkgs.config.allowUnfree = true;
+  # Note: unfree packages are handled by the system configuration when using useGlobalPkgs
   # Home Manager needs a bit of information about you and the paths it should
-  # manage.
-  home.username = "ctr26";
-  home.homeDirectory = "/home/ctr26";
+  # manage. These are set via flake parameters.
+  # home.username and home.homeDirectory are provided by the flake
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
@@ -58,6 +56,7 @@
     curl                  # HTTP client
     wget                  # File downloader
     unzip                 # Archive extraction
+    chezmoi               # Dotfile manager
     
     # Development tools (packages only)
     git                   # Version control
@@ -130,4 +129,29 @@
   # This creates a clean separation:
   # - Home Manager: Package installation + system services
   # - Chezmoi: All configuration files and dotfiles
+
+  # ============================================================================
+  # CHEZMOI INTEGRATION - Auto-deploy dotfiles on system activation
+  # ============================================================================
+  
+  # Activation script to automatically apply chezmoi dotfiles
+  home.activation.chezmoi = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    # Check if chezmoi is available
+    if command -v chezmoi >/dev/null 2>&1; then
+      echo "🎯 Applying dotfiles with chezmoi..."
+      
+      # Check if chezmoi is initialized
+      if [ ! -d "$HOME/.local/share/chezmoi" ]; then
+        echo "📦 Initializing chezmoi for the first time..."
+        ${pkgs.chezmoi}/bin/chezmoi init --apply https://github.com/ctr26/dotfiles.git
+      else
+        echo "🔄 Updating dotfiles..."
+        ${pkgs.chezmoi}/bin/chezmoi update --apply
+      fi
+      
+      echo "✅ Chezmoi dotfiles applied successfully!"
+    else
+      echo "⚠️  Chezmoi not found, skipping dotfile deployment"
+    fi
+  '';
 }

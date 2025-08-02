@@ -2,8 +2,9 @@
 
 set -e
 
-echo "🎯 ctr26's Dotfiles Installer"
+echo "🎯 Flexible Dotfiles Installer"
 echo "=============================="
+echo "User: $USER"
 echo ""
 
 # Colors for output

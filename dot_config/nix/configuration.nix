@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running `nixos-help`).
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports = [
@@ -62,7 +62,7 @@
   services.printing.enable = true;
 
   # Enable sound with pipewire
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -74,13 +74,8 @@
   # Enable touchpad support (enabled default in most desktopManager)
   # services.xserver.libinput.enable = true;
 
-  # Define a user account
-  users.users.ctr26 = {
-    isNormalUser = true;
-    description = "ctr26";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
-    shell = pkgs.zsh;
-  };
+  # Define a user account - configured via flake
+  # The actual user configuration is provided by the flake
 
   # Enable zsh system-wide
   programs.zsh.enable = true;
@@ -131,19 +126,23 @@
     rofi
     feh
     
-    # Fonts
-    (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "JetBrainsMono" ]; })
+    # Fonts - now using individual nerd-fonts packages
+    nerd-fonts.fira-code
+    nerd-fonts.droid-sans-mono
+    nerd-fonts.jetbrains-mono
   ];
 
   # Font configuration
   fonts.packages = with pkgs; [
     noto-fonts
-    noto-fonts-cjk
+    noto-fonts-cjk-sans
     noto-fonts-emoji
     liberation_ttf
     fira-code
     fira-code-symbols
-    (nerdfonts.override { fonts = [ "FiraCode" "DroidSansMono" "JetBrainsMono" ]; })
+    nerd-fonts.fira-code
+    nerd-fonts.droid-sans-mono
+    nerd-fonts.jetbrains-mono
   ];
 
   # Enable flakes and new nix command

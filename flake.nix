@@ -1,5 +1,5 @@
 {
-  description = "ctr26's dotfiles - NixOS and Home Manager configuration";
+  description = "Flexible dotfiles - NixOS and Home Manager configuration";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -9,42 +9,72 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: 
+  let
+    # Default username - can be overridden
+    defaultUsername = "user";
+    
+    # Function to create a NixOS configuration for a specific username
+    mkNixosConfig = username: nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit username; };
+      modules = [
+        ./dot_config/nix/nixos-module.nix
+        ./dot_config/nix/hardware-configuration-stub.nix
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.${username} = {
+            imports = [ ./dot_config/nix/home.nix ];
+            home.username = username;
+            home.homeDirectory = "/home/${username}";
+          };
+        }
+      ];
+    };
+    
+    # Function to create a standalone home-manager configuration
+    mkHomeConfig = username: home-manager.lib.homeManagerConfiguration {
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      modules = [ 
+        ./dot_config/nix/home.nix
+        {
+          home.username = username;
+          home.homeDirectory = "/home/${username}";
+        }
+      ];
+    };
+    
+  in {
     # NixOS system configurations
     nixosConfigurations = {
-      # Default system configuration - adjust hostname as needed
-      nixos = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          ({ config, pkgs, ... }: {
-            imports = [
-              ./dot_config/nix/configuration.nix
-              ./dot_config/nix/hardware-configuration-stub.nix
-            ];
-          })
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.users.ctr26 = import ./dot_config/nix/home.nix;
-          }
-        ];
-      };
+      # Default configuration
+      nixos = mkNixosConfig defaultUsername;
+      
+      # Specific user configurations (examples)
+      nixos-ctr26 = mkNixosConfig "ctr26";
+      
+      # Users can add more configurations here
     };
 
     # Standalone home-manager configurations
     homeConfigurations = {
-      "ctr26" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        modules = [ ./dot_config/nix/home.nix ];
-      };
+      # Default configuration
+      ${defaultUsername} = mkHomeConfig defaultUsername;
+      
+      # Specific user configurations
+      "ctr26" = mkHomeConfig "ctr26";
+      
+      # Dynamic configuration based on current user
+      "current" = mkHomeConfig (builtins.getEnv "USER");
     };
 
     # Development shell for working with this flake
     devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
-      buildInputs = with nixpkgs.legacyPackages.x86_64-linux; [
+      packages = with nixpkgs.legacyPackages.x86_64-linux; [
         nixos-rebuild
-        home-manager
+        home-manager.packages.x86_64-linux.default
         git
       ];
       shellHook = ''
@@ -53,6 +83,8 @@
         echo "  deploy-home    - Deploy home-manager configuration"
         echo "  deploy-system  - Deploy system configuration (requires sudo)"
         echo "  update-flake   - Update flake inputs"
+        echo ""
+        echo "Current user: $USER"
       '';
     };
 
@@ -63,8 +95,17 @@
         type = "app";
         program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-home" ''
           set -e
-          echo "🏠 Deploying home-manager configuration..."
-          ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake github:ctr26/dotfiles#ctr26 --no-write-lock-file
+          USERNAME=''${1:-$USER}
+          echo "🏠 Deploying home-manager configuration for user: $USERNAME..."
+          
+          # Check if configuration exists for this user
+          if nix eval --raw .#homeConfigurations.$USERNAME.activationPackage 2>/dev/null; then
+            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake .#$USERNAME
+          else
+            echo "No specific configuration for $USERNAME, using current user config..."
+            ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake .#current
+          fi
+          
           echo "✅ Home configuration deployed!"
         '');
       };
@@ -74,21 +115,22 @@
         type = "app";
         program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-system" ''
           set -e
-          echo "🖥️  Deploying NixOS configuration..."
+          HOSTNAME=''${1:-nixos}
+          echo "🖥️  Deploying NixOS configuration for host: $HOSTNAME..."
           
           # Check if we're in the dotfiles directory
           if [ -f "./flake.nix" ]; then
             # Local deployment - copy hardware configuration if it exists
             if [ -f "/etc/nixos/hardware-configuration.nix" ]; then
               echo "📋 Found system hardware configuration"
-              sudo nixos-rebuild switch --flake .#nixos --impure
+              sudo nixos-rebuild switch --flake .#$HOSTNAME --impure
             else
               echo "⚠️  No hardware configuration found, using stub configuration"
-              sudo nixos-rebuild switch --flake .#nixos
+              sudo nixos-rebuild switch --flake .#$HOSTNAME
             fi
           else
-            # Remote deployment
-            sudo nixos-rebuild switch --flake github:ctr26/dotfiles#nixos --impure
+            echo "❌ Please run from the dotfiles directory"
+            exit 1
           fi
           
           echo "✅ System configuration deployed!"
@@ -111,43 +153,36 @@
         type = "app";
         program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-interactive" ''
           set -e
-          echo "🚀 ctr26's dotfiles deployment"
+          echo "🚀 Flexible dotfiles deployment"
+          echo ""
+          echo "Current user: $USER"
           echo ""
           echo "Choose deployment option:"
-          echo "1) Home Manager only (user configurations)"
-          echo "2) Full NixOS system (requires sudo)"
-          echo "3) Update flake inputs"
+          echo "1) Home Manager only (for current user)"
+          echo "2) Home Manager for specific user"
+          echo "3) Full NixOS system (requires sudo)"
+          echo "4) Update flake inputs"
           echo ""
-          read -p "Enter choice (1-3): " choice
+          read -p "Enter choice (1-4): " choice
           
           case $choice in
             1)
-              echo "🏠 Deploying home-manager configuration..."
-              ${home-manager.packages.x86_64-linux.default}/bin/home-manager switch --flake github:ctr26/dotfiles#ctr26 --no-write-lock-file
-              echo "✅ Home configuration deployed!"
+              echo "🏠 Deploying home-manager configuration for $USER..."
+              nix run .#deploy-home
               ;;
             2)
-              echo "🖥️  Deploying NixOS configuration..."
-              # Check if we're in the dotfiles directory
-              if [ -f "./flake.nix" ]; then
-                # Local deployment - copy hardware configuration if it exists
-                if [ -f "/etc/nixos/hardware-configuration.nix" ]; then
-                  echo "📋 Found system hardware configuration"
-                  sudo nixos-rebuild switch --flake .#nixos --impure
-                else
-                  echo "⚠️  No hardware configuration found, using stub configuration"
-                  sudo nixos-rebuild switch --flake .#nixos
-                fi
-              else
-                # Remote deployment
-                sudo nixos-rebuild switch --flake github:ctr26/dotfiles#nixos --impure
-              fi
-              echo "✅ System configuration deployed!"
+              read -p "Enter username: " username
+              echo "🏠 Deploying home-manager configuration for $username..."
+              nix run .#deploy-home -- $username
               ;;
             3)
-              echo "🔄 Updating flake inputs..."
-              nix flake update
-              echo "✅ Flake inputs updated!"
+              read -p "Enter hostname (default: nixos): " hostname
+              hostname=''${hostname:-nixos}
+              echo "🖥️  Deploying NixOS configuration for $hostname..."
+              nix run .#deploy-system -- $hostname
+              ;;
+            4)
+              nix run .#update
               ;;
             *)
               echo "❌ Invalid choice"
@@ -158,46 +193,10 @@
       };
     };
 
-    # Packages for one-command install scripts
-    packages.x86_64-linux = {
-      install-script = nixpkgs.legacyPackages.x86_64-linux.writeShellScriptBin "install-dotfiles" ''
-        set -e
-        
-        echo "🎯 Installing ctr26's dotfiles..."
-        
-        # Check if Nix is installed
-        if ! command -v nix &> /dev/null; then
-          echo "📦 Installing Nix..."
-          sh <(curl -L https://nixos.org/nix/install) --daemon
-          . /etc/profile
-        fi
-        
-        # Enable flakes if not already enabled
-        if [ ! -f ~/.config/nix/nix.conf ] || ! grep -q "experimental-features.*flakes" ~/.config/nix/nix.conf; then
-          echo "🔧 Enabling Nix flakes..."
-          mkdir -p ~/.config/nix
-          echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-        fi
-        
-        # Clone dotfiles if not already present
-        if [ ! -d "$HOME/dotfiles" ]; then
-          echo "📥 Cloning dotfiles repository..."
-          git clone https://github.com/ctr26/dotfiles.git "$HOME/dotfiles"
-        fi
-        
-        cd "$HOME/dotfiles"
-        
-        # Check if running on NixOS
-        if [ -f /etc/nixos/configuration.nix ]; then
-          echo "🖥️  NixOS detected - deploying full system configuration"
-          nix run .#deploy-system
-        else
-          echo "🏠 Non-NixOS system - deploying home-manager only"
-          nix run .#deploy-home
-        fi
-        
-        echo "🎉 Dotfiles installation complete!"
-      '';
+    # Helper function to create new user configuration
+    lib.mkUserConfig = username: {
+      nixos = mkNixosConfig username;
+      home = mkHomeConfig username;
     };
   };
 }
