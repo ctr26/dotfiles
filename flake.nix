@@ -148,7 +148,8 @@
           echo "🖥️  Deploying NixOS configuration for host: $HOSTNAME..."
           
           # Determine flake reference (local vs remote)
-          if [ -f "./flake.nix" ]; then
+          # When run via nix run github:..., we should always use the remote reference
+          if [ -f "./flake.nix" ] && [ -d "./dot_config" ]; then
             FLAKE_REF="."
             echo "📁 Using local flake"
           else

@@ -62,7 +62,7 @@ sudo nixos-rebuild switch --flake .#nixos
 git clone https://github.com/ctr26/dotfiles.git ~/dotfiles && cd ~/dotfiles && make deploy-system
 
 # Using nix run (no clone needed)
-sudo nix run github:ctr26/dotfiles#deploy-system
+sudo NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-system
 ```
 
 ### 🏠 Home Manager (Any Linux)
