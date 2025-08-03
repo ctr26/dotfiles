@@ -58,9 +58,16 @@ NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-w
 NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home -- --backup-extension backup
 ```
 
-**Enable system services (Docker, SSH, etc.):**
+**Add Docker to existing NixOS system:**
+```nix
+# Add to your /etc/nixos/configuration.nix:
+virtualisation.docker.enable = true;
+users.users.yourusername.extraGroups = [ "docker" ];
+environment.systemPackages = with pkgs; [ docker-compose ];
+```
+
+**Or use our services deployment:**
 ```bash
-# Minimal system configuration - just the services that need sudo
 sudo NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-services
 ```
 
