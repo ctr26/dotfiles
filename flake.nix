@@ -206,6 +206,33 @@
         '');
       };
 
+      # Build system configuration only (for containers/WSL)
+      build-system = {
+        type = "app";
+        program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "build-system" ''
+          set -e
+          HOSTNAME=''${1:-nixos}
+          echo "🔨 Building NixOS configuration for host: $HOSTNAME..."
+          
+          # Determine flake reference (local vs remote)
+          if [ -f "./flake.nix" ] && [ -d "./dot_config" ]; then
+            FLAKE_REF="."
+            echo "📁 Using local flake"
+          else
+            FLAKE_REF="github:ctr26/dotfiles"
+            echo "🌐 Using remote flake: $FLAKE_REF"
+          fi
+          
+          # Build only, don't activate
+          echo "🔨 Building configuration (no activation)..."
+          nix build "$FLAKE_REF#nixosConfigurations.$HOSTNAME.config.system.build.toplevel" --show-trace
+          
+          echo "✅ System configuration built successfully!"
+          echo "💡 This validates your configuration without activating it."
+          echo "🏗️  Perfect for containers, WSL, or testing environments."
+        '');
+      };
+
       # Update flake inputs
       update = {
         type = "app";
