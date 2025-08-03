@@ -163,13 +163,12 @@
             sudo nixos-rebuild switch --flake "$FLAKE_REF#$HOSTNAME" --impure
           else
             echo "⚠️  No hardware configuration found, using stub configuration"
-            echo "💡 Testing deployment - skipping bootloader to avoid mount issues"
-            sudo nixos-rebuild test --flake "$FLAKE_REF#$HOSTNAME"
+            echo "💡 Using 'boot' mode to avoid bootloader issues in VMs"
+            sudo nixos-rebuild boot --flake "$FLAKE_REF#$HOSTNAME"
             echo ""
-            echo "✅ Test deployment successful! To make permanent, run:"
-            echo "   sudo nixos-rebuild switch --flake $FLAKE_REF#$HOSTNAME"
-            echo ""
-            echo "⚠️  Note: Used 'test' mode to avoid bootloader issues in VMs"
+            echo "✅ Configuration deployed! Changes will persist after reboot."
+            echo "🔄 To activate immediately without reboot, run:"
+            echo "   sudo nixos-rebuild test --flake $FLAKE_REF#$HOSTNAME"
           fi
           
           echo "✅ System configuration deployed!"
