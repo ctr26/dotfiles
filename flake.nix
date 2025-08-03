@@ -34,6 +34,23 @@
       ];
     };
     
+    # Function to create a minimal services-only configuration  
+    mkServicesConfig = username: nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit username; };
+      modules = [
+        ./dot_config/nix/services.nix
+        {
+          # Add user to docker group
+          users.extraGroups.docker.members = [ username ];
+          
+          # Minimal system settings
+          system.stateVersion = "24.05";
+          nix.settings.experimental-features = [ "nix-command" "flakes" ];
+        }
+      ];
+    };
+    
     # Function to create a standalone home-manager configuration
     mkHomeConfig = username: home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -54,6 +71,11 @@
       
       # Specific user configurations (examples)
       nixos-ctr26 = mkNixosConfig "ctr26";
+      
+      # Minimal services-only configurations (Docker, SSH, etc.)
+      services = mkServicesConfig defaultUsername;
+      services-ctr26 = mkServicesConfig "ctr26";
+      services-nixos = mkServicesConfig "nixos";
       
       # Users can add more configurations here
     };
@@ -230,6 +252,35 @@
           echo "✅ System configuration built successfully!"
           echo "💡 This validates your configuration without activating it."
           echo "🏗️  Perfect for containers, WSL, or testing environments."
+        '');
+      };
+
+      # Deploy minimal services (Docker, SSH, etc.)
+      deploy-services = {
+        type = "app";
+        program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-services" ''
+          set -e
+          USERNAME=''${1:-$USER}
+          echo "🔧 Deploying minimal system services for user: $USERNAME..."
+          
+          # Determine flake reference (local vs remote)
+          if [ -f "./flake.nix" ] && [ -d "./dot_config" ]; then
+            FLAKE_REF="."
+            echo "📁 Using local flake"
+          else
+            FLAKE_REF="github:ctr26/dotfiles"
+            echo "🌐 Using remote flake: $FLAKE_REF"
+          fi
+          
+          # Deploy services configuration
+          echo "🐳 Enabling Docker and essential services..."
+          sudo nixos-rebuild switch --flake "$FLAKE_REF#services-$USERNAME" || {
+            echo "⚠️  No specific services config for $USERNAME, using default..."
+            sudo nixos-rebuild switch --flake "$FLAKE_REF#services"
+          }
+          
+          echo "✅ Services deployed! Docker and other system services are now available."
+          echo "💡 You may need to log out and back in for group changes to take effect."
         '');
       };
 

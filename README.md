@@ -58,6 +58,12 @@ NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-w
 NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home -- --backup-extension backup
 ```
 
+**Enable system services (Docker, SSH, etc.):**
+```bash
+# Minimal system configuration - just the services that need sudo
+sudo NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-services
+```
+
 **Full system configuration (optional, for advanced users):**
 ```bash
 git clone https://github.com/ctr26/dotfiles.git ~/dotfiles

@@ -12,8 +12,11 @@ help:
 	@echo "  make deploy-backup # Deploy with backup of existing files"
 	@echo "  make update        # Update chezmoi dotfiles and deps"
 	@echo ""
-	@echo "Advanced (system-level):"
-	@echo "  make deploy-system # Deploy full NixOS system (requires sudo)"
+	@echo "System services (Docker, SSH, etc.):"
+	@echo "  make deploy-services # Enable Docker and essential services (requires sudo)"
+	@echo ""
+	@echo "Advanced (full system):"
+	@echo "  make deploy-system   # Deploy full NixOS system (requires sudo)"
 	@echo ""
 	@echo "Testing:"
 	@echo "  make test          # Test NixOS deployment (default)"
@@ -50,6 +53,16 @@ deploy-backup:
 		echo "❌ Nix not found. This command only works on NixOS or systems with Nix installed."; \
 		echo "💡 To install on non-NixOS systems, use:"; \
 		echo "   curl -sSL https://raw.githubusercontent.com/ctr26/dotfiles/main/install.sh | bash"; \
+		exit 1; \
+	fi
+
+# Deploy minimal system services (Docker, SSH, etc.)
+deploy-services:
+	@echo "🔧 Deploying system services (Docker, SSH, etc.)..."
+	@if command -v nix >/dev/null 2>&1; then \
+		sudo NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-services; \
+	else \
+		echo "❌ Nix not found. This command only works on NixOS or systems with Nix installed."; \
 		exit 1; \
 	fi
 
