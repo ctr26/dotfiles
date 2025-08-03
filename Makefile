@@ -1,13 +1,17 @@
 # Dotfiles Testing Makefile
 
-.PHONY: test test-nixos test-ubuntu test-all clean help
+.PHONY: test test-nixos test-ubuntu test-all clean help deploy deploy-backup
 
 # Default target
 help:
-	@echo "🧪 Dotfiles Testing Commands"
-	@echo "============================"
+	@echo "🏠 Dotfiles Commands"
+	@echo "===================="
 	@echo ""
-	@echo "Quick Tests:"
+	@echo "Deployment:"
+	@echo "  make deploy        # Deploy to current NixOS system"
+	@echo "  make deploy-backup # Deploy with backup of existing files"
+	@echo ""
+	@echo "Testing:"
 	@echo "  make test          # Test NixOS deployment (default)"
 	@echo "  make test-nixos    # Test NixOS deployment"
 	@echo "  make test-ubuntu   # Test Ubuntu deployment"
@@ -20,6 +24,30 @@ help:
 	@echo "Manual:"
 	@echo "  vagrant up nixos   # Start NixOS VM"
 	@echo "  vagrant ssh nixos  # SSH into VM"
+
+# Deploy to current NixOS system
+deploy:
+	@echo "🚀 Deploying dotfiles to NixOS..."
+	@if command -v nix >/dev/null 2>&1; then \
+		NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home; \
+	else \
+		echo "❌ Nix not found. This command only works on NixOS or systems with Nix installed."; \
+		echo "💡 To install on non-NixOS systems, use:"; \
+		echo "   curl -sSL https://raw.githubusercontent.com/ctr26/dotfiles/main/install.sh | bash"; \
+		exit 1; \
+	fi
+
+# Deploy with backup of existing files
+deploy-backup:
+	@echo "🚀 Deploying dotfiles with backup..."
+	@if command -v nix >/dev/null 2>&1; then \
+		NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home -- --backup-extension backup; \
+	else \
+		echo "❌ Nix not found. This command only works on NixOS or systems with Nix installed."; \
+		echo "💡 To install on non-NixOS systems, use:"; \
+		echo "   curl -sSL https://raw.githubusercontent.com/ctr26/dotfiles/main/install.sh | bash"; \
+		exit 1; \
+	fi
 
 # Test NixOS deployment (default)
 test: test-nixos
