@@ -56,6 +56,11 @@ cd ~/dotfiles
 sudo nixos-rebuild switch --flake .#nixos
 ```
 
+**One-line deployment (NixOS only):**
+```bash
+git clone https://github.com/ctr26/dotfiles.git ~/dotfiles && cd ~/dotfiles && make deploy-system
+```
+
 ### 🏠 Home Manager (Any Linux)
 User environment only with Nix package manager:
 ```bash
