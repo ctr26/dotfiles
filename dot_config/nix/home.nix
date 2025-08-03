@@ -33,6 +33,8 @@
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;
+    withNodeJs = true;                # Enable Node.js support for plugins
+    withPython3 = true;               # Enable Python 3 support for plugins
   };
   
   # Terminal multiplexer (install only, no config)
@@ -75,6 +77,7 @@
     
     # Terminal utilities (packages only)
     tmux                  # Terminal multiplexer
+    ranger                # File manager with vim-like keybindings
     
     # Window management (if using X11/i3)
     i3                    # Window manager

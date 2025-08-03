@@ -1,6 +1,6 @@
 # Dotfiles Testing Makefile
 
-.PHONY: test test-nixos test-ubuntu test-all clean help deploy deploy-backup
+.PHONY: test test-nixos test-ubuntu test-all clean help deploy deploy-backup update
 
 # Default target
 help:
@@ -10,6 +10,7 @@ help:
 	@echo "Deployment:"
 	@echo "  make deploy        # Deploy to current NixOS system"
 	@echo "  make deploy-backup # Deploy with backup of existing files"
+	@echo "  make update        # Update chezmoi dotfiles and NixOS deps"
 	@echo ""
 	@echo "Testing:"
 	@echo "  make test          # Test NixOS deployment (default)"
@@ -47,6 +48,35 @@ deploy-backup:
 		echo "💡 To install on non-NixOS systems, use:"; \
 		echo "   curl -sSL https://raw.githubusercontent.com/ctr26/dotfiles/main/install.sh | bash"; \
 		exit 1; \
+	fi
+
+# Update both chezmoi dotfiles and NixOS dependencies
+update:
+	@echo "🔄 Updating dotfiles and dependencies..."
+	@echo ""
+	@echo "📦 Updating chezmoi dotfiles..."
+	@if command -v chezmoi >/dev/null 2>&1; then \
+		chezmoi update --apply; \
+		echo "✅ Chezmoi dotfiles updated"; \
+	else \
+		echo "⚠️  Chezmoi not installed, skipping dotfiles update"; \
+	fi
+	@echo ""
+	@echo "❄️  Updating NixOS flake inputs..."
+	@if command -v nix >/dev/null 2>&1; then \
+		if [ -f "./flake.nix" ]; then \
+			nix flake update; \
+			echo "✅ Flake inputs updated"; \
+			echo ""; \
+			echo "💡 To apply the updates, run:"; \
+			echo "   make deploy"; \
+		else \
+			echo "⚠️  No local flake.nix found"; \
+			echo "💡 Clone the repository first:"; \
+			echo "   git clone https://github.com/ctr26/dotfiles.git"; \
+		fi \
+	else \
+		echo "⚠️  Nix not installed, skipping flake update"; \
 	fi
 
 # Test NixOS deployment (default)
