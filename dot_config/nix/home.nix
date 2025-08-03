@@ -141,20 +141,23 @@
     # Set HOME explicitly to avoid any confusion
     export HOME="${config.home.homeDirectory}"
     
+    # Skip scripts during chezmoi apply to avoid circular dependencies
+    export CHEZMOI_SKIP_SCRIPTS=1
+    
     # Check if chezmoi is initialized
     if [ ! -d "$HOME/.local/share/chezmoi" ]; then
       echo "📦 Initializing chezmoi for the first time..."
       # Initialize without applying to avoid the username check issue
       ${pkgs.chezmoi}/bin/chezmoi init https://github.com/ctr26/dotfiles.git --apply=false
       
-      # Now apply with proper environment
+      # Now apply with proper environment, excluding scripts
       echo "🔄 Applying dotfiles..."
-      ${pkgs.chezmoi}/bin/chezmoi apply --force
+      ${pkgs.chezmoi}/bin/chezmoi apply --exclude=scripts --force
     else
       echo "🔄 Updating dotfiles..."
       # Update without the problematic script execution
       cd "$HOME/.local/share/chezmoi" && ${pkgs.git}/bin/git pull
-      ${pkgs.chezmoi}/bin/chezmoi apply --force
+      ${pkgs.chezmoi}/bin/chezmoi apply --exclude=scripts --force
     fi
     
     echo "✅ Chezmoi dotfiles applied successfully!"

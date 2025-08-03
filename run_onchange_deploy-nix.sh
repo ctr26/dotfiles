@@ -3,6 +3,13 @@
 # This script deploys NixOS/Home Manager configurations when they change
 # It only runs when the nix configuration files are modified
 
+# Skip this script when running through home-manager deployment
+# to avoid circular dependencies
+if [ -n "$IN_NIX_SHELL" ] || [ -n "$__HM_SESS_VARS_SOURCED" ]; then
+    echo "Skipping NixOS deployment (already in Nix environment)"
+    exit 0
+fi
+
 set -e
 
 # Colors for output
