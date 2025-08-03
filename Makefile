@@ -1,6 +1,6 @@
 # Dotfiles Testing Makefile
 
-.PHONY: test test-nixos test-ubuntu test-all clean help deploy deploy-backup update
+.PHONY: test test-nixos test-ubuntu test-all clean help deploy deploy-backup update deploy-system
 
 # Default target
 help:
@@ -8,8 +8,9 @@ help:
 	@echo "===================="
 	@echo ""
 	@echo "Deployment:"
-	@echo "  make deploy        # Deploy to current NixOS system"
+	@echo "  make deploy        # Deploy home-manager (user only)"
 	@echo "  make deploy-backup # Deploy with backup of existing files"
+	@echo "  make deploy-system # Deploy full NixOS system (requires sudo)"
 	@echo "  make update        # Update chezmoi dotfiles and NixOS deps"
 	@echo ""
 	@echo "Testing:"
@@ -47,6 +48,30 @@ deploy-backup:
 		echo "❌ Nix not found. This command only works on NixOS or systems with Nix installed."; \
 		echo "💡 To install on non-NixOS systems, use:"; \
 		echo "   curl -sSL https://raw.githubusercontent.com/ctr26/dotfiles/main/install.sh | bash"; \
+		exit 1; \
+	fi
+
+# Deploy full NixOS system configuration (requires sudo)
+deploy-system:
+	@echo "🖥️  Deploying full NixOS system configuration..."
+	@if [ -f /etc/nixos/configuration.nix ]; then \
+		if [ -f "./flake.nix" ]; then \
+			echo "📋 Using local flake configuration"; \
+			sudo nixos-rebuild switch --flake .#nixos-$$USER; \
+			if [ $$? -ne 0 ]; then \
+				echo "⚠️  No specific configuration for $$USER, trying default..."; \
+				sudo nixos-rebuild switch --flake .#nixos; \
+			fi \
+		else \
+			echo "❌ No flake.nix found in current directory"; \
+			echo "💡 Clone the repository first:"; \
+			echo "   git clone https://github.com/ctr26/dotfiles.git ~/dotfiles"; \
+			echo "   cd ~/dotfiles && make deploy-system"; \
+			exit 1; \
+		fi \
+	else \
+		echo "❌ This command only works on NixOS systems"; \
+		echo "💡 For non-NixOS systems, use 'make deploy' for home-manager only"; \
 		exit 1; \
 	fi
 
