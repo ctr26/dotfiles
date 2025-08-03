@@ -61,8 +61,11 @@ sudo nixos-rebuild switch --flake .#nixos
 # Using Makefile (requires git clone)
 git clone https://github.com/ctr26/dotfiles.git ~/dotfiles && cd ~/dotfiles && make deploy-system
 
-# Using nix run (no clone needed)
+# Using nix run (no clone needed) - Test mode for VMs
 sudo NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-system
+
+# For permanent deployment (may fail in VMs due to bootloader)
+sudo NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-switch
 ```
 
 ### 🏠 Home Manager (Any Linux)

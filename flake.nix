@@ -163,10 +163,47 @@
             sudo nixos-rebuild switch --flake "$FLAKE_REF#$HOSTNAME" --impure
           else
             echo "⚠️  No hardware configuration found, using stub configuration"
-            sudo nixos-rebuild switch --flake "$FLAKE_REF#$HOSTNAME"
+            echo "💡 Testing deployment - skipping bootloader to avoid mount issues"
+            sudo nixos-rebuild test --flake "$FLAKE_REF#$HOSTNAME"
+            echo ""
+            echo "✅ Test deployment successful! To make permanent, run:"
+            echo "   sudo nixos-rebuild switch --flake $FLAKE_REF#$HOSTNAME"
+            echo ""
+            echo "⚠️  Note: Used 'test' mode to avoid bootloader issues in VMs"
           fi
           
           echo "✅ System configuration deployed!"
+        '');
+      };
+
+      # Deploy system with switch (permanent, may fail on VMs)
+      deploy-switch = {
+        type = "app";
+        program = toString (nixpkgs.legacyPackages.x86_64-linux.writeShellScript "deploy-switch" ''
+          set -e
+          HOSTNAME=''${1:-nixos}
+          echo "🖥️  Deploying NixOS configuration (PERMANENT) for host: $HOSTNAME..."
+          
+          # Determine flake reference (local vs remote)
+          if [ -f "./flake.nix" ] && [ -d "./dot_config" ]; then
+            FLAKE_REF="."
+            echo "📁 Using local flake"
+          else
+            FLAKE_REF="github:ctr26/dotfiles"
+            echo "🌐 Using remote flake: $FLAKE_REF"
+          fi
+          
+          # Always use switch mode (permanent)
+          if [ -f "/etc/nixos/hardware-configuration.nix" ]; then
+            echo "📋 Found system hardware configuration"
+            sudo nixos-rebuild switch --flake "$FLAKE_REF#$HOSTNAME" --impure
+          else
+            echo "⚠️  No hardware configuration found, using stub configuration"
+            echo "⚠️  WARNING: This may fail due to bootloader issues in VMs"
+            sudo nixos-rebuild switch --flake "$FLAKE_REF#$HOSTNAME"
+          fi
+          
+          echo "✅ System configuration deployed permanently!"
         '');
       };
 
