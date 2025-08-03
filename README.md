@@ -7,8 +7,8 @@ A modern dotfiles repository with dual management systems for maximum flexibilit
 ### NixOS Users
 If you don't have git installed yet:
 ```bash
-# Install git, chezmoi, and python3 temporarily
-nix-shell -p git chezmoi python3
+# Install git, chezmoi, python3, and make temporarily
+nix-shell -p git chezmoi python3 gnumake
 ```
 
 Then proceed with installation:

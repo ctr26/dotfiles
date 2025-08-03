@@ -63,6 +63,7 @@
     # Development tools (packages only)
     git                   # Version control
     gh                    # GitHub CLI
+    gnumake               # Build automation tool
     docker                # Container runtime
     docker-compose        # Container orchestration
     
