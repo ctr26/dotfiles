@@ -147,19 +147,22 @@
           HOSTNAME=''${1:-nixos}
           echo "🖥️  Deploying NixOS configuration for host: $HOSTNAME..."
           
-          # Check if we're in the dotfiles directory
+          # Determine flake reference (local vs remote)
           if [ -f "./flake.nix" ]; then
-            # Local deployment - copy hardware configuration if it exists
-            if [ -f "/etc/nixos/hardware-configuration.nix" ]; then
-              echo "📋 Found system hardware configuration"
-              sudo nixos-rebuild switch --flake .#$HOSTNAME --impure
-            else
-              echo "⚠️  No hardware configuration found, using stub configuration"
-              sudo nixos-rebuild switch --flake .#$HOSTNAME
-            fi
+            FLAKE_REF="."
+            echo "📁 Using local flake"
           else
-            echo "❌ Please run from the dotfiles directory"
-            exit 1
+            FLAKE_REF="github:ctr26/dotfiles"
+            echo "🌐 Using remote flake: $FLAKE_REF"
+          fi
+          
+          # Deploy with hardware configuration detection
+          if [ -f "/etc/nixos/hardware-configuration.nix" ]; then
+            echo "📋 Found system hardware configuration"
+            sudo nixos-rebuild switch --flake "$FLAKE_REF#$HOSTNAME" --impure
+          else
+            echo "⚠️  No hardware configuration found, using stub configuration"
+            sudo nixos-rebuild switch --flake "$FLAKE_REF#$HOSTNAME"
           fi
           
           echo "✅ System configuration deployed!"

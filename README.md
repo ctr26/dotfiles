@@ -58,7 +58,11 @@ sudo nixos-rebuild switch --flake .#nixos
 
 **One-line deployment (NixOS only):**
 ```bash
+# Using Makefile (requires git clone)
 git clone https://github.com/ctr26/dotfiles.git ~/dotfiles && cd ~/dotfiles && make deploy-system
+
+# Using nix run (no clone needed)
+sudo nix run github:ctr26/dotfiles#deploy-system
 ```
 
 ### 🏠 Home Manager (Any Linux)
