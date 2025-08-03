@@ -4,28 +4,26 @@ A modern dotfiles repository with dual management systems for maximum flexibilit
 
 ## 🚀 Quick Install
 
-### NixOS Users
-If you don't have git installed yet:
+### One-Line Install (Recommended)
+Works on any system with Nix:
+```bash
+NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home
+```
+
+### With Backup (Existing Systems)
+If you have existing dotfiles:
+```bash
+NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home -- --backup-extension backup
+```
+
+### Traditional Install (NixOS)
+If you prefer the traditional approach:
 ```bash
 # Install git, chezmoi, python3, and make temporarily
 nix-shell -p git chezmoi python3 gnumake
-```
 
-Then proceed with installation:
-```bash
+# Then proceed with chezmoi
 chezmoi init --apply ctr26/dotfiles
-```
-
-**Or use Home Manager directly (requires flakes):**
-```bash
-# Temporary flakes (no config files written, always get latest)
-NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home
-
-# With automatic backup of existing files (recommended for existing systems)
-NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home -- --backup-extension backup
-
-# Or permanently enable flakes, then deploy
-mkdir -p ~/.config/nix && echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf && nix run github:ctr26/dotfiles#deploy-home
 ```
 
 ### All Other Systems
@@ -49,25 +47,23 @@ This script automatically detects your system and chooses the best installation 
 ## 🎯 Deployment Options
 
 ### 🐧 NixOS (Recommended)
-Full system configuration with declarative package management:
+User environment with Home Manager:
+```bash
+# One-line deployment (works anywhere with Nix)
+NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home
+```
+
+**With backup of existing files:**
+```bash
+NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-home -- --backup-extension backup
+```
+
+**Full system configuration (optional, for advanced users):**
 ```bash
 git clone https://github.com/ctr26/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 sudo nixos-rebuild switch --flake .#nixos
 ```
-
-**One-line deployment (NixOS only):**
-```bash
-# Using Makefile (requires git clone)
-git clone https://github.com/ctr26/dotfiles.git ~/dotfiles && cd ~/dotfiles && make deploy-system
-
-# Using nix run (no clone needed) - Works for both VMs and hardware
-sudo NIX_CONFIG="experimental-features = nix-command flakes" nix run --refresh --no-write-lock-file github:ctr26/dotfiles#deploy-system
-```
-
-**Advanced deployment modes:**
-- `deploy-system`: Smart deployment (boot mode for VMs, switch for hardware)
-- `deploy-switch`: Force switch mode (may fail in VMs due to bootloader issues)
 
 ### 🏠 Home Manager (Any Linux)
 User environment only with Nix package manager:
