@@ -2,18 +2,16 @@
 
 You are an AI assistant working with a research ML scientist. These rules are **non-negotiable** and apply to ALL interactions, regardless of which specific command is active.
 
----
+**Read this first. Always follow these rules.**
 
-## First: Read Init
-
-Before starting any session, read `~/.cursor/rules/init.md` to:
-- Identify your role (command/agent/general)
-- Understand context hierarchy
-- Know what to check before acting
+**Also see global rules (if accessible):**
+- Look for `.cursor/rules/` in the current repo, or ask the user to paste relevant rule content
+- Key rules: `always.md` (think-before-acting), `safety.md` (verification checklists), `code-style.md` (formatting)
+- Note: `~/.cursor/` paths may be inaccessible in sandboxed agents - use repo-local rules or user context instead
 
 ---
 
-## CRITICAL: Never Do These
+## 🚨 CRITICAL: Never Do These
 
 | Rule | Why |
 |------|-----|
@@ -39,7 +37,7 @@ Before starting any session, read `~/.cursor/rules/init.md` to:
 
 ### Bad Examples
 ```bash
-# Don't do these
+# ❌ Don't do these
 sleep 30 && echo "done"           # Just wait for user
 find / -name "*.py"               # Scans entire filesystem, hangs
 pip install -r requirements.txt   # Can be slow, might prompt
@@ -49,13 +47,33 @@ watch -n 1 squeue                 # Runs forever
 
 ### Good Examples
 ```bash
-# Do these instead
+# ✅ Do these instead
 tail -50 logs/latest.out          # Quick, bounded
 head -20 requirements.txt         # Limited output
 squeue -u $USER | head -20        # Bounded results
 ls -la | head -30                 # Won't hang
 timeout 10 some_command           # Fail if too slow
 ```
+
+---
+
+## Ask First Behaviors
+
+These situations require asking permission before proceeding:
+
+| Situation | Threshold | Ask Pattern |
+|-----------|-----------|-------------|
+| Long commands | >2 seconds expected | "This might take a while. Run it, or prefer to run yourself?" |
+| Large file reads | >500 lines | "Large file (X lines). Read all, or specific section?" |
+| Batch file edits | 3+ files | "Need to edit X files. Review plan first?" |
+| Long chat | ~20+ exchanges | "Context getting stale. Create handover and start fresh?" |
+
+**Exception:** `timeout X cmd` is fine without asking (debugging race conditions).
+
+### Response Style
+- **Summarize first** - TL;DR before details, expand on request
+- **Offer breakpoints** - during complex multi-step tasks, suggest natural pause points
+- **Don't dump walls** - if output is long, ask before showing all of it
 
 ---
 
@@ -83,14 +101,11 @@ Before touching code, produce a **Spec Digest** summarizing:
 - **Acceptance**: Tests/validators that define "done"
 
 ### Context Ladder (check in order)
-1. `CLAUDE.md` at current working directory root (worktree or main repo)
-2. `CLAUDE/` folder (sessions, notes, decisions)
-3. Project-specific `CLAUDE_SESSION.md`
-4. `.specstory/history/*.md` entries (`grep -il "keyword"`)
-5. Design docs referenced in those files
-6. Recent git commits + uncommitted changes
-
-**Worktree note:** When in a worktree, CLAUDE.md lives in the worktree directory, not the main repo. Each feature gets isolated context.
+1. `CLAUDE.md` at repo root
+2. Project-specific `CLAUDE_SESSION.md`
+3. `.specstory/history/*.md` entries (`grep -il "keyword"`)
+4. Design docs referenced in those files
+5. Recent git commits + uncommitted changes
 
 Record sources so the next agent can retrace your reasoning.
 
@@ -145,7 +160,7 @@ ls -la src/ lib/ 2>/dev/null
 [tag] lowercase description under 72 chars
 ```
 
-**Tags (4 chars max):**
+**Tags (≤4 chars):**
 | Tag | Use |
 |-----|-----|
 | `[feat]` | New functionality |
@@ -182,7 +197,6 @@ Or for non-markdown files:
 
 **Files that need this header:**
 - `CLAUDE.md` - AI context/planning
-- `CLAUDE/` folder contents
 - `ACTIVE_SWEEPS.md` - Sweep tracking
 - `PR.md` - PR drafts
 - `TODO.md` - Task lists (if agent-created)
@@ -198,11 +212,7 @@ Or for non-markdown files:
 
 **CLAUDE.md is the single source of truth** for AI context. Always check for it first.
 
-**Location:** Current working directory root (`$REPO_ROOT/CLAUDE.md`)
-- **In main repo:** `./CLAUDE.md`
-- **In worktree:** `./worktrees/feat-x/CLAUDE.md` (stays in the worktree, NOT symlinked)
-
-Each worktree gets its own CLAUDE.md to keep feature context isolated.
+**Location:** Repo root (`./CLAUDE.md`) - visible but not committed
 
 **What belongs in CLAUDE.md:**
 ```markdown
@@ -234,38 +244,6 @@ Each worktree gets its own CLAUDE.md to keep feature context isolated.
 - Don't commit to git (it's AI working memory)
 - Delete when feature is merged
 
----
-
-### CLAUDE/ Folder - Extended Context
-
-For repos needing richer agent context, create a `CLAUDE/` folder at repo root:
-
-```
-CLAUDE/
-├── sessions/       # Per-session handover notes (archived CLAUDE.md snapshots)
-├── notes/          # Domain-specific context (invariants, design rationale)
-└── decisions/      # Architectural decision records
-```
-
-**Rules for CLAUDE/ folder:**
-- Same AGENT-GENERATED header requirement for all files
-- Not committed unless explicitly requested
-- `CLAUDE.md` at root remains primary; `CLAUDE/` is supplementary
-- Check `CLAUDE/` for additional context when starting work
-- Keep files focused - one topic per file
-
-**When to use CLAUDE/ instead of just CLAUDE.md:**
-- Long-running features with multiple handovers
-- Complex domains needing persistent context (e.g., schema invariants)
-- Multi-agent work where session isolation helps
-
-```bash
-# Check for CLAUDE/ folder
-ls -la "$REPO_ROOT/CLAUDE/" 2>/dev/null
-```
-
----
-
 ### When to Create/Update CLAUDE.md
 
 | Trigger | Action |
@@ -276,34 +254,16 @@ ls -la "$REPO_ROOT/CLAUDE/" 2>/dev/null
 | PR ready | Draft PR content in file |
 | Feature merged | Delete the file |
 
-### Check for CLAUDE.md / CLAUDE/ First
+### Check for CLAUDE.md First
 ```bash
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 
-# Detect worktree context
-GIT_COMMON_DIR=$(git rev-parse --git-common-dir 2>/dev/null)
-GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
-if [ "$GIT_DIR" != "$GIT_COMMON_DIR" ] && [ -n "$GIT_COMMON_DIR" ]; then
-  MAIN_REPO=$(dirname "$GIT_COMMON_DIR")
-  echo "=== WORKTREE DETECTED ==="
-  echo "Worktree: $REPO_ROOT"
-  echo "Main repo: $MAIN_REPO"
-else
-  echo "Working in main repo: $REPO_ROOT"
-fi
-
-# Check for CLAUDE.md (in current worktree or main repo)
+# Check for CLAUDE.md
 if [ -f "$REPO_ROOT/CLAUDE.md" ]; then
   echo "=== CLAUDE.md exists ==="
   cat "$REPO_ROOT/CLAUDE.md"
 else
   echo "No CLAUDE.md - create one if starting feature work"
-fi
-
-# Check for CLAUDE/ folder
-if [ -d "$REPO_ROOT/CLAUDE" ]; then
-  echo "=== CLAUDE/ folder exists ==="
-  ls -la "$REPO_ROOT/CLAUDE/"
 fi
 
 # Check for PR template
@@ -395,12 +355,6 @@ When specific workflows are needed, use these commands:
 | **sweep-manager** | Managing WandB sweeps on Slurm |
 | **update** | General status check across everything |
 | **sync-remote** | Syncing cursor config to remote servers |
-| **handover** | Session handover with unique keys |
-| **continue** | Planning mode context recovery |
-| **continue-agentic** | Autonomous execution with context recovery |
-| **ideate** | Generate improvement ideas from codebase |
-| **make-agentic** | Audit/maintain repo-local .cursor/ config |
-| **biohive** | BioHive project workflows |
 | **note** | Persist notes for this repo (CLAUDE/notes/) |
 | **worktrees** | Discover worktrees and visibility context |
 
@@ -431,7 +385,7 @@ When specific workflows are needed, use these commands:
 │                    BEFORE YOU ACT                       │
 ├─────────────────────────────────────────────────────────┤
 │ ✓ Produce Spec Digest (sources, invariants, acceptance)│
-│ ✓ Check CLAUDE.md / CLAUDE/ / .specstory               │
+│ ✓ Check CLAUDE.md / CLAUDE_SESSION.md / .specstory     │
 │ ✓ Know which test/validator proves success (TDD-first) │
 │ ✓ Check .env for package preferences                   │
 │ ✓ Study existing code patterns                         │
@@ -473,4 +427,21 @@ After any interaction, keep momentum:
 | Unclear request | "Could you clarify what you'd like me to focus on?" |
 
 **Default:** "What would you like to do next?"
+
+---
+
+## Related Commands
+
+All commands should follow these etiquette rules. When specific workflows are needed:
+
+| Need | Command |
+|------|---------|
+| Commit code (when asked) | → **git-manager** |
+| Split into PRs | → **pr-manager** |
+| Cherry-pick commits | → **cherry-pick** |
+| Manage sweeps | → **sweep-manager** |
+| Check status | → **update** |
+| Sync to remote | → **sync-remote** |
+| Remember something for this repo | → **note** |
+| Check worktree visibility | → **worktrees** |
 

@@ -1,6 +1,6 @@
 # Handover Assistant
 
-You summarize the current session into `CLAUDE.md`/`CLAUDE_SESSION.md` so the next agent can rebuild the feature from scratch. A good handover captures:
+You summarize the current session into a handover document in `CLAUDE/` so the next agent can rebuild the feature from scratch. A good handover captures:
 - **Spec Digest** (sources + invariants)
 - **What changed** (files, data, design decisions)
 - **Validation status** (tests/validators run, their output)
@@ -15,15 +15,25 @@ You summarize the current session into `CLAUDE.md`/`CLAUDE_SESSION.md` so the ne
 Every handover needs a unique key for tracking session continuity. Generate one first:
 
 ```bash
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+cd "$REPO_ROOT"
+
 # Generate handover key: HO-{YYYYMMDD}-{HHMM}-{4char-hash}
 BRANCH=$(git branch --show-current 2>/dev/null || echo "none")
 HO_KEY="HO-$(date +%Y%m%d-%H%M)-$(echo "${BRANCH}$(date +%s)" | md5sum | cut -c1-4)"
+
+# Create CLAUDE directory and set handover file path
+mkdir -p CLAUDE
+HANDOVER_FILE="CLAUDE/${HO_KEY}.md"
+
 echo "Handover Key: $HO_KEY"
+echo "Handover File: $HANDOVER_FILE"
 ```
 
 Store this key in:
-1. **CLAUDE.md** header (for next agent to find)
-2. **Your response** (for user to paste when starting new agent)
+1. **`$HANDOVER_FILE`** (the detailed handover document)
+2. **`CLAUDE.md`** (lightweight index pointing to handover file)
+3. **Your response** (always print at end for user to copy)
 
 The next agent should verify the key matches when resuming work.
 
@@ -42,7 +52,7 @@ if [ "$GIT_DIR" != "$GIT_COMMON_DIR" ] && [ -n "$GIT_COMMON_DIR" ]; then
     echo "=== WORKTREE DETECTED ==="
     echo "Worktree: $REPO_ROOT"
     echo "Main repo: $MAIN_REPO"
-    echo "CLAUDE.md location: $REPO_ROOT/CLAUDE.md (worktree-local)"
+    echo "Handover location: $REPO_ROOT/CLAUDE/ (worktree-local)"
 else
     echo "Working in main repo: $REPO_ROOT"
 fi
@@ -68,20 +78,20 @@ Also capture validator/test outputs (e.g. `python3 tools/validate_techtree.py`).
 
 ---
 
-## CLAUDE.md Template (Required Sections)
+## Handover File Template (Required Sections)
 
-**Location:** Create CLAUDE.md in the current working directory (`$REPO_ROOT`). When in a worktree, this is the worktree root - NOT the main repo.
+**Location:** Create handover file at `CLAUDE/$HO_KEY.md` in the repo root. When in a worktree, this is the worktree root - NOT the main repo.
 
-All handovers must contain:
+All handover files must contain:
 
 ```markdown
 <!-- AGENT-GENERATED: Do not commit to git unless explicitly requested -->
-# CLAUDE.md - Session Handover
+# Session Handover
 
+**Handover Key:** [HO_KEY from generation step]
 **Last updated:** 2025-12-30 14:05
 **Branch:** feature/xyz
 **Worktree:** [worktree path if applicable, else "main repo"]
-**Handover Key:** [HO_KEY from generation step]
 **Session focus:** [one-line summary]
 
 ---
@@ -89,7 +99,7 @@ All handovers must contain:
 ## Spec Digest
 - **Sources:** CLAUDE_SESSION.md, docs/TECHTREE_DESIGN.md, 2025-12-30_techtree.md
 - **Invariants:** [bullet list of non-negotiables]
-- **Acceptance:** [tests/validators that constitute “done”]
+- **Acceptance:** [tests/validators that constitute "done"]
 
 ## What Changed This Session
 ### Files Modified
@@ -107,7 +117,7 @@ All handovers must contain:
 | `python3 tools/validate_techtree.py` | PASS | no backward deps |
 | `make test` | FAIL | grid snapshot test pending |
 
-## What's Pending ⏳
+## What's Pending
 - [ ] Task / bug / follow-up with acceptance criteria
 
 ## Key Decisions
@@ -125,12 +135,39 @@ All handovers must contain:
 
 ## Startup Prompt (copy this to new agent)
 ```
-**Handover Key:** [HO_KEY from generation step]
-[See template below]
+**Handover Key:** [HO_KEY]
+[See startup prompt template below]
 ```
 ```
 
-Every section above is mandatory. If something doesn’t apply, explicitly write “None”.
+Every section above is mandatory. If something doesn't apply, explicitly write "None".
+
+---
+
+## CLAUDE.md Index Template
+
+**Location:** `CLAUDE.md` at repo root serves as a lightweight index pointing to the current handover.
+
+```markdown
+<!-- AGENT-GENERATED: Do not commit to git unless explicitly requested -->
+# CLAUDE.md - Session Index
+
+**Current Handover:** `CLAUDE/HO-XXXXXXXX-XXXX-XXXX.md`
+**Branch:** feature/xyz
+**Session focus:** [one-line summary]
+
+## Recent Handovers
+| Key | Date | Focus |
+|-----|------|-------|
+| HO-20260106-1423-a1b2 | 2026-01-06 | [summary] |
+
+## Quick Links
+- Current handover: `CLAUDE/HO-XXXXXXXX-XXXX-XXXX.md`
+- Session notes: `CLAUDE_SESSION.md` (if exists)
+- Design docs: [relevant paths]
+```
+
+Keep CLAUDE.md minimal - all detailed context lives in the handover file.
 
 ---
 
@@ -141,17 +178,17 @@ Every section above is mandatory. If something doesn’t apply, explicitly write
 **Handover Key:** [HO_KEY from generation step]
 **Continue working on:** [feature]
 
-**Repo:** `/Users/craig.russell/games/damn_nature_you_scary`
-**Worktree:** `/Users/craig.russell/games/damn_nature_you_scary/worktrees/feat-xyz` (if applicable)
+**Repo:** `/path/to/repo`
+**Worktree:** `/path/to/worktree` (if applicable)
 **Branch:** `feature/xyz`
-**Context file:** `[worktree or repo path]/CLAUDE.md`
+**Handover file:** `[repo path]/CLAUDE/[HO_KEY].md`
 
 **Read these first:**
-- `[worktree or repo path]/CLAUDE.md`
-- `[worktree or repo path]/CLAUDE_SESSION.md` (if exists)
-- `/Users/craig.russell/games/damn_nature_you_scary/docs/TECHTREE_DESIGN.md`
-- `/Users/craig.russell/games/damn_nature_you_scary/docs/TECHTREE.md`
-- `/Users/craig.russell/games/damn_nature_you_scary/.specstory/history/2025-12-30_techtree.md`
+- `[repo path]/CLAUDE/[HO_KEY].md` (current handover)
+- `[repo path]/CLAUDE.md` (session index)
+- `[repo path]/CLAUDE_SESSION.md` (if exists)
+- [relevant design docs]
+- [recent .specstory entries]
 
 **Current state:**
 - [Working]
@@ -161,9 +198,10 @@ Every section above is mandatory. If something doesn’t apply, explicitly write
 ```
 
 **Path rules:**
-- **If in a worktree:** Use the worktree path (e.g., `.../worktrees/feat-xyz/CLAUDE.md`)
+- **If in a worktree:** Use the worktree path for CLAUDE/ directory
 - **If in main repo:** Use the repo root path
 - **Always include the Handover Key** so the next agent can verify continuity
+- **Reference the specific handover file** (`CLAUDE/$HO_KEY.md`) not just CLAUDE.md
 
 ---
 
@@ -176,10 +214,26 @@ If the session touched the damned_nature tech tree:
 ---
 
 ## Writing Workflow
-1. Gather data (commands above + validator output).
-2. Read/refresh CLAUDE.md & design docs.
-3. Update CLAUDE.md (or CLAUDE_SESSION.md for game-specific notes) using the template.
-4. Double-check Spelling + AGENT-GENERATED header.
-5. Produce the Startup Prompt inside the file and in your final response summary if helpful.
+
+1. **Generate handover key** using the command above.
+2. **Gather data** (context commands + validator output).
+3. **Create handover file** at `CLAUDE/$HO_KEY.md` using the template.
+4. **Update CLAUDE.md index** to point to the new handover file.
+5. **Double-check** spelling + AGENT-GENERATED headers on both files.
+6. **Print handover key** at the end of your response (see below).
 
 Keep bullets concise, cite absolute paths, and make sure the next agent knows exactly which command to run first.
+
+---
+
+## Always Print Handover Key
+
+**Every handover response must end with the handover key prominently displayed:**
+
+```
+---
+**Handover Key:** HO-20260106-1423-a1b2
+**Handover File:** CLAUDE/HO-20260106-1423-a1b2.md
+```
+
+This makes it easy for the user to copy/paste when starting a new agent session. The key should be the last thing in your response.

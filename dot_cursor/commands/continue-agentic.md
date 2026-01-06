@@ -62,13 +62,13 @@ Trigger words: `techtree`, `tech tree`, `phylogeny`, `clade`, `era lane`, `arrow
 
 When triggered:
 1. **Read** (in this order):
-   - `damn_nature_you_scary/CLAUDE_SESSION.md`
-   - `damn_nature_you_scary/docs/TECHTREE.md`
-   - `damn_nature_you_scary/docs/TECHTREE_DESIGN.md`
+   - `CLAUDE_SESSION.md` in project root
+   - `docs/TECHTREE.md`
+   - `docs/TECHTREE_DESIGN.md`
    - Latest `.specstory/history/*techtree*.md`
 2. **Validation gate (run before coding):**
    ```bash
-   cd /Users/craig.russell/games/damn_nature_you_scary
+   cd "$REPO_ROOT"
    python3 tools/validate_techtree.py
    python3 tools/validate_schemas.py
    ```

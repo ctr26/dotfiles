@@ -73,11 +73,30 @@ git add -p <file> && git commit -m "[tag] message"
 
 ## Branch Model
 
-This repo uses:
-- `trunk` - stable, production-ready code
+### Protected Branches (Never Push Directly)
+These are primary integration branches - commits go via PR/merge only:
+- `train` / `main` - stable, production-ready
 - `dev` - integration branch for features
 
-Feature branches merge to `dev`. Only `dev` merges to `trunk`.
+### Merge Strategy
+- **Remote branches** → merge (preserves history, easier collaboration)
+- **Local branches** → rebase (clean linear history)
+
+### Branch Purposes
+| Pattern | Purpose | Merges To |
+|---------|---------|-----------|
+| `feat/*`, `feature/*` | New functionality | dev |
+| `fix/*`, `bugfix/*` | Bug fixes | dev or main |
+| `exp/*`, `experiment/*` | Exploratory work | dev (if successful) |
+| `refactor/*` | Code restructuring | dev |
+
+Feature branches merge to `dev`. Only `dev` merges to `train`/`main`.
+
+### Before Committing
+Identify the merge target and verify:
+1. Which branch am I on?
+2. Where does this branch merge to?
+3. Is the merge path clear?
 
 ## Commit Message Format
 
@@ -177,6 +196,7 @@ git commit -m "[tag] message"
 ## Never Do
 
 - `git push` without explicit approval (especially force push)
+- Push directly to train/main/dev (use feature branches)
 - Combine unrelated changes
 - Use vague messages ("update", "fix stuff", "WIP")
 

@@ -1,421 +1,337 @@
 # Make Agentic
 
-You are an agentic workspace maintainer. This command audits and maintains the global `~/.cursor/` configuration that powers all agent sessions.
+You are an agentic workspace maintainer. This command audits and maintains the **repo-local** `.cursor/` configuration for the current repository.
 
 ---
 
 ## Session Scope
 
-This session is **config maintenance only**. Handle:
-- Auditing agentic components (agents, rules, commands)
-- Detecting missing, stale, or drifted configurations
-- Suggesting improvements based on usage patterns
-- Creating missing standard files (with confirmation)
+This session is **read-only planning first**. The workflow is:
+
+1. **Phase 1 (Default):** Gather state using read-only commands, produce a Health Report
+2. **Phase 2 (On request):** Apply fixes with confirmation per action
+
+**Never operate on global `~/.cursor/`** - this command is repo-specific only.
 
 **Redirect non-config tasks** to appropriate commands.
 
 ---
 
-## First: Health Check
+## Phase 1: Read-Only Audit
 
-Always start by gathering the current state:
+Always start with read-only commands to gather state. **Do not create or modify files in Phase 1.**
+
+### Establish Repo Context
 
 ```bash
-# Check core directories exist
-ls -la ~/.cursor/{agents,rules,commands}/ 2>/dev/null | head -40
+# Get repo root
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
 
-# Check for context file
-head -5 ~/.cursor/CLAUDE.md 2>/dev/null
+echo "=== Repo Context ==="
+echo "Repo root: $REPO_ROOT"
+echo "Cursor dir: $CURSOR_DIR"
+git branch --show-current 2>/dev/null && echo ""
+```
 
-# Count components
+### Check Core Directories
+
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
+
+echo "=== Directory Structure ==="
+if [ -d "$CURSOR_DIR" ]; then
+  ls -la "$CURSOR_DIR"/ 2>/dev/null | head -20
+else
+  echo "No .cursor/ directory found"
+fi
+
+echo ""
 echo "=== Component Counts ==="
-echo "Agents: $(ls ~/.cursor/agents/*.mdc 2>/dev/null | wc -l)"
-echo "Rules: $(ls ~/.cursor/rules/*.md 2>/dev/null | wc -l)"
-echo "Commands: $(ls ~/.cursor/commands/*.md 2>/dev/null | wc -l)"
+echo "Agents: $(ls "$CURSOR_DIR"/agents/*.mdc 2>/dev/null | wc -l | tr -d ' ')"
+echo "Rules: $(ls "$CURSOR_DIR"/rules/*.md 2>/dev/null | wc -l | tr -d ' ')"
+echo "Commands: $(ls "$CURSOR_DIR"/commands/*.md 2>/dev/null | wc -l | tr -d ' ')"
+```
+
+### Check for Context Files
+
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+
+echo "=== Context Files ==="
+for f in "$REPO_ROOT/CLAUDE.md" "$REPO_ROOT/CLAUDE_SESSION.md" "$REPO_ROOT/.cursor/feature.md"; do
+  if [ -f "$f" ]; then
+    echo "✓ $(basename $f)"
+    head -5 "$f" 2>/dev/null
+    echo "---"
+  fi
+done
 ```
 
 ---
 
-## Required Components
+## Recommended Components
 
-These must exist for a healthy agentic workspace:
+These are recommended for a healthy repo-local agentic workspace:
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| Etiquette | `rules/etiquette.md` | Source of truth for all agent behavior |
-| Safety rules | `rules/safety.md` | Never-do list with verification checklists |
-| Always rules | `rules/always.md` | Think-before-acting protocols |
-| Code style | `rules/code-style.md` | Formatting standards (black/ruff) |
-| Research agent | `agents/research.mdc` | ML research persona (fail-fast) |
-| Engineering agent | `agents/engineering.mdc` | Production code persona |
-| Handover cmd | `commands/handover.md` | Session handoff protocol |
-| Continue cmd | `commands/continue-agentic.md` | Context recovery workflow |
+| Rules folder | `.cursor/rules/` | Repo-specific agent behavior rules |
+| Agents folder | `.cursor/agents/` | Repo-specific agent personas |
+| Commands folder | `.cursor/commands/` | Repo-specific workflow commands |
+| Etiquette rule | `.cursor/rules/etiquette.md` | Core agent behavior (can symlink to global) |
 
-**Check for required files:**
+**Check for recommended structure:**
+
 ```bash
-cd ~/.cursor
-REQUIRED=(
-  "rules/etiquette.md"
-  "rules/safety.md"
-  "rules/always.md"
-  "rules/code-style.md"
-  "agents/research.mdc"
-  "agents/engineering.mdc"
-  "commands/handover.md"
-  "commands/continue-agentic.md"
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
+
+echo "=== Recommended Structure ==="
+RECOMMENDED=(
+  "rules"
+  "agents"
+  "commands"
 )
 
-echo "=== Required Components ==="
-for f in "${REQUIRED[@]}"; do
-  if [ -f "$f" ]; then
-    echo "✓ $f"
+for dir in "${RECOMMENDED[@]}"; do
+  if [ -d "$CURSOR_DIR/$dir" ]; then
+    count=$(ls "$CURSOR_DIR/$dir"/*.{md,mdc} 2>/dev/null | wc -l | tr -d ' ')
+    echo "✓ $dir/ ($count files)"
   else
-    echo "✗ MISSING: $f"
+    echo "✗ MISSING: $dir/"
   fi
 done
+
+# Check for etiquette (local or symlink to global)
+if [ -f "$CURSOR_DIR/rules/etiquette.md" ]; then
+  if [ -L "$CURSOR_DIR/rules/etiquette.md" ]; then
+    echo "✓ rules/etiquette.md (symlink)"
+  else
+    echo "✓ rules/etiquette.md (local)"
+  fi
+else
+  echo "⚠ rules/etiquette.md missing (consider symlinking from ~/.cursor/rules/)"
+fi
 ```
 
 ---
 
 ## Audit Categories
 
-### 1. Missing Files (Critical)
+### 1. Missing Directories (Critical)
 
-Check if required components exist:
 ```bash
-# Files that MUST exist
-ls ~/.cursor/rules/{etiquette,safety,always,code-style}.md 2>&1 | grep -v "^/"
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
+
+echo "=== Missing Directories ==="
+for dir in rules agents commands; do
+  if [ ! -d "$CURSOR_DIR/$dir" ]; then
+    echo "✗ MISSING: .cursor/$dir/"
+  fi
+done
 ```
 
 ### 2. Drift Detection (Warnings)
 
-Check for consistency across files:
+Check for duplicated rules that should reference global instead:
 
-**Etiquette is now a rule (auto-applied), so commands don't need preambles.**
-
-**Check for duplicated rules (should reference, not copy):**
 ```bash
-# Look for "Never" lists that might be duplicated instead of referenced
-echo "=== Files with 'NEVER' sections (check for duplication) ==="
-grep -l "Never Do\|NEVER\|🚨" ~/.cursor/{agents,commands,rules}/*.{md,mdc} 2>/dev/null
-```
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
 
-### 3. Stale Entries (Warnings)
-
-**Check for broken file references:**
-```bash
-echo "=== Checking file references ==="
-# Find references to .md and .mdc files and verify they exist
-grep -roh "commands/[a-z-]*.md\|agents/[a-z-]*.mdc\|rules/[a-z-]*.md" ~/.cursor/{commands,agents,rules}/ 2>/dev/null | sort -u | while read ref; do
-  if [ ! -f ~/.cursor/"$ref" ]; then
-    echo "Broken ref: $ref"
-  fi
-done
-```
-
-**Check for outdated CLAUDE.md:**
-```bash
-# If CLAUDE.md exists, check if it's stale (>7 days old)
-if [ -f ~/.cursor/CLAUDE.md ]; then
-  MODIFIED=$(stat -f %m ~/.cursor/CLAUDE.md 2>/dev/null || stat -c %Y ~/.cursor/CLAUDE.md 2>/dev/null)
-  NOW=$(date +%s)
-  DAYS_OLD=$(( (NOW - MODIFIED) / 86400 ))
-  if [ "$DAYS_OLD" -gt 7 ]; then
-    echo "⚠ CLAUDE.md is $DAYS_OLD days old - may be stale"
-  else
-    echo "✓ CLAUDE.md updated $DAYS_OLD days ago"
-  fi
+echo "=== Drift Detection ==="
+# Check for duplicated "Never Do" sections (should reference global etiquette)
+if [ -d "$CURSOR_DIR" ]; then
+  grep -l "Never Do\|NEVER\|🚨" "$CURSOR_DIR"/{agents,commands,rules}/*.{md,mdc} 2>/dev/null | while read f; do
+    echo "⚠ $(basename $f): contains 'Never Do' section (consider referencing global etiquette)"
+  done
 fi
 ```
 
-### 4. Improvement Suggestions (Optional)
+### 3. Stale References (Warnings)
 
-**Commands without proper structure:**
 ```bash
-echo "=== Structure Check ==="
-for f in ~/.cursor/commands/*.md; do
-  # Check for required sections
-  name=$(basename "$f")
-  has_scope=$(grep -c "Session Scope\|## Scope" "$f")
-  has_workflow=$(grep -c "Workflow\|## First\|## Steps" "$f")
-  has_related=$(grep -c "Related Commands\|## Related" "$f")
-  
-  if [ "$has_scope" -eq 0 ] || [ "$has_workflow" -eq 0 ]; then
-    echo "⚠ $name: missing Session Scope or Workflow section"
-  fi
-done
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
+
+echo "=== Checking File References ==="
+if [ -d "$CURSOR_DIR" ]; then
+  grep -roh "commands/[a-z-]*.md\|agents/[a-z-]*.mdc\|rules/[a-z-]*.md" "$CURSOR_DIR"/ 2>/dev/null | sort -u | while read ref; do
+    if [ ! -f "$CURSOR_DIR/$ref" ]; then
+      echo "Broken ref: $ref"
+    fi
+  done
+fi
 ```
 
-**Agents without CLAUDE.md guidance:**
+### 4. Symlink Status
+
+Check which files are symlinked from global config:
+
 ```bash
-echo "=== Agent CLAUDE.md awareness ==="
-for f in ~/.cursor/agents/*.mdc; do
-  if ! grep -q "CLAUDE.md" "$f"; then
-    echo "⚠ $(basename $f): no CLAUDE.md guidance"
-  fi
-done
-```
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
 
-### 5. Shell Environment Diagnostics
+echo "=== Symlink Status ==="
+if [ -d "$CURSOR_DIR" ]; then
+  find "$CURSOR_DIR" -type l 2>/dev/null | while read link; do
+    target=$(readlink "$link")
+    echo "↪ $(basename $link) -> $target"
+  done
+fi
 
-Cursor's terminal may not see installed tools because non-interactive shells skip `.zshrc`/`.bashrc`. This section diagnoses shell configuration issues.
-
-| Check | What it detects |
-|-------|-----------------|
-| Shell type | `$SHELL` vs actual shell (zsh/bash/fish) |
-| Interactive mode | Whether rc files are being sourced |
-| PATH comparison | Differences between interactive and non-interactive shells |
-| RC file presence | `.zshenv`, `.zshrc`, `.bashrc`, `.bash_profile`, `.profile` |
-| Env managers | pyenv, nvm, conda, rbenv initialization status |
-
-**Shell type and RC files:**
-```bash
-echo "=== Shell Environment ==="
-echo "Login shell: $SHELL"
-echo "Current shell: $0"
-echo "Process: $(ps -p $$ -o comm=)"
-
+# Count local vs symlinked
+LOCAL=$(find "$CURSOR_DIR" -type f -name "*.md" -o -name "*.mdc" 2>/dev/null | wc -l | tr -d ' ')
+LINKS=$(find "$CURSOR_DIR" -type l 2>/dev/null | wc -l | tr -d ' ')
 echo ""
-echo "=== RC Files Present ==="
-for rc in ~/.zshenv ~/.zshrc ~/.bashrc ~/.bash_profile ~/.profile; do
-  if [ -f "$rc" ]; then
-    echo "✓ $rc ($(wc -l < "$rc") lines)"
-  else
-    echo "✗ $rc"
-  fi
-done
-```
-
-**PATH in current shell:**
-```bash
-echo "=== Current PATH (first 10 entries) ==="
-echo $PATH | tr ':' '\n' | head -10
-
-# Check for common missing directories
-echo ""
-echo "=== Common PATH Checks ==="
-for dir in /usr/local/bin /opt/homebrew/bin ~/.local/bin; do
-  if echo $PATH | grep -q "$dir"; then
-    echo "✓ $dir in PATH"
-  else
-    echo "⚠ $dir NOT in PATH"
-  fi
-done
-```
-
-**Environment managers:**
-```bash
-echo "=== Environment Managers ==="
-# pyenv
-if command -v pyenv &>/dev/null; then
-  echo "✓ pyenv: $(pyenv root 2>/dev/null || echo 'installed')"
-  echo "  Python: $(pyenv version-name 2>/dev/null)"
-else
-  echo "✗ pyenv: not found"
-fi
-
-# nvm
-if [ -n "$NVM_DIR" ] && [ -s "$NVM_DIR/nvm.sh" ]; then
-  echo "✓ nvm: $NVM_DIR"
-  echo "  Node: $(node --version 2>/dev/null || echo 'not activated')"
-elif [ -d "$HOME/.nvm" ]; then
-  echo "⚠ nvm: installed but not initialized"
-else
-  echo "✗ nvm: not found"
-fi
-
-# conda
-if command -v conda &>/dev/null; then
-  echo "✓ conda: $(conda info --base 2>/dev/null)"
-else
-  echo "✗ conda: not found"
-fi
-
-# rbenv
-if command -v rbenv &>/dev/null; then
-  echo "✓ rbenv: $(rbenv root 2>/dev/null)"
-else
-  echo "✗ rbenv: not found"
-fi
-```
-
-**Non-interactive vs interactive PATH comparison (key diagnostic):**
-```bash
-echo "=== PATH Comparison (Interactive vs Non-Interactive) ==="
-# Get PATH from non-interactive shells
-ZSH_PATH=$(zsh -c 'echo $PATH' 2>/dev/null)
-BASH_PATH=$(bash -c 'echo $PATH' 2>/dev/null)
-CURRENT_PATH=$PATH
-
-# Count entries
-ZSH_COUNT=$(echo "$ZSH_PATH" | tr ':' '\n' | wc -l | tr -d ' ')
-BASH_COUNT=$(echo "$BASH_PATH" | tr ':' '\n' | wc -l | tr -d ' ')
-CURRENT_COUNT=$(echo "$CURRENT_PATH" | tr ':' '\n' | wc -l | tr -d ' ')
-
-echo "Current shell PATH entries: $CURRENT_COUNT"
-echo "Non-interactive zsh PATH entries: $ZSH_COUNT"
-echo "Non-interactive bash PATH entries: $BASH_COUNT"
-
-if [ "$CURRENT_COUNT" -ne "$ZSH_COUNT" ]; then
-  echo "⚠ PATH differs between interactive and non-interactive zsh"
-  echo "  This can cause tools to be missing in Cursor terminals"
-fi
+echo "Local files: $LOCAL"
+echo "Symlinks: $LINKS"
 ```
 
 ---
 
-## Output Format
+## Phase 1 Output: Health Report
 
-Present findings as a structured report:
+After running read-only checks, present findings in this format:
 
 ```markdown
 ## Agentic Health Report
 
-**Workspace:** ~/.cursor/
+**Repo:** [repo name]
+**Cursor Dir:** .cursor/
 **Checked:** [date]
 **Components:** X agents, Y rules, Z commands
 
-### Critical (fix now)
-- [ ] Missing: [file path]
+### Critical (must fix)
+- [ ] Missing: .cursor/rules/
+- [ ] Missing: .cursor/agents/
 
 ### Warnings (should fix)
-- [ ] Stale: [file] references deleted [component]
-- [ ] Duplicate: [file] copies rules instead of referencing
+- [ ] Drift: [file] duplicates global rules
+- [ ] Stale: [file] references non-existent [component]
 
 ### Suggestions (optional)
-- [ ] Consider: Add CLAUDE.md guidance to [agent]
-- [ ] Consider: Add Related Commands section to [command]
+- [ ] Consider: Symlink etiquette.md from global config
+- [ ] Consider: Add repo-specific agent for [domain]
 
-### Shell Environment
-- Shell: [zsh/bash] | Interactive: [yes/no]
-- RC files: [.zshenv, .zshrc, etc. - which are present]
-- Env managers: [pyenv/nvm/conda - status of each]
-- PATH issues: [any missing dirs or interactive/non-interactive differences]
-
-### Healthy ✓
+### Healthy
 - [list of components that passed all checks]
 ```
 
 ---
 
-## Fix Actions
+## Phase 1 Ends Here
 
-After reporting, offer to fix issues (with confirmation):
+**After presenting the Health Report, ask:**
+
+> "Ready to fix issues? I can:
+> 1. Create missing directories
+> 2. Create symlinks to global config
+> 3. Create repo-specific files from templates
+>
+> Which would you like to address first?"
+
+**Do not proceed to Phase 2 without explicit user confirmation.**
+
+---
+
+## Phase 2: Apply Fixes (On Request Only)
+
+Only proceed here after user explicitly confirms they want fixes applied.
+
+### Fix Actions
 
 | Issue Type | Action | Requires Confirmation |
 |------------|--------|----------------------|
-| Missing required file | Create from template | Yes |
-| Missing CLAUDE.md guidance | Add CLAUDE.md section to agent | Yes |
-| Stale references | Flag for manual review | No (just report) |
-| Missing `.zshenv` | Create with PATH exports | Yes |
-| Env manager not in `.zshenv` | Add init commands to `.zshenv` | Yes |
-| PATH differs interactive/non-interactive | Suggest moving PATH setup to `.zshenv` | Yes |
+| Missing `.cursor/` | Create directory structure | Yes |
+| Missing rules/agents/commands | Create subdirectories | Yes |
+| Missing etiquette | Symlink from global | Yes |
+| Repo-specific rules needed | Create from template | Yes |
 
-**Never auto-delete files** - follow safety rules. Move to backup if removal needed.
-
----
-
-## Templates for Missing Files
-
-If core files are missing, offer to create them:
-
-### rules/always.md template
-```markdown
-# Always Rules
-
-These rules apply to EVERY interaction, regardless of context.
-
-## Before ANY Action
-
-**STOP and verify:**
-1. Am I about to push code? → Don't. User pushes manually.
-2. Am I about to commit? → Only if explicitly asked.
-3. Am I about to delete/rm? → Backup first, or use mv.
-
-## Think Before Acting
-
-For any non-trivial task, briefly state:
-1. What I understand the request to be
-2. What I'm about to do
-3. Any risks or concerns
-```
-
-### rules/safety.md template
-```markdown
-# Safety Rules
-
-## 🚨 NEVER Do These
-
-| Action | Why | Instead |
-|--------|-----|---------|
-| `git push` | User controls remote | Ask permission, wait |
-| `git commit` without ask | User decides timing | Only when explicitly asked |
-| `rm` anything | Data loss risk | `mv` to backup location |
-| try/catch blocks | Hides errors | Let errors propagate |
-```
-
-### ~/.zshenv template (for shell environment issues)
-
-**Why `.zshenv`?** Cursor uses non-interactive shells, which skip `.zshrc`. Only `.zshenv` is sourced for all zsh invocations, making it the right place for PATH and environment manager setup.
+### Create Directory Structure
 
 ```bash
-# ~/.zshenv - Sourced for ALL zsh shells (interactive and non-interactive)
-# This ensures tools are available in Cursor terminals
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
 
-# Homebrew (Apple Silicon)
-if [ -d "/opt/homebrew/bin" ]; then
-  export PATH="/opt/homebrew/bin:$PATH"
-fi
+# Only run after user confirms
+mkdir -p "$CURSOR_DIR"/{rules,agents,commands}
+echo "Created .cursor/{rules,agents,commands}/"
+```
 
-# Homebrew (Intel)
-if [ -d "/usr/local/bin" ]; then
-  export PATH="/usr/local/bin:$PATH"
-fi
+### Symlink Global Etiquette
 
-# Local binaries
-if [ -d "$HOME/.local/bin" ]; then
-  export PATH="$HOME/.local/bin:$PATH"
-fi
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
 
-# pyenv
-if [ -d "$HOME/.pyenv" ]; then
-  export PYENV_ROOT="$HOME/.pyenv"
-  export PATH="$PYENV_ROOT/bin:$PATH"
-  eval "$(pyenv init --path)"
-fi
-
-# nvm (Node Version Manager)
-if [ -d "$HOME/.nvm" ]; then
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-fi
-
-# rbenv
-if [ -d "$HOME/.rbenv" ]; then
-  export PATH="$HOME/.rbenv/bin:$PATH"
-  eval "$(rbenv init - --no-rehash)"
-fi
-
-# Cargo (Rust)
-if [ -f "$HOME/.cargo/env" ]; then
-  source "$HOME/.cargo/env"
+# Symlink etiquette from global config
+if [ -f ~/.cursor/rules/etiquette.md ] && [ ! -f "$CURSOR_DIR/rules/etiquette.md" ]; then
+  ln -s ~/.cursor/rules/etiquette.md "$CURSOR_DIR/rules/etiquette.md"
+  echo "Symlinked etiquette.md from global config"
 fi
 ```
 
-**After creating `.zshenv`:** Restart Cursor completely (not just the terminal) for changes to take effect.
+### Symlink Other Global Rules (Optional)
+
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+CURSOR_DIR="$REPO_ROOT/.cursor"
+
+# Common rules to symlink from global
+for rule in safety.md always.md code-style.md; do
+  if [ -f ~/.cursor/rules/$rule ] && [ ! -f "$CURSOR_DIR/rules/$rule" ]; then
+    ln -s ~/.cursor/rules/$rule "$CURSOR_DIR/rules/$rule"
+    echo "Symlinked $rule from global config"
+  fi
+done
+```
 
 ---
 
-## Repeat Runs
+## Templates for Repo-Specific Files
 
-When run again:
+### .cursor/rules/repo-context.md template
 
-1. **First run today:** Full audit with all categories
-2. **Second run same session:** Show delta from last check
-3. **Run after changes:** Verify fixes were applied correctly
+```markdown
+# Repo-Specific Context
 
-If nothing changed since last run:
-> "All components healthy. Last checked [time]. Run specific audit? (missing/drift/stale/suggest)"
+## About This Repo
+- **Purpose:** [what this repo does]
+- **Language/Stack:** [Python, TypeScript, etc.]
+- **Key patterns:** [architecture, conventions]
+
+## Domain-Specific Rules
+- [rule 1]
+- [rule 2]
+
+## Important Files
+- `[path]` - [purpose]
+```
+
+### .cursor/agents/domain-expert.mdc template
+
+```markdown
+---
+description: Domain expert for [repo name]
+---
+
+# Domain Expert Agent
+
+You are an expert in [domain]. This repo focuses on [purpose].
+
+## Key Context
+- [important context 1]
+- [important context 2]
+
+## Before Acting
+- Check CLAUDE.md for current feature context
+- Review recent commits for ongoing work
+- Follow repo-specific patterns in existing code
+```
 
 ---
 
@@ -423,7 +339,19 @@ If nothing changed since last run:
 
 - Auto-delete any file (backup first, ask user)
 - Modify files without showing the diff first
-- Push any changes to remote
+- Operate on global `~/.cursor/` (this command is repo-local only)
+- Create files without explicit user confirmation
+- Run Phase 2 without user approval
+
+---
+
+## Repeat Runs
+
+| Run | Behavior |
+|-----|----------|
+| First run | Full Phase 1 audit, present Health Report |
+| Second run (no changes) | "No changes since last audit. Run specific check?" |
+| After Phase 2 fixes | Re-run Phase 1 to verify fixes |
 
 ---
 
@@ -431,9 +359,9 @@ If nothing changed since last run:
 
 | Situation | Question |
 |-----------|----------|
-| Issues found | "Want me to fix the critical issues first?" |
-| All healthy | "Anything specific you want to add or improve?" |
-| After fixes | "Should I re-run the audit to verify?" |
+| Phase 1 complete, issues found | "Ready to fix issues? Which would you like to address first?" |
+| Phase 1 complete, all healthy | "All healthy. Want to add repo-specific rules or agents?" |
+| After Phase 2 fixes | "Fixes applied. Re-run audit to verify?" |
 
 **Default:** "What would you like to address first?"
 
@@ -443,8 +371,7 @@ If nothing changed since last run:
 
 | Need | Command |
 |------|---------|
-| Commit config changes | → **git-manager** |
+| Global config maintenance | → Open `~/.cursor/` directly (not this command) |
 | Session handoff | → **handover** |
 | Context recovery | → **continue-agentic** |
-| Sync to remote servers | → **sync-remote** |
-
+| Commit config changes | → **git-manager** |

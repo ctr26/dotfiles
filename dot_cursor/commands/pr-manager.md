@@ -76,73 +76,17 @@ git worktree add --force worktrees/<feature-name> feat/<feature-name>
 # IMPORTANT: Set up shared resources (see "Worktree Setup" section below)
 ```
 
-### Worktree Setup: Shared Resources
+### Worktree Setup
 
-**Worktrees do NOT share untracked/gitignored files.** Set these up after creating a worktree:
+Use the global setup script or create worktrees with `@new-worktree`:
 
 ```bash
-REPO_ROOT=$(git rev-parse --show-toplevel)
-WORKTREE="$REPO_ROOT/worktrees/<feature-name>"
-
-# Symlink environment files (secrets, config)
-ln -sf "$REPO_ROOT/.env" "$WORKTREE/.env"
-ln -sf "$REPO_ROOT/config.env" "$WORKTREE/config.env" 2>/dev/null
-
-# Symlink cache directories (avoid re-downloading)
-ln -sf "$REPO_ROOT/.cache" "$WORKTREE/.cache" 2>/dev/null
-ln -sf "$REPO_ROOT/.ruff_cache" "$WORKTREE/.ruff_cache" 2>/dev/null
-ln -sf "$REPO_ROOT/.mypy_cache" "$WORKTREE/.mypy_cache" 2>/dev/null
-
-# Symlink pre-commit cache
-ln -sf "$HOME/.cache/pre-commit" "$WORKTREE/.cache/pre-commit" 2>/dev/null
-
-# For Python projects: symlink or recreate venv
-# Option A: Symlink (faster, but can cause issues with absolute paths)
-ln -sf "$REPO_ROOT/.venv" "$WORKTREE/.venv"
-# Option B: Recreate (safer, slower)
-# cd "$WORKTREE" && python -m venv .venv && .venv/bin/pip install -e .
-
-# For Node projects: symlink node_modules (faster) or reinstall
-ln -sf "$REPO_ROOT/node_modules" "$WORKTREE/node_modules"
-# Or: cd "$WORKTREE" && npm install
+# Recommended: Use the new-worktree command
+# Or run the script directly:
+~/.cursor/scripts/new-worktree.sh <branch-name> [path]
 ```
 
-**Quick setup script** (add to repo as `scripts/setup-worktree.sh`):
-```bash
-#!/bin/bash
-REPO_ROOT=$(git rev-parse --show-toplevel)
-WORKTREE=${1:?Usage: setup-worktree.sh <worktree-path>}
-
-# Symlink common files
-for f in .env config.env .envrc; do
-  [ -f "$REPO_ROOT/$f" ] && ln -sf "$REPO_ROOT/$f" "$WORKTREE/$f"
-done
-
-# Symlink cache dirs
-for d in .cache .ruff_cache .mypy_cache __pycache__ .pytest_cache; do
-  [ -d "$REPO_ROOT/$d" ] && ln -sf "$REPO_ROOT/$d" "$WORKTREE/$d"
-done
-
-# Symlink venv (or node_modules)
-[ -d "$REPO_ROOT/.venv" ] && ln -sf "$REPO_ROOT/.venv" "$WORKTREE/.venv"
-[ -d "$REPO_ROOT/node_modules" ] && ln -sf "$REPO_ROOT/node_modules" "$WORKTREE/node_modules"
-
-echo "Worktree setup complete: $WORKTREE"
-```
-
-**What to symlink vs keep local:**
-
-| Resource | Symlink? | Notes |
-|----------|----------|-------|
-| `.env`, `config.env` | ✅ Yes | Secrets should be shared |
-| `.cache`, `*_cache` | ✅ Yes | Avoid re-downloading/rebuilding |
-| `.venv` (Python) | ⚠️ Maybe | Symlink if no absolute paths; else recreate |
-| `node_modules` | ✅ Yes | Usually safe to symlink |
-| `outputs/`, `wandb/` | ❌ No | Keep separate per worktree |
-| `logs/` | ❌ No | Keep separate per worktree |
-| `CLAUDE.md` | ❌ No | **Per-feature context** - each worktree gets its own |
-| `CLAUDE/` folder | ❌ No | Session history is per-feature |
-| `PR.md` | ❌ No | PR draft is specific to this worktree's feature |
+See `~/.cursor/rules/git-worktree.md` for detailed symlink patterns and what to keep local vs shared.
 
 ### List Active Worktrees
 ```bash
@@ -580,6 +524,8 @@ When these situations arise, suggest the appropriate command:
 
 | Situation | Suggest |
 |-----------|---------|
+| Need to create a new worktree | → **new-worktree**: "Want me to create a worktree for this feature?" |
+| Need worktree context/visibility | → **worktrees**: "Let me check worktree visibility." |
 | Need to commit changes in worktree | → **git-manager**: "Want me to commit these? I can use git-manager." |
 | Need to cherry-pick specific commits | → **cherry-pick**: "Should I switch to cherry-pick mode for this?" |
 | User asks about sweep/training status | → **sweep-manager**: "That's training-related - want me to check sweep status?" |

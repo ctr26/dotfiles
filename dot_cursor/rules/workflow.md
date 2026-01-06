@@ -1,0 +1,81 @@
+# Workflow Patterns
+
+Patterns extracted from command files that apply across workflows.
+
+---
+
+## Git Workflow
+
+### Cherry-Pick First
+- **Prefer cherry-picking commits** over copying files
+- Preserves git history and authorship
+- Makes PRs easier to review
+- Fall back to file copy only when commits have mixed concerns
+
+### Use Worktrees, Not Clones
+- Worktrees share git objects (efficient, less disk space)
+- Each worktree gets its own `CLAUDE.md` (isolated context per feature)
+- Symlink shared resources (`.env`, cache, venv) but keep CLAUDE.md local
+- Clean up with `git worktree remove` when done
+
+---
+
+## Context Management
+
+### Worktree CLAUDE.md Isolation
+- Each worktree has its own `CLAUDE.md` in the worktree root
+- Do NOT symlink from main repo
+- Keeps session context isolated per feature
+- Delete when feature is merged
+
+### Handover Keys
+- Generate unique handover key: `HO-{YYYYMMDD}-{HHMM}-{hash}`
+- Store in CLAUDE.md header for session tracking
+- Next agent verifies key matches when resuming
+
+---
+
+## Execution Style
+
+### Low-Interaction, High-Efficacy
+- Do the obvious safe thing without asking
+- Ask only when a real fork in the road exists
+- Execute obvious steps once spec + tests are clear
+- Don't ask for permission on every small decision
+
+### Validation Gates Before Coding
+- Run validation/TDD gates before making changes
+- Know which test/validator proves success
+- Include validation commands in plan AND final report
+- Bug fix → write failing test first
+- Feature → describe acceptance tests first
+
+---
+
+## ML / Training
+
+### FAVOR RESUMES OVER RESTARTS
+- **Never restart a sweep that has progress** unless fatal config error
+- Preempted runs should be RESUMED, not restarted
+- Check for existing checkpoints before any action
+- Each epoch is valuable compute time
+
+### FAST COMPLETION = RED FLAG
+- Runs finishing in <2 hours almost always indicate failure
+- Training takes days, not hours
+- Quick completion means crash/config error
+- Always check logs for actual epoch count
+
+### Cross-Reference WandB with Slurm
+- Verify consistency between WandB state and Slurm state
+- Detect zombie agents (WandB running, no Slurm job)
+- Check for stale heartbeats (>30 min)
+
+### Always Include WandB URLs
+- Every sweep must have its WandB URL in reports
+- Format: `[sweep_id](https://wandb.ai/entity/project/sweeps/sweep_id)`
+- Include in ACTIVE_SWEEPS.md AND chat responses
+
+
+
+

@@ -1,0 +1,18 @@
+{{- $isSlurm := lookPath "squeue" | ne "" -}}
+{{- $isWSL := false -}}
+{{- if stat "/proc/version" -}}
+{{-   $isWSL = contains "microsoft" (lower (output "cat" "/proc/version")) -}}
+{{- end -}}
+{{- $isSSH := env "SSH_CONNECTION" | ne "" -}}
+{{- $isDarwin := eq .chezmoi.os "darwin" -}}
+{{- $isHeadless := or $isSlurm $isSSH -}}
+
+[data]
+name = "Craig Russell"
+email = "craig.russell@recursionpharma.com"
+isSlurm = {{ $isSlurm }}
+isWSL = {{ $isWSL }}
+isSSH = {{ $isSSH }}
+isDarwin = {{ $isDarwin }}
+isHeadless = {{ $isHeadless }}
+

@@ -1,5 +1,5 @@
 # Global Gitignore
-# Configure with: git config --global core.excludesfile ~/.gitignore_global
+# Configure with: git config --global core.excludesfile ~/.config/git/ignore
 
 # =============================================================================
 # Python
@@ -205,3 +205,4 @@ _local
 # AI/Agent session files (not for version control)
 CLAUDE/*
 CLAUDE.md
+.cursor/**

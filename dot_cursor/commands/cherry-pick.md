@@ -188,28 +188,17 @@ REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 - Note any conflicts that were resolved
 - Update PR draft if cherry-picks affect the PR
 
-## Push Workflow
+## After Cherry-Pick
 
-After successful cherry-pick(s), offer to push:
+After successful cherry-pick(s):
 
-```bash
-# Check how many commits ahead
-git status -sb
+1. **Run pre-commit** on changed files:
+   ```bash
+   uv tool run pre-commit run --files <changed-files>
+   ```
 
-# Stash any unstaged changes
-git stash push -m "pre-push-stash" <modified-files>
-
-# Run pre-commit on changed files
-uv tool run pre-commit run --files <changed-files>
-
-# Push to remote
-git push origin <branch-name>
-
-# Restore stashed changes
-git stash pop
-```
-
-**Always ask user before pushing.** Example: "Cherry-picked successfully. Ready to push 2 commits to origin/feat/sweeps?"
+2. **Remind user to push manually** - never push automatically:
+   > "Cherry-picked successfully. When ready, you can push with: `git push origin <branch-name>`"
 
 ---
 
