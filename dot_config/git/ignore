@@ -195,14 +195,16 @@ logs/
 
 # Generated files
 .vscode*/
-.specstory/
+.specstory/**
 
 # Local development folders
 _local
 **/ignore/
 **/_local/
+worktrees/
+worktrees/**
 
 # AI/Agent session files (not for version control)
-CLAUDE/*
+CLAUDE/**
 CLAUDE.md
 .cursor/**
