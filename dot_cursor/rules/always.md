@@ -185,6 +185,38 @@ For embarrassingly parallel tasks, suggest parallel agents:
 Example:
 > "This task has 5 independent modules. Want to use parallel agents to speed this up?"
 
+## Chat Length Awareness
+
+When a chat grows too long, suggest handover to preserve context quality.
+
+### Triggers for Handover
+
+| Signal | Action |
+|--------|--------|
+| 15+ message exchanges | Suggest: "This chat is getting long - want me to `/handover`?" |
+| Major task boundary | Suggest handover before starting a new unrelated task |
+| Context confusion | If you lose track of earlier decisions, handover immediately |
+| Complex multi-step done | Proactively offer handover to capture state |
+
+### Planning Mode Handover
+
+When in planning mode (plan not yet executed), guide the user to spawn a fresh agent:
+
+1. Create the handover document via `/handover`
+2. Provide the startup prompt with the handover key
+3. Suggest: "Open a new Cursor tab and paste the startup prompt to continue with a fresh agent"
+
+This ensures the next agent starts clean with full context from the handover file.
+
+### Example
+
+> "We've covered a lot of ground here (20+ messages). I recommend:
+> 1. I'll create a handover now
+> 2. Open a new Cursor tab  
+> 3. Paste the startup prompt I provide
+> 
+> This gives the next agent fresh context. Continue here or handover?"
+
 ## Worktrees for Large Changes
 
 For large codebase changes, suggest worktrees:

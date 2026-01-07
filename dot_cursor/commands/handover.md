@@ -132,6 +132,34 @@ Keep minimal – just points to current handover:
 
 ---
 
+## Planning Mode: New Agent
+
+When in planning mode (plan exists but not executed), guide the user to spawn a fresh agent:
+
+### Instructions to Provide
+
+After creating the handover file, tell the user:
+
+> **To continue with a fresh agent:**
+> 1. Open a new Cursor tab (Cmd+T or Ctrl+T)
+> 2. Copy-paste this startup prompt:
+>
+> ```
+> /handover [HO_KEY]
+> 
+> Continue from handover. The plan is ready to execute.
+> ```
+
+### When to Use
+
+| Scenario | Action |
+|----------|--------|
+| Plan created, not executed | Suggest new agent with startup prompt |
+| Long chat (15+ messages) with pending plan | Suggest handover + new agent |
+| Context confusion during planning | Immediate handover + new agent |
+
+---
+
 ## Always End With Key
 
 ```
