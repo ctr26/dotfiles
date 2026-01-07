@@ -1,0 +1,49 @@
+# Global SSH settings
+Host *
+    AddKeysToAgent yes
+    ForwardAgent yes
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+
+{{- if or (lookPath "sft") (stat "/usr/local/bin/sft") }}
+
+# =============================================================================
+# Work (ScaleFT/Okta ASA required)
+# =============================================================================
+
+Host slclogin2
+    HostName slclogin2
+
+Host hpc-job
+    ProxyCommand ssh slclogin1 "nc \$(/cm/shared/apps/slurm/current/bin/squeue --me --name=tunnel --states=R -h -O NodeList) 2222"
+    StrictHostKeyChecking no
+
+Match exec "/usr/local/bin/sft resolve -q  %h"
+    ProxyCommand /usr/local/bin/sft proxycommand %h
+    UserKnownHostsFile {{ .chezmoi.homeDir }}/Library/Application Support/ScaleFT/proxycommand_known_hosts
+{{- end }}
+
+# =============================================================================
+# Personal
+# =============================================================================
+
+Host router
+    HostName craggles.duckdns.org
+    User admin
+    Port 8008
+
+Host proxmox
+    HostName proxmox.
+    User root
+    ProxyJump router
+
+Host narchie
+    HostName narchie.
+    User ctr26
+    ProxyJump router
+
+Host arch
+    HostName arch.
+    User craggles
+    ProxyJump proxmox
+
