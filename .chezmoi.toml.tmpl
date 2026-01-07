@@ -1,19 +1,47 @@
-{{- $isSlurm := lookPath "squeue" | ne "" -}}
-{{- $isWSL := false -}}
-{{- if stat "/proc/version" -}}
-{{-   $isWSL = contains "microsoft" (lower (output "cat" "/proc/version")) -}}
+{{- /* Environment detection with optional prompt */ -}}
+
+{{- /* Tool detection */ -}}
+{{- $hasSlurm := false -}}
+{{- $hasSft := false -}}
+
+{{- if lookPath "squeue" -}}
+{{-   $hasSlurm = true -}}
 {{- end -}}
-{{- $isSSH := env "SSH_CONNECTION" | ne "" -}}
-{{- $isDarwin := eq .chezmoi.os "darwin" -}}
-{{- $isHeadless := or $isSlurm $isSSH -}}
+
+{{- if lookPath "sft" -}}
+{{-   $hasSft = true -}}
+{{- else if stat "/usr/local/bin/sft" -}}
+{{-   $hasSft = true -}}
+{{- end -}}
+
+{{- /* Determine environment type */ -}}
+{{- $envType := "" -}}
+{{- if $hasSlurm -}}
+{{-   $envType = "hpc" -}}
+{{- else if eq .chezmoi.os "darwin" -}}
+{{-   $envType = "macos" -}}
+{{- else -}}
+{{- /* On non-macOS Linux, prompt for environment type */ -}}
+{{-   $envType = promptChoiceOnce . "envType" "Environment type" (list "linux" "wsl" "hpc") -}}
+{{- end -}}
+
+{{- /* Derived flags */ -}}
+{{- $isHPC := eq $envType "hpc" -}}
+{{- $isWSL := eq $envType "wsl" -}}
+{{- $isDarwin := eq $envType "macos" -}}
+{{- $isLinux := eq $envType "linux" -}}
+{{- $isSSH := ne (env "SSH_CONNECTION") "" -}}
+{{- $isHeadless := or $isHPC $isSSH -}}
 
 [data]
 name = "Craig Russell"
 email = "craig.russell@recursionpharma.com"
-isSlurm = {{ $isSlurm }}
+envType = {{ $envType | quote }}
+isHPC = {{ $isHPC }}
 isWSL = {{ $isWSL }}
-isSSH = {{ $isSSH }}
 isDarwin = {{ $isDarwin }}
+isLinux = {{ $isLinux }}
+isSSH = {{ $isSSH }}
 isHeadless = {{ $isHeadless }}
-
-
+hasSlurm = {{ $hasSlurm }}
+hasSft = {{ $hasSft }}
