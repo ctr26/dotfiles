@@ -9,6 +9,21 @@ Before starting any session, read `~/.cursor/rules/init.md` to understand:
 - Context hierarchy (command → repo CLAUDE.md → global rules)
 - What to check before first action
 
+## Check for Handover Context
+
+At session start, check for existing handover documents:
+
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+ls "$REPO_ROOT/CLAUDE.md" "$REPO_ROOT/CLAUDE/" 2>/dev/null
+```
+
+If found:
+- Read `CLAUDE.md` for current handover key and session focus
+- Check `CLAUDE/` folder for detailed handover files (e.g., `CLAUDE/HO-*.md`)
+- Resume from where the last session left off
+- Verify the handover key matches if one was provided
+
 ## Before ANY Action
 
 **STOP and verify:**
@@ -37,7 +52,9 @@ Example:
 
 ## Always End With a Question
 
-**Every response should end with a follow-up question** to maintain momentum:
+**Every response should end with a follow-up question** to maintain momentum.
+
+### General Patterns
 
 | Situation | Example |
 |-----------|---------|
@@ -45,8 +62,22 @@ Example:
 | After showing status | "What needs attention first?" |
 | After explaining | "What would you like to work on?" |
 | Unclear request | "Could you clarify what you'd like me to focus on?" |
+| Errors found | "Want me to analyze these errors and suggest fixes?" |
+| Everything looks good | "Anything specific you'd like me to check?" |
+
+### Domain-Specific Examples
+
+| Domain | Example Questions |
+|--------|-------------------|
+| Git commits | "Push to origin? Or stage more files first?" |
+| PR/worktree work | "Ready to cherry-pick commits? Which should go in this PR?" |
+| Sweeps/training | "Want to resume the preempted jobs, or check logs first?" |
+| Ideation | "Which ideas should we explore further?" |
+| End of day | "Want to commit before leaving, or keep as WIP?" |
 
 **Default:** "What would you like to do next?"
+
+Commands may include 1-2 additional domain-specific examples, but should not duplicate this full table.
 
 ## Rule Discovery
 
@@ -57,6 +88,31 @@ When reading CLAUDE.md or .specstory history, watch for repeated patterns:
 
 **If you notice a pattern, ask:**
 > "I've seen [pattern] come up a few times. Want me to add this as a rule in ~/.cursor/rules/?"
+
+## Learn from Mistakes
+
+When you make a mistake or receive a correction, **document it** so future sessions don't repeat it:
+
+| Trigger | Action |
+|---------|--------|
+| User corrects your approach | Add note to CLAUDE.md under "Lessons Learned" |
+| Command fails unexpectedly | Document the fix in CLAUDE/ folder |
+| You misunderstand a repo pattern | Update CLAUDE.md with the correct pattern |
+| Repeated correction (2+ times) | Propose adding to ~/.cursor/rules/ |
+| Pattern found in .specstory history | Propose rule or add to CLAUDE.md |
+
+**Proactively mine history:** When starting a session, scan `.specstory/history/` and `.cursor/plans/` for recurring corrections, decisions, or preferences and propose rules.
+
+**Format for CLAUDE.md:**
+```
+## Lessons Learned
+- [date] Don't use X, use Y instead because [reason]
+- [date] This repo prefers [pattern] over [alternative]
+```
+
+**For significant learnings:** Create `CLAUDE/lessons.md` in the repo root.
+
+> "I made an error here. Let me add this to CLAUDE.md so we don't hit this again."
 
 ## Chat Heading Format
 
