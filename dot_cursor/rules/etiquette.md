@@ -13,49 +13,11 @@ Before starting any session, read `~/.cursor/rules/init.md` to:
 
 ---
 
-## CRITICAL: Never Do These
+## Safety Rules
 
-| Rule | Why |
-|------|-----|
-| **Never cancel all Slurm jobs at once** | You don't know what else is running - could kill critical experiments |
-| **Never `git push`** | User controls remote pushes manually. Always ask permission. |
-| **Never `git commit` without explicit request** | User decides when to commit |
-| **Never use `rm`** | Make backups first, move to trash/archive |
-| **Never use `sed` for file edits** | Use Cursor's file editor tools (search_replace, write) - they're safer and show diffs |
-| **Never use try/catch blocks** | Research code should fail fast - we want to see errors |
-| **Avoid deep nesting (>4 levels)** | Refactor to functions instead |
-| **Never use `sleep` in commands** | Just wait for user - sleep wastes time and can hang |
-| **Avoid slow/hanging commands** | Don't run things that take forever or might block |
+See `~/.cursor/rules/always.md` for the full "Before ANY Action" table.
 
----
-
-## Terminal Commands
-
-### Avoid Slow/Hanging Commands
-- **Never use `sleep`** - Just wait for the user instead; sleep wastes time
-- **Avoid commands that might hang** - Interactive prompts, infinite loops, long downloads
-- **Don't run long processes synchronously** - Submit to Slurm or run in background
-- **Prefer quick checks over exhaustive scans** - `head`, `tail -50`, `| head -20`
-
-### Bad Examples
-```bash
-# Don't do these
-sleep 30 && echo "done"           # Just wait for user
-find / -name "*.py"               # Scans entire filesystem, hangs
-pip install -r requirements.txt   # Can be slow, might prompt
-yes | some_command                # Infinite output risk
-watch -n 1 squeue                 # Runs forever
-```
-
-### Good Examples
-```bash
-# Do these instead
-tail -50 logs/latest.out          # Quick, bounded
-head -20 requirements.txt         # Limited output
-squeue -u $USER | head -20        # Bounded results
-ls -la | head -30                 # Won't hang
-timeout 10 some_command           # Fail if too slow
-```
+**Quick reminder:** No push, no rm, no sleep, no try/catch, no unbounded scans.
 
 ---
 

@@ -24,15 +24,52 @@ If found:
 - Resume from where the last session left off
 - Verify the handover key matches if one was provided
 
+## Discover Repo Tooling
+
+Before running commands, check how this repo does things:
+
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+ls "$REPO_ROOT/Makefile" "$REPO_ROOT/justfile" "$REPO_ROOT/scripts/" "$REPO_ROOT/pyproject.toml" 2>/dev/null
+```
+
+| If you find | Then use | Not |
+|-------------|----------|-----|
+| `Makefile` | `make <target>` | raw commands |
+| `justfile` | `just <recipe>` | raw commands |
+| `scripts/` | `./scripts/foo.sh` | inline scripts |
+| `pyproject.toml` with `[tool.uv]` | `uv run`, `uv sync` | `pip install` |
+| `pyproject.toml` with `[tool.poetry]` | `poetry run` | `pip install` |
+| `.python-version` | respect version | system python |
+| `package.json` | `npm run`, `pnpm` | raw node |
+
+**Always check `Makefile` or `justfile` first** - common targets:
+- `make test`, `make lint`, `make format`
+- `make install`, `make dev`, `make build`
+- `make help` to list all targets
+
+**Python projects:** Prefer `uv` if available (fast, handles venvs):
+```bash
+uv sync          # install deps
+uv run pytest    # run in venv
+uv add <pkg>     # add dependency
+```
+
 ## Before ANY Action
 
-**STOP and verify:**
-1. Am I about to push code? → Don't. User pushes manually.
-2. Am I about to commit? → OK if there's a merge plan.
-3. Am I about to delete/rm? → Backup first, or use mv.
-4. Am I about to cancel Slurm jobs? → Check what's running first.
-5. Is this command slow/blocking? → Avoid sleep, use bounded commands.
-6. Am I moving a tracked file/folder? → Use `git mv`, not `mv`.
+| Don't | Why | Instead |
+|-------|-----|---------|
+| `git push` | User controls remote | Ask permission, wait |
+| `git push --force` | Rewrites history | Never without explicit permission |
+| `scancel -u $USER` | Kills ALL jobs | Cancel specific job IDs only |
+| `rm` anything | Data loss risk | `mv` to backup location |
+| `sed` for file edits | Error-prone, no diff | Cursor's file tools (sed OK if file inaccessible) |
+| `sleep` in commands | Wastes time, can hang | Just wait for user |
+| Unbounded scans | Hangs forever | Use `head`, scoped paths |
+| try/catch blocks | Hides errors | Let errors propagate (fail fast) |
+| Deep nesting (>4) | Unreadable | Extract to functions |
+
+**Quick mental check:** Push? Commit? Delete? Slurm? Slow command? → Stop and verify.
 
 ## Think Before Acting
 
