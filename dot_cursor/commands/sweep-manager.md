@@ -625,6 +625,21 @@ Last updated: [timestamp]
 | 12345_0 | abc123 | 2341 | 54000 | 4:23:15 | RUNNING |
 | 12345_1 | def456 | 1200 | 28000 | 2:15:30 | RUNNING |
 
+## Source Locations
+| Sweep ID | Log Files | WandB URL | Last Verified |
+|----------|-----------|-----------|---------------|
+| xyz123 | logs/sweep_12345_*.{out,err} | [link](https://wandb.ai/...) | 2026-01-07 |
+
+## Discrepancy Log
+| Timestamp | Run ID | WandB State | Slurm State | Action Taken |
+|-----------|--------|-------------|-------------|--------------|
+| 2026-01-07 14:30 | abc123 | running | PREEMPTED | Marked crashed, queued resume |
+
+## Preemption History
+| Job ID | Run ID | Time | Checkpoint | Resumed? |
+|--------|--------|------|------------|----------|
+| 12345_0 | abc123 | 2026-01-07 | step-54000 | Yes → 12350_0 |
+
 ## Notes
 - [Any issues, preemptions, etc.]
 ```
@@ -1262,6 +1277,171 @@ echo "Runs with checkpoints: $(ls -d outputs/*/checkpoint-* 2>/dev/null | cut -d
 echo "Total checkpoints: $(ls -d outputs/*/checkpoint-* 2>/dev/null | wc -l)"
 echo "Offline wandb runs: $(find wandb -name "offline-*" -type d 2>/dev/null | wc -l)"
 ```
+
+---
+
+## 🔍 Log Location Discovery
+
+**Find logs without assuming naming patterns - search by content or job ID.**
+
+```bash
+# Find logs by job ID (in filename)
+ls logs/*12345*.{out,err} 2>/dev/null
+
+# Find logs by sweep/run ID (in content)
+grep -l "xyz123" logs/*.out logs/*.err 2>/dev/null
+
+# Find all logs for a specific Slurm job array
+ls logs/*_${JOB_ID}_*.{out,err} 2>/dev/null
+
+# Search stderr for a specific error across all logs
+grep -l "CUDA\|OOM" logs/*.err 2>/dev/null
+
+# Find which log contains a specific run
+grep -l "Run: ${RUN_ID}" logs/*.out 2>/dev/null
+```
+
+---
+
+## 🔄 WandB vs Slurm Reconciliation
+
+**Always cross-reference both sources - they can disagree.**
+
+```bash
+# Get WandB run state
+wandb api get runs/${WANDB_ENTITY}/${WANDB_PROJECT}/${RUN_ID} | jq -r '.state'
+
+# Get Slurm job state
+sacct -j ${JOB_ID} --format=State --noheader | head -1
+
+# Find all preempted jobs in last 7 days
+sacct -u $USER --format=JobID,JobName%25,State -S $(date -d '7 days ago' +%Y-%m-%d) | grep PREEMPT
+
+# Check WandB heartbeat age for a run
+wandb api get runs/${WANDB_ENTITY}/${WANDB_PROJECT}/${RUN_ID} | jq -r '.heartbeatAt'
+
+# Mark a stale WandB run as crashed
+wandb run update $WANDB_ENTITY/$WANDB_PROJECT/$RUN_ID --state crashed
+```
+
+### Discrepancy Detection Table
+
+| WandB State | Slurm State | Meaning | Action |
+|-------------|-------------|---------|--------|
+| running | no job | Zombie | `wandb run update ... --state crashed` |
+| running | PREEMPTED | Stale heartbeat | Mark crashed in WandB, queue resume |
+| finished | PREEMPTED | WandB wrong | Verify via logs - likely incomplete run |
+| crashed | RUNNING | Stale WandB | Job recovered, WandB will update |
+
+**Log discrepancies to ACTIVE_SWEEPS.md** under the Discrepancy Log section.
+
+---
+
+## ⏸️ Preemption Tracking
+
+**Preemptions are common on shared clusters - track and resume them.**
+
+```bash
+# List all preemptions in last 7 days
+sacct -u $USER --format=JobID,JobName%25,State,End,Elapsed \
+  -S $(date -d '7 days ago' +%Y-%m-%d) | grep PREEMPT
+
+# Find run ID from a preempted job's log
+grep -oP "Run: \K\S+" logs/*_${JOB_ID}_*.out | head -1
+
+# Find latest checkpoint for a run
+ls -d outputs/${RUN_ID}/checkpoint-* | sort -t- -k2 -n | tail -1
+
+# Check if checkpoint has hydra config (needed for resume)
+ls outputs/${RUN_ID}/hydra_config.yaml
+
+# Resume a preempted run
+make run SWEEP=${SWEEP_ID} RUN=${RUN_ID}
+```
+
+**Update ACTIVE_SWEEPS.md** Preemption History section when preemptions occur.
+
+---
+
+## 🚫 Sweep Cancellation Workflow (Config Changes)
+
+**When sweep config changes require cancelling, cancel on BOTH Slurm AND WandB.**
+
+```bash
+# 1. Cancel specific Slurm jobs (NEVER scancel -u $USER)
+scancel ${JOB_ID}
+
+# 2. Cancel the sweep on WandB (stops accepting new runs)
+wandb sweep cancel ${WANDB_ENTITY}/${WANDB_PROJECT}/${SWEEP_ID}
+
+# 3. Optionally pause instead of cancel (can resume later)
+wandb sweep pause ${WANDB_ENTITY}/${WANDB_PROJECT}/${SWEEP_ID}
+
+# 4. Check sweep state after cancellation
+wandb api get sweeps/${WANDB_ENTITY}/${WANDB_PROJECT}/${SWEEP_ID} | jq -r '.state'
+
+# 5. Resume a paused sweep
+wandb sweep resume ${WANDB_ENTITY}/${WANDB_PROJECT}/${SWEEP_ID}
+```
+
+### Config Change Checklist
+
+When config changes require restarting a sweep:
+
+- [ ] Cancelled Slurm jobs for old sweep (`scancel ${JOB_ID}`)
+- [ ] Cancelled sweep on WandB (`wandb sweep cancel ...`)
+- [ ] Updated ACTIVE_SWEEPS.md (marked old sweep cancelled, noted reason)
+- [ ] Created new sweep with fixed config
+- [ ] Launched new agents
+
+---
+
+## 📈 Convergence/Divergence Monitoring (Per-Run)
+
+**Monitor training health for each run - detect divergence early.**
+
+```bash
+# Check for NaN/Inf in recent logs
+grep -E "nan|NaN|inf|Inf" logs/*_${JOB_ID}_*.out | tail -5
+
+# Get loss trend from WandB (last 10 logged values)
+wandb api get runs/${WANDB_ENTITY}/${WANDB_PROJECT}/${RUN_ID}/history \
+  --keys loss | jq -r '.[-10:] | .[].loss'
+
+# Check loss from stdout logs (tail recent entries)
+grep -oP "loss['\"]?:\s*\K[0-9.e+-]+" logs/*_${JOB_ID}_*.out | tail -20
+
+# Detect exploding gradients (loss > threshold)
+grep -oP "loss['\"]?:\s*\K[0-9.e+-]+" logs/*_${JOB_ID}_*.out | \
+  awk '$1 > 100 {print "DIVERGING: loss=" $1}'
+
+# Check gradient norm if logged
+grep -oP "grad_norm['\"]?:\s*\K[0-9.e+-]+" logs/*_${JOB_ID}_*.out | tail -10
+```
+
+### Warning Signs Table
+
+| Signal | Pattern to Check | Meaning | Action |
+|--------|------------------|---------|--------|
+| NaN loss | `grep -i nan logs/*.out` | Diverged | Kill run, reduce LR or batch |
+| Loss > 100 | Loss suddenly spikes | Exploding gradients | Check LR, add gradient clipping |
+| Loss plateau | Same value 100+ steps | Stuck | Check LR schedule, data loading |
+| Val loss ↑ | Validation increasing | Overfitting | Early stop or add regularization |
+
+### Per-Run Health Status Format
+
+When reporting sweep status, include training health:
+
+```
+Run abc123: epoch=2341 loss=0.023 ↓ (healthy)
+Run def456: epoch=1200 loss=NaN ⚠️ (DIVERGED - kill)
+Run ghi789: epoch=800 loss=2.1→2.1→2.1 → (plateau - check LR)
+```
+
+Trend indicators:
+- ↓ = loss decreasing (healthy)
+- → = loss flat (plateau)
+- ↑ = loss increasing (diverging/overfitting)
 
 ---
 
