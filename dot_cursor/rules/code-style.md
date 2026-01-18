@@ -51,8 +51,16 @@ def process_sub(sub):
             do_thing(x)
 ```
 
+## Error Handling Philosophy
+
+| Code Type | Strategy | Why |
+|-----------|----------|-----|
+| **Research/experiment** | No try/catch - fail fast | Errors must be visible for debugging |
+| **Production internal** | No try/catch - propagate | Let errors bubble up to boundaries |
+| **System boundaries** | Handle with specific catches | API endpoints, file I/O, external calls |
+
 ```python
-# ❌ BAD: Try/catch hiding errors
+# ❌ BAD: Try/catch hiding errors (anywhere)
 try:
     result = risky_operation()
 except Exception:
@@ -60,6 +68,14 @@ except Exception:
 
 # ✅ GOOD: Let it fail (research code)
 result = risky_operation()  # Will raise if broken
+
+# ✅ GOOD: Handle at system boundary (production)
+def api_endpoint(request):
+    try:
+        data = parse_request(request)
+        return success_response(process(data))  # process() has no try/catch
+    except ValidationError as e:
+        return error_response(400, str(e))
 ```
 
 ## Git Commits

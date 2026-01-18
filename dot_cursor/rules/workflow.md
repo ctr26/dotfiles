@@ -76,6 +76,12 @@ Patterns extracted from command files that apply across workflows.
 - Format: `[sweep_id](https://wandb.ai/entity/project/sweeps/sweep_id)`
 - Include in ACTIVE_SWEEPS.md AND chat responses
 
+### Reproducibility: Seed Logging
+- **Always log random seeds** to WandB config
+- Set seeds for: PyTorch, NumPy, Python random, CUDA
+- Log package versions in config
+- Store full config in WandB for experiment recreation
+
 ---
 
 ## Agent Handover Flow

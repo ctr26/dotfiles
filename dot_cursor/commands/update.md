@@ -92,3 +92,11 @@ After gathering, state:
 ## Example Follow-Up
 
 "What would you like to focus on? Resume jobs, commit changes, or dig into sweeps?"
+
+---
+
+## Related Templates
+
+For focused status checks, see `~/.cursor/rules/dialogue/`:
+- `morning-standup.md` - Start of day with overnight job check
+- `sweep-status.md` - ML experiment health digest

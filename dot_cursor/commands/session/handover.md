@@ -201,3 +201,11 @@ After creating the handover file, tell the user:
 **Agent:** feat/data-loader
 **Handover File:** CLAUDE/HO-20260106-1423-a1b2.md
 ```
+
+---
+
+## Related Templates
+
+For lighter handover scenarios, see `~/.cursor/rules/dialogue/`:
+- `micro-handover.md` - Quick mid-session handover
+- `worktree-handover.md` - Cross-worktree context transfer

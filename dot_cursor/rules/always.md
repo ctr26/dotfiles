@@ -24,6 +24,14 @@ If found:
 - Resume from where the last session left off
 - Verify the handover key matches if one was provided
 
+### Context File Types
+
+| File | Purpose | When to Use |
+|------|---------|-------------|
+| `CLAUDE.md` | Session index, handover pointer, quick reference | Default - most repos |
+| `CLAUDE_SESSION.md` | Extended session state for game dev | Games with complex state |
+| `CLAUDE/` folder | Detailed handover files, notes, todos | Long-running features |
+
 ## Discover Repo Tooling
 
 Before running commands, check how this repo does things:

@@ -106,3 +106,14 @@ After running diagnostic:
 >
 > "Your local cursor commands have changed. Want me to re-add them to chezmoi?"
 
+---
+
+## Related Commands
+
+| Need | Command |
+|------|---------|
+| See local edits to capture | → **sync/chezmoi/edits** |
+| See what apply would do | → **sync/chezmoi/diff** |
+| Capture and commit changes | → **sync/chezmoi/commit** |
+| Sync cursor config to remote | → **sync/remote** |
+

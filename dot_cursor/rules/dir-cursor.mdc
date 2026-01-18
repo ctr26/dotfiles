@@ -15,7 +15,7 @@ Rules for editing Cursor config files. Inherits from `always.md` and `etiquette.
 |--------|-----------|---------|
 | `rules/` | `.md`, `.mdc` | Always-active behavior |
 | `commands/` | `.md` | User-triggered workflows |
-| `_local/` | `.mdc` | Agent personas |
+| `agents/` | `.mdc` | Agent personas |
 
 ## Rule Format (.mdc with globs)
 
@@ -58,9 +58,9 @@ You are a [role]. [One-line purpose].
 
 ## Naming Conventions
 
-- Lowercase with hyphens: `git-manager.md`
+- Lowercase with hyphens: `git/commit.md`
+- Use hierarchical folders: `git/`, `session/`, `ml/`, `sync/`
 - Prefix with `dir-` for directory-conditional rules
-- Use `-manager` suffix for management tasks
 
 ## Never Do
 

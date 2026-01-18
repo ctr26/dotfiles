@@ -91,3 +91,11 @@ If sources are missing, say so explicitly and ask user what to focus on.
 
 End with:
 > "Ready to switch to `/session/agentic` to execute Step 1."
+
+---
+
+## Related Templates
+
+For lighter context recovery, see dialogue templates in `~/.cursor/rules/dialogue/`:
+- `catch-up.md` - Quick orientation after a break
+- `morning-standup.md` - Start of day planning
