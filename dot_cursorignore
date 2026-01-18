@@ -73,7 +73,9 @@ logs/
 # Allow (negations)
 # =============================================================================
 !CLAUDE.md
-!CLAUDE/*
-!/README.md
+!CLAUDE.local.md
+!CLAUDE/**
+!README.md
 !.specstory/**
 !.cursor/**
+/_robots/**

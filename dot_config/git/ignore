@@ -198,13 +198,14 @@ logs/
 .specstory/**
 
 # Local development folders
-_local
-**/ignore/
-**/_local/
-worktrees/
+
+ignore/**
+_local/**
 worktrees/**
 
 # AI/Agent session files (not for version control)
-CLAUDE/**
 CLAUDE.md
+CLAUDE.local.md
+CLAUDE/**
 .cursor/**
+_robots/**
