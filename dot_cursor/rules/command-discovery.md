@@ -25,6 +25,7 @@ When to suggest related commands. Proactively recommend switching to a specializ
 | **ideate** | Generate improvement ideas | User asks "what's next?" or wants roadmap |
 | **note** | Persist notes for repo (CLAUDE/notes/) | User wants to save context for later |
 | **todo** | Manage todos for this repo | Task tracking and prioritization |
+| **audit** | Committee review of cursor config | User wants multi-agent review of rules/commands/agents |
 
 ---
 

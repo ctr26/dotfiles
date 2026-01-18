@@ -57,6 +57,7 @@ Core principles:
 | **note** | Persist notes for this repo (CLAUDE/notes/) |
 | **todo** | Manage todos for this repo |
 | **slack** | Draft Slack replies about your codebase |
+| **audit** | Committee review of cursor config |
 
 **Suggest commands when relevant:** "I can help with that using [command] - want me to switch?"
 
