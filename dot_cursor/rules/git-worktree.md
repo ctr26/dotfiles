@@ -35,24 +35,25 @@ Use the setup script for consistent worktree creation:
 
 This script:
 - Creates worktree with new branch
-- Symlinks common resources (.env, .venv, node_modules, etc.)
+- Symlinks shared resources (.env, .python-version, node_modules)
+- Copies .venv (to avoid breaking the original)
 - Creates fresh CLAUDE.md for the feature
 
 ---
 
-## What to Symlink vs Keep Local
+## What to Symlink vs Copy vs Keep Local
 
-| Resource | Symlink? | Reason |
-|----------|----------|--------|
-| `.env`, `.envrc` | Yes | Secrets should be shared |
-| `.venv`, `venv` | Yes | Avoid reinstalling packages |
-| `node_modules` | Yes | Avoid reinstalling packages |
-| `.python-version` | Yes | Consistent Python version |
-| `.cache`, `*_cache` | Yes | Avoid re-downloading |
-| `outputs/`, `wandb/` | No | Keep separate per feature |
-| `logs/` | No | Keep separate per feature |
-| `CLAUDE.md` | No | Per-feature context (isolated) |
-| `CLAUDE/` | No | Session history is per-feature |
+| Resource | Action | Reason |
+|----------|--------|--------|
+| `.env`, `.envrc` | Symlink | Secrets should be shared |
+| `.venv`, `venv` | Copy | Symlink can break original venv |
+| `node_modules` | Symlink | Avoid reinstalling packages |
+| `.python-version` | Symlink | Consistent Python version |
+| `.cache`, `*_cache` | Symlink | Avoid re-downloading |
+| `outputs/`, `wandb/` | Local | Keep separate per feature |
+| `logs/` | Local | Keep separate per feature |
+| `CLAUDE.md` | Local | Per-feature context (isolated) |
+| `CLAUDE/` | Local | Session history is per-feature |
 
 ---
 
@@ -110,8 +111,6 @@ git worktree prune
 
 | Need | Command |
 |------|---------|
-| Create new worktree | `@new-worktree` |
-| Worktree context/visibility | `@worktrees` |
-| PR management with worktrees | `@pr-manager` |
-
-
+| Create new worktree | → **git/worktree** |
+| Worktree context/visibility | → **git/worktrees** |
+| PR management with worktrees | → **git/pr** |

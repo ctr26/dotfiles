@@ -1,0 +1,75 @@
+---
+name: 'Test Files'
+description: 'Pytest conventions for test directories'
+globs: ["**/test_*.py", "**/tests/**/*.py", "**/*_test.py"]
+alwaysApply: false
+---
+
+# Test File Guidelines
+
+Rules for test files. Inherits from `always.md` and `etiquette.md`.
+
+## Pytest Conventions
+
+- Use fixtures over setUp/tearDown
+- One assertion concept per test
+- Descriptive names: `test_should_<expected>_when_<condition>`
+- Group related tests in classes
+
+## Fixtures
+
+```python
+# Prefer fixtures
+@pytest.fixture
+def sample_data():
+    return {"key": "value"}
+
+def test_process(sample_data):
+    result = process(sample_data)
+    assert result is not None
+```
+
+## Mocking
+
+- Mock external services, not internal logic
+- Use `pytest-mock` or `unittest.mock`
+- Prefer dependency injection over patching
+
+```python
+# Good: inject dependency
+def test_api_call(mock_client):
+    result = fetch_data(client=mock_client)
+
+# Avoid: patching internal modules
+@patch("myapp.internal.helper")  # fragile
+```
+
+## Assertions
+
+- Use pytest's plain `assert` (not unittest methods)
+- One logical assertion per test
+- Clear failure messages
+
+```python
+# Good
+assert result == expected, f"Got {result}, expected {expected}"
+
+# Avoid
+self.assertEqual(result, expected)  # unittest style
+```
+
+## Test Organization
+
+```
+tests/
+├── conftest.py       # Shared fixtures
+├── unit/             # Fast, isolated tests
+├── integration/      # Cross-component tests
+└── fixtures/         # Test data files
+```
+
+## Never Do
+
+- Skip tests without explanation (`@pytest.skip` needs reason)
+- Use `sleep()` in tests (use mocks/events)
+- Test implementation details (test behavior)

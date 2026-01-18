@@ -55,6 +55,46 @@ uv run pytest    # run in venv
 uv add <pkg>     # add dependency
 ```
 
+## Rule Writing Style
+
+When writing or updating rules in `~/.cursor/rules/`:
+
+| Prefer | Avoid |
+|--------|-------|
+| "Check if CLAUDE.md exists in the repo root" | Bash one-liners with `ls` or `test` |
+| "Find the repo root using git" | `git rev-parse --show-toplevel` as instructions |
+| "Look for Makefile, justfile, or scripts/" | Complex `ls ... 2>/dev/null` chains |
+
+**Why:** Plain English is readable across sessions, doesn't break when paths change, and lets the agent choose the right tool (Cursor file tools vs terminal).
+
+**Exception:** Code blocks are fine for *examples* of what to run, but instructions should be prose.
+
+## Note Infrastructure in CLAUDE.md
+
+When you discover how a repo is set up, document it so future sessions skip re-discovery. Check CLAUDE.md first - only add if not already noted.
+
+**What to look for and note:**
+
+| Category | Examples to check | What to record |
+|----------|-------------------|----------------|
+| Build system | Makefile, justfile, npm scripts | Key targets (test, lint, build) and any non-obvious conventions |
+| Python packaging | uv, poetry, pip, conda | Which tool and any special sync/run patterns |
+| HPC / cluster | Slurm configs, sbatch templates, partition files | Partition names, GPU types, memory limits, template locations |
+| Environment | .env files, required API keys | Which vars are needed (not the values) |
+| CI/CD | GitHub Actions, pre-commit hooks | What runs automatically vs manually |
+
+**Format suggestion for CLAUDE.md:**
+
+```
+## Infrastructure
+- Build: Makefile (make test, make format)
+- Python: uv
+- HPC: Slurm gpu partition, A100s, templates in slurm/
+- Required env: WANDB_API_KEY, HF_TOKEN
+```
+
+**When to document:** After first discovering infrastructure, or when you learn something non-obvious (e.g., "use `make test-fast` for quick iteration, `make test` runs full suite").
+
 ## Before ANY Action
 
 | Don't | Why | Instead |

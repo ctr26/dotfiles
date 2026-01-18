@@ -1,0 +1,67 @@
+---
+name: 'Experiments'
+description: 'ML experiment code - fail fast, minimal abstraction'
+globs: ["**/experiments/**/*", "**/exp/**/*"]
+alwaysApply: false
+---
+
+# Experiment Code Guidelines
+
+Rules for ML experiment directories. Inherits from `always.md` and `etiquette.md`.
+
+## Core Principles
+
+1. **Fail fast** - No try/catch. Let errors surface immediately.
+2. **Minimal abstraction** - Clarity over DRY. It's throwaway code.
+3. **Log everything** - WandB for metrics, print for debugging.
+4. **Reproducibility** - Log configs, seeds, versions.
+
+## Code Style
+
+- Hardcoded paths are OK (experiment-specific)
+- Copy-paste over abstraction (experiments are isolated)
+- Comments explain "why", not "what"
+- Keep indentation ≤4 levels
+
+## WandB Logging
+
+```python
+import wandb
+
+wandb.init(
+    project="experiment-name",
+    config={"lr": 1e-4, "batch_size": 32}
+)
+
+# Log metrics
+wandb.log({"loss": loss, "accuracy": acc})
+
+# Log artifacts
+wandb.save("model.pt")
+```
+
+## Experiment Structure
+
+```
+experiments/
+├── exp_001_baseline/
+│   ├── config.yaml
+│   ├── train.py
+│   └── results/
+├── exp_002_augmentation/
+└── README.md         # What each experiment tests
+```
+
+## Before Running
+
+1. Check sweep status: `squeue -u $USER`
+2. Verify GPU availability
+3. Log experiment config to WandB
+4. Set random seeds
+
+## Never Do
+
+- `try/catch` blocks (errors must be visible)
+- Over-engineer for reuse (experiments are disposable)
+- Run without logging (results are worthless)
+- Forget to set seeds (irreproducible)

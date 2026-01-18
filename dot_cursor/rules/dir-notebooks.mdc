@@ -1,0 +1,66 @@
+---
+name: 'Notebooks'
+description: 'Jupyter notebooks - exploration-friendly, cell independence'
+globs: ["**/*.ipynb", "**/notebooks/**/*"]
+alwaysApply: false
+---
+
+# Notebook Guidelines
+
+Rules for Jupyter notebooks. Inherits from `always.md` and `etiquette.md`.
+
+## Core Principles
+
+1. **Cell independence** - Each cell should run after kernel restart
+2. **Visual clarity** - Use markdown cells to explain
+3. **Exploration-friendly** - OK to be messy, it's a scratchpad
+4. **Reproducible** - Include setup cells at top
+
+## Structure
+
+```
+# Notebook Title
+
+## Setup
+- imports, configs, data loading
+
+## Exploration
+- analysis cells with markdown explanations
+
+## Results
+- visualizations, summary statistics
+
+## Conclusions
+- key findings, next steps
+```
+
+## Best Practices
+
+- **Imports at top** - Single cell with all imports
+- **Config cell** - Paths, hyperparameters in one place
+- **Markdown headers** - Break into logical sections
+- **Clear outputs** - Run all before sharing
+
+## Code Style
+
+- Inline comments OK (notebooks are exploratory)
+- Print statements encouraged for debugging
+- Magic commands OK (`%matplotlib inline`, `%%time`)
+- Long cells OK if logically cohesive
+
+## Visualization
+
+```python
+# Always label axes
+plt.xlabel("X Label")
+plt.ylabel("Y Label")
+plt.title("Descriptive Title")
+plt.tight_layout()
+```
+
+## Never Do
+
+- Rely on cell execution order (restart kernel and run all)
+- Leave credentials in notebooks
+- Commit notebooks with large outputs (use nbstripout)
+- Skip markdown explanations for complex cells

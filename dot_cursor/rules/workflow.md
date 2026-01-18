@@ -76,6 +76,50 @@ Patterns extracted from command files that apply across workflows.
 - Format: `[sweep_id](https://wandb.ai/entity/project/sweeps/sweep_id)`
 - Include in ACTIVE_SWEEPS.md AND chat responses
 
+---
+
+## Agent Handover Flow
+
+The standard workflow for task handoff between agents:
+
+```
+Handover → New Agent → Plan Mode → ask_question → Plan UI Approval → Deploy
+```
+
+### Stages
+
+| Stage | Description |
+|-------|-------------|
+| **1. Handover** | Create HO-*.md with startup prompt, update CLAUDE.md index |
+| **2. New Agent** | User opens fresh chat, pastes startup prompt with handover key |
+| **3. Plan Mode** | Agent gathers context, produces plan via `create_plan` tool |
+| **4. Iterate** | Use `ask_question` for ALL decisions with discrete options |
+| **5. Approval** | Wait for explicit plan UI approval (NOT "yes" or "sounds good") |
+| **6. Deploy** | Execute plan steps, report progress |
+| **7. Questions** | Use `ask_question` for any mid-execution decisions |
+
+### Key Invariants
+
+1. **Never interpret conversational affirmatives as plan approval**
+   - "yes", "sounds good", "go ahead" → NOT plan approval
+   - Only the explicit plan UI action exits planning mode
+
+2. **Always use ask_question for decisions**
+   - See `~/.cursor/rules/ask-question.md` for enforcement table
+
+3. **Handover at natural boundaries**
+   - After 15+ message exchanges
+   - Before major context switches
+   - When context confusion occurs
+
+### Handover File Archival
+
+Handover files older than 7 days should be archived:
+
+```bash
+find CLAUDE -name "HO-*.md" -mtime +7 -exec mv {} CLAUDE/archive/ \;
+```
+
 
 
 
