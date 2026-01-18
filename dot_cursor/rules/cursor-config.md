@@ -1,13 +1,70 @@
 # Cursor Configuration Reference
 
-How rules, commands, and agents are built in `~/.cursor/`.
+How rules, commands, and agents are organized. Use tags for cross-references.
+
+---
+
+## Tag Reference
+
+Cross-reference rules with `#TAG` and commands with `@path`.
+
+### Rules (#)
+
+| Tag | File | Description |
+|-----|------|-------------|
+| `#CORE` | `core.mdc` | Always-applied safety, ask_question, style |
+| `#INIT` | `init.md` | Session initialization |
+| `#ALWAYS` | `always.md` | Extended safety documentation |
+| `#ETIQUETTE` | `etiquette.md` | Agent behavior guide |
+| `#WORKFLOW` | `workflow.md` | Git and handover patterns |
+| `#CODE-STYLE` | `code-style.md` | Formatting rules |
+| `#ASK-QUESTION` | `ask-question.md` | ask_question tool enforcement |
+| `#CURSOR-CONFIG` | `cursor-config.md` | This file - config structure reference |
+| `#CONTEXT` | `context-gathering.md` | Environment detection |
+| `#DISCOVERY` | `command-discovery.md` | Command suggestions |
+| `#GIT-WORKTREE` | `git-worktree.md` | Worktree patterns |
+| `#DIR-SRC` | `dir-src.mdc` | Production code patterns |
+| `#DIR-EXPERIMENTS` | `dir-experiments.mdc` | ML experiment patterns |
+| `#DIR-NOTEBOOKS` | `dir-notebooks.mdc` | Jupyter notebook patterns |
+| `#DIR-SCRIPTS` | `dir-scripts.mdc` | Utility script patterns |
+| `#DIR-TESTS` | `dir-tests.mdc` | Test file patterns |
+| `#DIR-CURSOR` | `dir-cursor.mdc` | Cursor config patterns |
+
+### Commands (@)
+
+| Tag | Path | Description |
+|-----|------|-------------|
+| `@git/commit` | `git/commit.md` | Staging and committing |
+| `@git/pr` | `git/pr.md` | PR via worktrees |
+| `@git/cherry-pick` | `git/cherry-pick.md` | Cherry-pick commits |
+| `@git/worktree` | `git/worktree.md` | Create worktree |
+| `@git/worktrees` | `git/worktrees.md` | Discover worktrees |
+| `@session/continue` | `session/continue.md` | Context recovery |
+| `@session/agentic` | `session/agentic.md` | Autonomous execution |
+| `@session/handover` | `session/handover.md` | Session handover |
+| `@session/eod` | `session/eod.md` | End of day |
+| `@session/catch-up` | `session/catch-up.md` | Quick orientation |
+| `@session/summarize` | `session/summarize.md` | Generate startup prompt |
+| `@session/read-only` | `session/read-only.md` | Observer mode |
+| `@sync/remote` | `sync/remote.md` | Remote sync |
+| `@sync/chezmoi` | `sync/chezmoi.md` | Dotfile sync |
+| `@config/review` | `config/review.md` | Review cursor config |
+| `@setup/agentic` | `setup/agentic.md` | Agentic config setup |
+| `@project/biohive` | `project/biohive.md` | BioHive workflows |
+| `@update` | `update.md` | Status check |
+| `@audit` | `audit.md` | Committee review |
+| `@ideate` | `ideate.md` | Improvement ideas |
+| `@note` | `note.md` | Persist notes |
+| `@todo` | `todo.md` | Task management |
+| `@slack` | `slack.md` | Slack replies |
+| `@access-files` | `access-files.md` | File access helpers |
 
 ---
 
 ## Directory Structure
 
 ```
-~/.cursor/
+.cursor/
 ├── rules/          # Always-active behavior (*.mdc for auto-load, *.md for reference)
 ├── commands/       # User-triggered workflows (*.md)
 └── agents/         # Specialized personas (*.mdc)
@@ -277,9 +334,9 @@ timeout 10 some_command
 
 ## Key Invariants Across All Configs
 
-**Authoritative Safety table:** `~/.cursor/rules/core.mdc`
+**Authoritative Safety table:** #CORE
 
-All rules/commands/agents must respect the Safety section in `core.mdc`. Key points:
+All rules/commands/agents must respect the Safety section in #CORE. Key points:
 
 - Never `git push/commit` without explicit request
 - Never `rm` (backup first) or `scancel -u $USER`

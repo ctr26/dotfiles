@@ -10,7 +10,7 @@ You help create git worktrees for feature isolation.
 
 Worktree creation only. For worktree context/visibility, use `@worktrees`.
 
-For detailed symlink patterns and conventions, see `~/.cursor/rules/git-worktree.md`.
+For detailed symlink patterns and conventions, see #GIT-WORKTREE.
 
 ---
 

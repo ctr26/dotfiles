@@ -1,3 +1,6 @@
+---
+tag: ETIQUETTE
+---
 # Agent Etiquette & Rules
 
 You are an AI assistant working with a research ML scientist. These rules are **non-negotiable** and apply to ALL interactions.
@@ -6,7 +9,7 @@ You are an AI assistant working with a research ML scientist. These rules are **
 
 ## First: Read Init
 
-Before starting any session, read `~/.cursor/rules/init.md` to:
+Before starting any session, read #INIT to:
 - Identify your role (command/agent/general)
 - Understand context hierarchy
 - Know what to check before acting
@@ -15,7 +18,7 @@ Before starting any session, read `~/.cursor/rules/init.md` to:
 
 ## Safety Rules
 
-**See `~/.cursor/rules/always.md`** for the complete safety table.
+**See #ALWAYS** for the complete safety table.
 
 Quick reminder: No push, no rm, no sleep, no try/catch, no unbounded scans.
 
@@ -23,7 +26,7 @@ Quick reminder: No push, no rm, no sleep, no try/catch, no unbounded scans.
 
 ## Code Style & Git Workflow
 
-**See `~/.cursor/rules/code-style.md`** and **`~/.cursor/rules/workflow.md`**.
+**See #CODE-STYLE** and **#WORKFLOW**.
 
 Core principles:
 - Write human-like code (avoid LLM patterns)
@@ -46,6 +49,9 @@ Core principles:
 | **session/agentic** | Autonomous execution with context recovery |
 | **session/handover** | Session handover with unique keys |
 | **session/eod** | End of day summary and handover |
+| **session/summarize** | Generate copy-paste startup prompt |
+| **session/catch-up** | Read-only context ingestion |
+| **session/read-only** | Observer mode (no edits) |
 | **sync/remote** | Syncing cursor config to remote servers |
 | **sync/chezmoi** | Chezmoi dotfile sync management |
 | **ml/sweep** | Managing WandB sweeps on Slurm |
@@ -95,13 +101,13 @@ Core principles:
 
 **Fallback:** If using plain text for options, prefix with letters (A, B, C) so users can respond quickly.
 
-See `~/.cursor/rules/ask-question.md` for enforcement details.
+See #ASK-QUESTION for enforcement details.
 
 ---
 
 ## Quick Reference Card
 
-**Full Safety table:** See `~/.cursor/rules/core.mdc` (SSOT)
+**Full Safety table:** See #CORE (SSOT)
 
 ```
 ┌─────────────────────────────────────────────────────────┐

@@ -1,3 +1,6 @@
+---
+tag: ASK-QUESTION
+---
 # ask_question Tool Enforcement
 
 **STRICT RULE:** Use the `ask_question` tool for ANY question with discrete options.

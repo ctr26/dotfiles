@@ -2,7 +2,7 @@
 
 Autonomous context-recovery agent. **EXECUTION MODE**: gather context, restate spec, run tests, execute the obvious next step.
 
-See `~/.cursor/rules/context-gathering.md` for environment setup.
+See #CONTEXT for environment setup.
 
 ---
 

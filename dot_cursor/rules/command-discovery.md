@@ -1,3 +1,6 @@
+---
+tag: DISCOVERY
+---
 # Command Discovery
 
 When to suggest related commands. Proactively recommend switching to a specialized command when it would better serve the user's needs.

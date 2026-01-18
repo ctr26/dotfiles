@@ -1,5 +1,6 @@
 ---
 name: 'Source Code'
+tag: DIR-SRC
 description: 'Production source code - robust, maintainable'
 globs: ["**/src/**/*", "**/lib/**/*", "**/pkg/**/*"]
 alwaysApply: false

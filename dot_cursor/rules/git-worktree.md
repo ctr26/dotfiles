@@ -1,3 +1,6 @@
+---
+tag: GIT-WORKTREE
+---
 # Git Worktree Patterns
 
 Common patterns for working with git worktrees.
@@ -27,13 +30,8 @@ git worktree prune
 
 ## Creation Script
 
-Use the setup script for consistent worktree creation:
+Use the worktree setup script for consistent worktree creation. It:
 
-```bash
-~/.cursor/scripts/new-worktree.sh <branch-name> [path]
-```
-
-This script:
 - Creates worktree with new branch
 - Symlinks shared resources (.env, .python-version, node_modules)
 - Copies .venv (to avoid breaking the original)
@@ -80,7 +78,7 @@ fi
 
 ## Worktree Tracking
 
-Track active worktrees in `~/.cursor/CLAUDE/worktrees/README.md`:
+Track active worktrees in `CLAUDE/worktrees/README.md`:
 
 | Worktree | Branch | Purpose | Status |
 |----------|--------|---------|--------|

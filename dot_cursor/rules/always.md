@@ -66,6 +66,22 @@ uv run pytest    # run in venv
 uv add <pkg>     # add dependency
 ```
 
+## Remote Session: Read Host Config
+
+When operating via SSH tunnel or Cursor Remote:
+
+| Do | Don't |
+|----|-------|
+| Use Cursor's `read_file` tool for `~/.cursor/rules/*` | `cat ~/.cursor/rules/*.md` in terminal |
+| Use Cursor's `list_dir` tool for discovery | `ls ~/.cursor/commands/` in terminal |
+| Read from host `~/.cursor/` via Cursor tools | Assume remote has your config |
+
+**Why:** Cursor's file tools access the host machine through the tunnel. Terminal commands only see the remote filesystem.
+
+**Detection:** Check `$SSH_CONNECTION` or `$SSH_TTY` environment variables to detect remote sessions.
+
+**Fallback:** If host config is inaccessible, suggest: "Your rules aren't synced to this remote. Run `/sync/remote` to push config."
+
 ## Rule Writing Style
 
 When writing or updating rules:

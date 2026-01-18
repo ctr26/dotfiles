@@ -1,5 +1,6 @@
 ---
 name: 'Notebooks'
+tag: DIR-NOTEBOOKS
 description: 'Jupyter notebooks - exploration-friendly, cell independence'
 globs: ["**/*.ipynb", "**/notebooks/**/*"]
 alwaysApply: false

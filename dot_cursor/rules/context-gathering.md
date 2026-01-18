@@ -1,3 +1,6 @@
+---
+tag: CONTEXT
+---
 # Context Gathering
 
 Standard patterns for gathering repo and session context. Use these snippets at the start of any command that needs to understand the current environment.

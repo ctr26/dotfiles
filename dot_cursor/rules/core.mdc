@@ -1,5 +1,6 @@
 ---
 name: 'Core Rules'
+tag: CORE
 description: 'Always-applied safety, style, and tool usage rules'
 alwaysApply: true
 ---

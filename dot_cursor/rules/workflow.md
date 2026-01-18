@@ -1,3 +1,6 @@
+---
+tag: WORKFLOW
+---
 # Workflow Patterns
 
 Patterns extracted from command files that apply across workflows.
@@ -153,7 +156,7 @@ Handover → New Agent → Plan Mode → ask_question → Plan UI Approval → D
    - Only the explicit plan UI action exits planning mode
 
 2. **Always use ask_question for decisions**
-   - See `~/.cursor/rules/ask-question.md` for enforcement table
+   - See #ASK-QUESTION for enforcement table
 
 3. **Handover at natural boundaries**
    - After 15+ message exchanges

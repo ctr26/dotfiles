@@ -2,7 +2,7 @@
 
 Summarize today's work, check for loose ends, prepare handover, verify overnight jobs.
 
-See `~/.cursor/rules/context-gathering.md` for environment setup.
+See #CONTEXT for environment setup.
 
 ---
 

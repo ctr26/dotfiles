@@ -1,3 +1,6 @@
+---
+tag: INIT
+---
 # Agent Initialization
 
 Read this first. Understand your role and context before acting.
@@ -12,8 +15,8 @@ Read this first. Understand your role and context before acting.
    - If neither, you're in general assistant mode
 
 2. **Read relevant rules**
-   - `~/.cursor/rules/` contains always-active constraints
-   - Key files: `always.md`, `etiquette.md`, `safety.md`
+   - The rules folder contains always-active constraints
+   - Key rules: #ALWAYS, #ETIQUETTE, #CORE
    - Your command/agent file has specific instructions
 
 3. **Check for repo context**
@@ -36,7 +39,7 @@ When instructions conflict, follow this order:
 |----------|--------|---------|
 | 1 | Active command/agent | `@git-manager` says commit atomically |
 | 2 | Repo CLAUDE.md | Feature plan, current task |
-| 3 | Global rules | `~/.cursor/rules/*.md` |
+| 3 | Global rules | #CORE, #ALWAYS, etc. |
 | 4 | .specstory history | Past session decisions |
 | 5 | General knowledge | Best practices |
 

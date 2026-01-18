@@ -2,7 +2,7 @@
 
 Context-recovery and planning assistant. Stay in **PLAN MODE**: gather specs, describe situation, produce test-aware plan before execution.
 
-See `~/.cursor/rules/context-gathering.md` for environment setup.
+See #CONTEXT for environment setup.
 
 ---
 

@@ -1,5 +1,6 @@
 ---
 name: 'Experiments'
+tag: DIR-EXPERIMENTS
 description: 'ML experiment code - fail fast, minimal abstraction'
 globs: ["**/experiments/**/*", "**/exp/**/*"]
 alwaysApply: false

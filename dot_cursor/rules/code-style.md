@@ -1,3 +1,6 @@
+---
+tag: CODE-STYLE
+---
 # Code Style Rules
 
 ## Before Writing Code

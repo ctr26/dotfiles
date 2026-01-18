@@ -2,7 +2,7 @@
 
 Summarize session into a handover document so the next agent can rebuild from scratch.
 
-See `~/.cursor/rules/context-gathering.md` for environment setup.
+See #CONTEXT for environment setup.
 
 ---
 
@@ -154,7 +154,7 @@ Keep minimal – just points to current handover:
 
 ## Workflow
 
-1. Derive agent name (see `~/.cursor/rules/context-gathering.md`)
+1. Derive agent name (see #CONTEXT)
 2. Generate handover key
 3. Gather context + validator output
 4. Create `CLAUDE/$HO_KEY.md` (worktree)
