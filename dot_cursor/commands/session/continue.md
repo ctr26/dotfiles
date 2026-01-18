@@ -1,3 +1,7 @@
+---
+tag: session/continue
+scope: global
+---
 # Continue Assistant
 
 Context-recovery and planning assistant. Stay in **PLAN MODE**: gather specs, describe situation, produce test-aware plan before execution.
@@ -96,6 +100,6 @@ End with:
 
 ## Related Templates
 
-For lighter context recovery, see dialogue templates in `~/.cursor/rules/dialogue/`:
-- `catch-up.md` - Quick orientation after a break
-- `morning-standup.md` - Start of day planning
+For lighter context recovery, see dialogue templates:
+- #DIALOGUE-CATCHUP - Quick orientation after a break
+- #DIALOGUE-STANDUP - Start of day planning

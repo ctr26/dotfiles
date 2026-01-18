@@ -1,5 +1,6 @@
 ---
 tag: ASK-QUESTION
+scope: global
 ---
 # ask_question Tool Enforcement
 

@@ -1,6 +1,7 @@
 ---
 name: 'Source Code'
 tag: DIR-SRC
+scope: global
 description: 'Production source code - robust, maintainable'
 globs: ["**/src/**/*", "**/lib/**/*", "**/pkg/**/*"]
 alwaysApply: false

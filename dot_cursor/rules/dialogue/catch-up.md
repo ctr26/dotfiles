@@ -1,6 +1,10 @@
+---
+tag: DIALOGUE-CATCHUP
+scope: global
+---
 # Catch-Up Dialogue Template
 
-Quick context recovery when returning to work. Lighter than `/session/continue`.
+Quick context recovery when returning to work. Lighter than @session/continue.
 
 ---
 
@@ -108,7 +112,7 @@ After presenting catch-up, ask:
 
 | Need | Use Instead |
 |------|-------------|
-| Full context recovery with plan | → `/session/continue` |
-| End of day wrap-up | → `/session/eod` |
-| Session handover | → `/session/handover` |
+| Full context recovery with plan | → @session/continue |
+| End of day wrap-up | → @session/eod |
+| Session handover | → @session/handover |
 

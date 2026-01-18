@@ -1,5 +1,6 @@
 ---
 tag: WORKFLOW
+scope: global
 ---
 # Workflow Patterns
 
@@ -91,16 +92,32 @@ grep -r "wandb_run_id" outputs/*/config.yaml 2>/dev/null
 - Detect zombie agents (WandB running, no Slurm job)
 - Check for stale heartbeats (>30 min)
 
+### Multi-Node Training: NCCL Timeouts
+When running distributed training across nodes:
+- Set `NCCL_TIMEOUT=1800` (30 min) to prevent false timeout kills
+- Set `NCCL_DEBUG=INFO` when debugging communication issues
+- Common causes: slow network, node imbalance, stuck workers
+
 ### Always Include WandB URLs
 - Every sweep must have its WandB URL in reports
 - Format: `[sweep_id](https://wandb.ai/entity/project/sweeps/sweep_id)`
 - Include in ACTIVE_SWEEPS.md AND chat responses
 
-### Reproducibility: Seed Logging
+### Reproducibility: Seed & Version Logging
 - **Always log random seeds** to WandB config
 - Set seeds for: PyTorch, NumPy, Python random, CUDA
-- Log package versions in config
+- **Log package versions** to WandB config (required for reproduction)
 - Store full config in WandB for experiment recreation
+
+```python
+# Version logging pattern
+import wandb
+wandb.config.update({
+    "torch_version": torch.__version__,
+    "transformers_version": transformers.__version__,
+    # Or capture all: pip freeze > requirements.txt
+})
+```
 
 ### OOM Prevention & Recovery
 

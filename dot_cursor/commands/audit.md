@@ -1,3 +1,7 @@
+---
+tag: audit
+scope: global
+---
 # Audit Command
 
 Invoke a committee of agents to review cursor config and produce a weighted verdict.
@@ -32,11 +36,10 @@ Invoke a committee of agents to review cursor config and produce a weighted verd
 
 ### 1. Gather Config Files
 
-```bash
-find ~/.cursor/rules -name "*.md" -o -name "*.mdc" 2>/dev/null | wc -l
-find ~/.cursor/commands -name "*.md" 2>/dev/null | wc -l
-find ~/.cursor/agents -name "*.mdc" 2>/dev/null | wc -l
-```
+Count files in each config folder:
+- Rules: `.md` and `.mdc` files
+- Commands: `.md` files
+- Agents: `.mdc` files
 
 ### 2. Apply Each Agent Lens
 

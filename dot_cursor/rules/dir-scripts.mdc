@@ -1,6 +1,7 @@
 ---
 name: 'Scripts'
 tag: DIR-SCRIPTS
+scope: global
 description: 'Utility scripts - standalone, self-documenting'
 globs: ["**/scripts/**/*", "**/bin/**/*", "**/tools/**/*"]
 alwaysApply: false

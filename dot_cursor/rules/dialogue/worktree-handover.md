@@ -1,3 +1,7 @@
+---
+tag: DIALOGUE-WORKTREE
+scope: global
+---
 # Worktree Handover Dialogue Template
 
 Transfer context when switching between git worktrees.
@@ -147,8 +151,8 @@ When features depend on each other:
 
 | Need | Use Instead |
 |------|-------------|
-| Discover worktree visibility | → `/git/worktrees` |
-| Create new worktree | → `/git/worktree` |
-| Full session handover | → `/session/handover` |
-| PR management | → `/git/pr` |
+| Discover worktree visibility | → @git/worktrees |
+| Create new worktree | → @git/worktree |
+| Full session handover | → @session/handover |
+| PR management | → @git/pr |
 

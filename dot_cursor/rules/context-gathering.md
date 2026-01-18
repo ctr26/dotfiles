@@ -1,5 +1,6 @@
 ---
 tag: CONTEXT
+scope: global
 ---
 # Context Gathering
 

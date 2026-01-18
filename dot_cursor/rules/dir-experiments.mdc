@@ -1,6 +1,7 @@
 ---
 name: 'Experiments'
 tag: DIR-EXPERIMENTS
+scope: global
 description: 'ML experiment code - fail fast, minimal abstraction'
 globs: ["**/experiments/**/*", "**/exp/**/*"]
 alwaysApply: false

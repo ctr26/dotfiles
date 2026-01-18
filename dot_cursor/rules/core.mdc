@@ -1,6 +1,7 @@
 ---
 name: 'Core Rules'
 tag: CORE
+scope: global
 description: 'Always-applied safety, style, and tool usage rules'
 alwaysApply: true
 ---

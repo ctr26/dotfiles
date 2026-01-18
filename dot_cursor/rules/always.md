@@ -1,5 +1,6 @@
 ---
 tag: ALWAYS
+scope: global
 ---
 # Always Rules
 
@@ -26,6 +27,8 @@ If found:
 - Check `CLAUDE/` folder for detailed handover files (e.g., `CLAUDE/HO-*.md`)
 - Resume from where the last session left off
 - Verify the handover key matches if one was provided
+
+**Important:** Only use the **repo-local** `CLAUDE.md` (in `$REPO_ROOT/`). Never read or write `~/.cursor/CLAUDE.md` - that file is for cursor-config maintenance only.
 
 ### Context File Types
 
@@ -66,21 +69,17 @@ uv run pytest    # run in venv
 uv add <pkg>     # add dependency
 ```
 
-## Remote Session: Read Host Config
+## Centralized Config via Host Machine
 
-When operating via SSH tunnel or Cursor Remote:
+The host machine's `~/.cursor/` is the single source of truth for rules, commands, and agents. When working on remote machines via SSH tunnel or Cursor Remote, use Cursor's file tools to access host config directly - no syncing required.
 
-| Do | Don't |
-|----|-------|
-| Use Cursor's `read_file` tool for `~/.cursor/rules/*` | `cat ~/.cursor/rules/*.md` in terminal |
-| Use Cursor's `list_dir` tool for discovery | `ls ~/.cursor/commands/` in terminal |
-| Read from host `~/.cursor/` via Cursor tools | Assume remote has your config |
+| Do | Why |
+|----|-----|
+| Use `read_file` / `list_dir` for `~/.cursor/*` | Cursor tools access host through tunnel |
+| Read rules/commands from host, not remote | One source of truth, no sync needed |
+| Inform user if host config is inaccessible | They may need to check tunnel setup |
 
-**Why:** Cursor's file tools access the host machine through the tunnel. Terminal commands only see the remote filesystem.
-
-**Detection:** Check `$SSH_CONNECTION` or `$SSH_TTY` environment variables to detect remote sessions.
-
-**Fallback:** If host config is inaccessible, suggest: "Your rules aren't synced to this remote. Run `/sync/remote` to push config."
+**Terminal commands** (`cat`, `ls`) only see the remote filesystem - use them for remote files, not for accessing your centralized config.
 
 ## Rule Writing Style
 

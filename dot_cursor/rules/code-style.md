@@ -1,5 +1,6 @@
 ---
 tag: CODE-STYLE
+scope: global
 ---
 # Code Style Rules
 

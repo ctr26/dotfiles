@@ -1,3 +1,7 @@
+---
+tag: update
+scope: global
+---
 # Update Assistant
 
 Check on everything running and give a comprehensive status report.
@@ -97,6 +101,6 @@ After gathering, state:
 
 ## Related Templates
 
-For focused status checks, see `~/.cursor/rules/dialogue/`:
-- `morning-standup.md` - Start of day with overnight job check
-- `sweep-status.md` - ML experiment health digest
+For focused status checks, see dialogue templates:
+- #DIALOGUE-STANDUP - Start of day with overnight job check
+- #DIALOGUE-SWEEP - ML experiment health digest

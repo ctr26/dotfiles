@@ -1,3 +1,7 @@
+---
+tag: CURSOR-CONFIG
+scope: global
+---
 # Cursor Configuration Reference
 
 How rules, commands, and agents are organized. Use tags for cross-references.

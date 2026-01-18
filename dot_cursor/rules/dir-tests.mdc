@@ -1,6 +1,7 @@
 ---
 name: 'Test Files'
 tag: DIR-TESTS
+scope: global
 description: 'Pytest conventions for test directories'
 globs: ["**/test_*.py", "**/tests/**/*.py", "**/*_test.py"]
 alwaysApply: false

@@ -1,6 +1,7 @@
 ---
 name: 'Cursor Config'
 tag: DIR-CURSOR
+scope: global
 description: 'Cursor command and rule authoring'
 globs: ["**/.cursor/**/*", "**/cursor/**/*"]
 alwaysApply: false

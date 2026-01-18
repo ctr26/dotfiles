@@ -1,5 +1,6 @@
 ---
 tag: INIT
+scope: global
 ---
 # Agent Initialization
 

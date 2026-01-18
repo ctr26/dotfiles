@@ -1,6 +1,10 @@
+---
+tag: DIALOGUE-STANDUP
+scope: global
+---
 # Morning Standup Dialogue Template
 
-Start of day orientation. Complements `/session/eod` for end of day.
+Start of day orientation. Complements @session/eod for end of day.
 
 ---
 
@@ -151,8 +155,8 @@ Check these in order for today's priorities:
 
 | Need | Use Instead |
 |------|-------------|
-| End of day wrap-up | → `/session/eod` |
-| Quick context recovery | → `catch-up` template |
-| Sweep status | → `sweep-status` template |
-| Full planning mode | → `/session/continue` |
+| End of day wrap-up | → @session/eod |
+| Quick context recovery | → #DIALOGUE-CATCHUP |
+| Sweep status | → #DIALOGUE-SWEEP |
+| Full planning mode | → @session/continue |
 

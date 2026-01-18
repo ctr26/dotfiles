@@ -1,5 +1,6 @@
 ---
 tag: GIT-WORKTREE
+scope: global
 ---
 # Git Worktree Patterns
 

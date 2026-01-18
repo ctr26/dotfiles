@@ -1,6 +1,10 @@
+---
+tag: DIALOGUE-SWEEP
+scope: global
+---
 # Sweep Status Dialogue Template
 
-ML experiment health check. Digest format from `ml/sweep` command patterns.
+ML experiment health check. Digest format from @ml/sweep command patterns.
 
 ---
 
@@ -141,7 +145,7 @@ done | sort -t: -k2 -rn | head -5
 
 | Need | Use Instead |
 |------|-------------|
-| Full sweep management | → `/ml/sweep` |
-| General status check | → `/update` |
+| Full sweep management | → @ml/sweep |
+| General status check | → @update |
 | Resume specific run | → `make run SWEEP=x RUN=y` |
 

@@ -1,3 +1,7 @@
+---
+tag: DIALOGUE-MICRO
+scope: global
+---
 # Micro Handover Dialogue Template
 
 Quick context handover mid-session. For long chats or spawning a fresh agent.
@@ -153,8 +157,8 @@ Start by reading the handler, then integrate into routes.
 
 | Need | Use Instead |
 |------|-------------|
-| Full session handover | → `/session/handover` |
-| End of day | → `/session/eod` |
-| Quick orientation | → `catch-up` template |
-| Continue planning | → `/session/continue` |
+| Full session handover | → @session/handover |
+| End of day | → @session/eod |
+| Quick orientation | → #DIALOGUE-CATCHUP |
+| Continue planning | → @session/continue |
 

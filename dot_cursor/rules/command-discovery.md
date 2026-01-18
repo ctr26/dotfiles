@@ -1,5 +1,6 @@
 ---
 tag: DISCOVERY
+scope: global
 ---
 # Command Discovery
 

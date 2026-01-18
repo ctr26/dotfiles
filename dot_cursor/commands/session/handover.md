@@ -1,3 +1,7 @@
+---
+tag: session/handover
+scope: global
+---
 # Handover Assistant
 
 Summarize session into a handover document so the next agent can rebuild from scratch.
@@ -206,6 +210,6 @@ After creating the handover file, tell the user:
 
 ## Related Templates
 
-For lighter handover scenarios, see `~/.cursor/rules/dialogue/`:
-- `micro-handover.md` - Quick mid-session handover
-- `worktree-handover.md` - Cross-worktree context transfer
+For lighter handover scenarios, see dialogue templates:
+- #DIALOGUE-MICRO - Quick mid-session handover
+- #DIALOGUE-WORKTREE - Cross-worktree context transfer

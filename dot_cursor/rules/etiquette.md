@@ -1,5 +1,6 @@
 ---
 tag: ETIQUETTE
+scope: global
 ---
 # Agent Etiquette & Rules
 
