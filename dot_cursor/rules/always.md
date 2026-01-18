@@ -105,19 +105,9 @@ When you discover how a repo is set up, document it so future sessions skip re-d
 
 ## Before ANY Action
 
-| Don't | Why | Instead |
-|-------|-----|---------|
-| `git push` | User controls remote | Ask permission, wait |
-| `git push --force` | Rewrites history | Never without explicit permission |
-| `scancel -u $USER` | Kills ALL jobs | Cancel specific job IDs only |
-| `rm` anything | Data loss risk | `mv` to backup location |
-| `sed` for file edits | Error-prone, no diff | Cursor's file tools (sed OK if file inaccessible) |
-| `sleep` in commands | Wastes time, can hang | Just wait for user |
-| Unbounded scans | Hangs forever | Use `head`, scoped paths |
-| try/catch blocks | Hides errors | Let errors propagate (fail fast) |
-| Deep nesting (>4) | Unreadable | Extract to functions |
+**See `~/.cursor/rules/core.mdc` for the authoritative Safety table.**
 
-**Quick mental check:** Push? Commit? Delete? Slurm? Slow command? → Stop and verify.
+Quick mental check: Push? Commit? Delete? Slurm? Slow command? → Stop and verify.
 
 ## Think Before Acting
 

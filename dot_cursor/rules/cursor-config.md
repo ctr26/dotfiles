@@ -277,16 +277,14 @@ timeout 10 some_command
 
 ## Key Invariants Across All Configs
 
-These rules appear everywhere - enforce consistency:
+**Authoritative Safety table:** `~/.cursor/rules/core.mdc`
 
-1. **Never `git push`** - user controls remote
-2. **Never `git commit` without request** - user decides when
-3. **Never `rm`** - backup first
-4. **Never cancel all Slurm jobs** - check first
-5. **No try/catch** - fail fast (research code)
-6. **Max 4 indent levels** - refactor to functions
-7. **End with follow-up question** - maintain momentum
-8. **Check CLAUDE.md first** - read context before acting
+All rules/commands/agents must respect the Safety section in `core.mdc`. Key points:
+
+- Never `git push/commit` without explicit request
+- Never `rm` (backup first) or `scancel -u $USER`
+- No try/catch (fail fast), max 4 indent levels
+- End with follow-up question, check CLAUDE.md first
 
 
 

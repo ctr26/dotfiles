@@ -60,6 +60,23 @@ Patterns extracted from command files that apply across workflows.
 - Check for existing checkpoints before any action
 - Each epoch is valuable compute time
 
+### Checkpoint Verification (Before Resume)
+Before resuming any training run, verify:
+
+```bash
+# Check checkpoint exists and is recent
+ls -la outputs/*/checkpoints/ 2>/dev/null | tail -5
+# Verify WandB run ID matches
+grep -r "wandb_run_id" outputs/*/config.yaml 2>/dev/null
+```
+
+| Check | Command | Fail Action |
+|-------|---------|-------------|
+| Checkpoint exists | `ls outputs/*/checkpoints/*.pt` | Don't resume, investigate |
+| Not corrupted | `python -c "import torch; torch.load('ckpt.pt')"` | Restore from backup |
+| Config matches | Compare `config.yaml` with intended config | Fix config or restart |
+| WandB run exists | Check WandB UI for run status | Resume to same run ID |
+
 ### FAST COMPLETION = RED FLAG
 - Runs finishing in <2 hours almost always indicate failure
 - Training takes days, not hours
@@ -81,6 +98,31 @@ Patterns extracted from command files that apply across workflows.
 - Set seeds for: PyTorch, NumPy, Python random, CUDA
 - Log package versions in config
 - Store full config in WandB for experiment recreation
+
+### OOM Prevention & Recovery
+
+When hitting CUDA OOM errors, apply fixes in this order:
+
+| Priority | Action | Trade-off |
+|----------|--------|-----------|
+| 1 | Reduce batch size by 50% | Slower training, adjust LR |
+| 2 | Enable gradient checkpointing | ~20% slower, major memory savings |
+| 3 | Use mixed precision (fp16/bf16) | Minor precision loss, 2x memory savings |
+| 4 | Increase gradient accumulation | Same effective batch, slower step |
+| 5 | Reduce sequence length / image size | May affect model quality |
+
+**Batch size reduction formula:**
+```
+new_batch = old_batch // 2
+new_lr = old_lr * (new_batch / old_batch)  # Linear scaling
+grad_accum = old_batch // new_batch        # Maintain effective batch
+```
+
+**Prevention checklist before launch:**
+- [ ] Estimate GPU memory: `model_params * 4 * 3` bytes (fp32 + grads + optimizer)
+- [ ] Add 20% headroom for activations
+- [ ] Test with 1 batch before full run
+- [ ] Log `torch.cuda.max_memory_allocated()` to WandB
 
 ---
 

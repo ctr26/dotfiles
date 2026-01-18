@@ -101,6 +101,8 @@ See `~/.cursor/rules/ask-question.md` for enforcement details.
 
 ## Quick Reference Card
 
+**Full Safety table:** See `~/.cursor/rules/core.mdc` (SSOT)
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    BEFORE YOU ACT                       │
@@ -111,14 +113,11 @@ See `~/.cursor/rules/ask-question.md` for enforcement details.
 │ ✓ Study existing code patterns                         │
 │ ✓ Verify what's running on Slurm before canceling      │
 ├─────────────────────────────────────────────────────────┤
-│                     NEVER DO                            │
+│              NEVER DO (see core.mdc for full list)     │
 ├─────────────────────────────────────────────────────────┤
-│ ✗ git push (user does this)                            │
-│ ✗ git commit (without explicit request)                │
+│ ✗ git push/commit without request                      │
 │ ✗ scancel -u $USER (kills everything)                  │
-│ ✗ rm (backup first)                                    │
-│ ✗ try/catch (fail fast)                                │
-│ ✗ Deep nesting >4 levels                               │
+│ ✗ rm (backup first) · try/catch (fail fast)            │
 ├─────────────────────────────────────────────────────────┤
 │                    ALWAYS DO                            │
 ├─────────────────────────────────────────────────────────┤
