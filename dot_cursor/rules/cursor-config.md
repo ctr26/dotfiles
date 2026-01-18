@@ -8,54 +8,67 @@ How rules, commands, and agents are built in `~/.cursor/`.
 
 ```
 ~/.cursor/
-├── rules/          # Always-active behavior (*.md)
+├── rules/          # Always-active behavior (*.mdc for auto-load, *.md for reference)
 ├── commands/       # User-triggered workflows (*.md)
 └── agents/         # Specialized personas (*.mdc)
 ```
 
 | Folder | Extension | Activation | Purpose |
 |--------|-----------|------------|---------|
-| `rules/` | `.md` | Always on | Background constraints, style rules |
-| `commands/` | `.md` | User invokes (`@command`) | Task-specific workflows |
+| `rules/` | `.mdc` | Auto-loaded (with frontmatter) | Enforced constraints, style rules |
+| `rules/` | `.md` | Reference only (not auto-loaded) | Documentation, extended examples |
+| `commands/` | `.md` | User invokes (`/command`) | Task-specific workflows |
 | `agents/` | `.mdc` | User selects | Specialized personas with model config |
 
 ---
 
-## Rules (`rules/*.md`)
+## Rules (`rules/*.mdc`)
 
-Rules apply to every interaction automatically. No frontmatter needed.
+**Critical:** Only `.mdc` files with YAML frontmatter are auto-loaded by Cursor.
 
-### Naming Convention
-- Lowercase with hyphens: `code-style.md`, `safety.md`
-- Names should be self-descriptive
+### Rule Types
 
-### Standard Sections
+| Type | Extension | Frontmatter | When Applied |
+|------|-----------|-------------|--------------|
+| Always-on | `.mdc` | `alwaysApply: true` | Every interaction |
+| Conditional | `.mdc` | `globs: [...]` | When file pattern matches |
+| Reference | `.md` | None | Never auto-loaded (documentation only) |
 
-```markdown
-# Rule Name
+### Frontmatter Format
 
-## CRITICAL / Never Do
-| Rule | Why |
-|------|-----|
-| Never `git push` | User controls remote |
-
-## Always Do
-- Check CLAUDE.md first
-- End with follow-up question
-
-## Verification Checklist
-- [ ] Check before action
-- [ ] Backup before delete
+```yaml
+---
+name: 'Rule Name'
+description: 'One-line purpose'
+alwaysApply: true  # OR use globs for conditional
+# globs: ["**/src/**/*"]  # Optional: only apply to matching files
+---
 ```
 
+### Naming Convention
+- Lowercase with hyphens: `core.mdc`, `dir-src.mdc`
+- Prefix with `dir-` for directory-conditional rules
+- Names should be self-descriptive
+
 ### Current Rules
+
+| File | alwaysApply | Purpose |
+|------|-------------|---------|
+| `core.mdc` | true | Safety, ask_question enforcement, style |
+| `dir-src.mdc` | false (globs) | Production code patterns |
+| `dir-experiments.mdc` | false (globs) | ML experiment patterns |
+| `dir-notebooks.mdc` | false (globs) | Jupyter notebook patterns |
+| `dir-scripts.mdc` | false (globs) | Utility script patterns |
+| `dir-tests.mdc` | false (globs) | Test file patterns |
+
+### Reference Files (Not Auto-Loaded)
+
 | File | Purpose |
 |------|---------|
-| `always.md` | Core invariants (think before acting, response style) |
+| `always.md` | Extended safety documentation |
 | `etiquette.md` | Comprehensive agent behavior guide |
-| `code-style.md` | Formatting, architecture, git commits |
-| `safety.md` | Destructive action prevention |
-| `workflow.md` | Patterns extracted from commands |
+| `workflow.md` | Git and handover patterns |
+| `ask-question.md` | ask_question tool reference |
 
 ---
 
@@ -64,8 +77,8 @@ Rules apply to every interaction automatically. No frontmatter needed.
 Commands are user-triggered workflows. Invoke with `@command-name`.
 
 ### Naming Convention
-- Lowercase with hyphens: `git-manager.md`, `sweep-manager.md`
-- Use `-manager` suffix for management tasks
+- Lowercase with hyphens: `commit.md`, `sweep.md`
+- Use hierarchical folders: `git/`, `ml/`, `session/`, `sync/`
 
 ### Required Sections
 
@@ -96,18 +109,23 @@ You are a [role]. [One-line purpose].
 ```
 
 ### Current Commands
-| File | Purpose |
+
+| Path | Purpose |
 |------|---------|
-| `etiquette.md` | Core rules reference (same as rule) |
-| `git-manager.md` | Staging, committing, branching |
-| `handover.md` | Session handover with unique keys |
-| `pr-manager.md` | Split changes into PRs via worktrees |
-| `cherry-pick.md` | Cherry-pick commits between branches |
-| `sweep-manager.md` | WandB sweeps on Slurm |
-| `update.md` | Comprehensive status check |
-| `sync-remote.md` | Sync config to remote servers |
-| `continue.md` | Resume previous work |
-| `ideate.md` | Brainstorming/planning mode |
+| `git/commit` | Staging, committing, branching |
+| `git/pr` | Split changes into PRs via worktrees |
+| `git/cherry-pick` | Cherry-pick commits between branches |
+| `git/worktree` | Create isolated worktrees |
+| `session/handover` | Session handover with unique keys |
+| `session/continue` | Resume previous work |
+| `session/eod` | End of day summary |
+| `ml/sweep` | WandB sweeps on Slurm |
+| `sync/remote` | Sync config to remote servers |
+| `config/review` | Review cursor config |
+| `update` | Comprehensive status check |
+| `ideate` | Brainstorming/planning mode |
+| `note` | Persist notes to CLAUDE/ |
+| `todo` | Manage todos |
 
 ---
 
@@ -219,14 +237,21 @@ timeout 10 some_command
 
 ## Creating New Configurations
 
-### New Rule
-1. Create `rules/my-rule.md`
-2. Add "Never Do" and "Always Do" sections
-3. Include verification checklists if applicable
-4. No frontmatter needed
+### New Rule (Auto-Loaded)
+1. Create `rules/my-rule.mdc` (note: `.mdc` extension required)
+2. Add YAML frontmatter with `name`, `description`, and either:
+   - `alwaysApply: true` for always-on rules
+   - `globs: ["pattern"]` for conditional rules
+3. Add "Never Do" and "Always Do" sections
+4. Include verification checklists if applicable
+
+### New Reference Doc (Not Auto-Loaded)
+1. Create `rules/my-reference.md` (plain `.md`)
+2. No frontmatter needed
+3. Reference from `.mdc` files as needed
 
 ### New Command
-1. Create `commands/my-command.md`
+1. Create `commands/category/my-command.md` (use folder hierarchy)
 2. Include required sections (Scope, Think Before Acting, Workflow, Follow-Up)
 3. Add "Related Commands" cross-references
 4. No frontmatter needed
@@ -241,8 +266,9 @@ timeout 10 some_command
 
 ## File Conventions
 
-- **Markdown only** - no JSON/YAML config files for content
-- **Lowercase with hyphens** - `git-manager.md` not `GitManager.md`
+- **Rules: `.mdc` for auto-load** - plain `.md` files are reference only
+- **Lowercase with hyphens** - `git/commit.md` not `GitCommit.md`
+- **Hierarchical folders** - `commands/git/`, `commands/ml/`, etc.
 - **Self-documenting names** - purpose clear from filename
 - **Cross-reference** - link to related commands/rules
 - **AGENT-GENERATED header** - for files agents create in repos
