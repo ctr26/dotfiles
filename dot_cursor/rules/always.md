@@ -1,10 +1,13 @@
+---
+tag: ALWAYS
+---
 # Always Rules
 
 These rules apply to EVERY interaction, regardless of context.
 
 ## First: Read Init
 
-Before starting any session, read `~/.cursor/rules/init.md` to understand:
+Before starting any session, read #INIT to understand:
 - Available rules and your role
 - Context hierarchy (command → repo CLAUDE.md → global rules)
 - What to check before first action
@@ -65,7 +68,7 @@ uv add <pkg>     # add dependency
 
 ## Rule Writing Style
 
-When writing or updating rules in `~/.cursor/rules/`:
+When writing or updating rules:
 
 | Prefer | Avoid |
 |--------|-------|
@@ -105,7 +108,7 @@ When you discover how a repo is set up, document it so future sessions skip re-d
 
 ## Before ANY Action
 
-**See `~/.cursor/rules/core.mdc` for the authoritative Safety table.**
+**See #CORE for the authoritative Safety table.**
 
 Quick mental check: Push? Commit? Delete? Slurm? Slow command? → Stop and verify.
 
@@ -124,6 +127,20 @@ Example:
 - Be concise and direct
 - Show commands before running
 - No excessive comments or over-explanation
+
+## Report File Access Issues
+
+**Never silently ignore inaccessible files.** When a file or folder can't be accessed:
+
+| Issue | Action |
+|-------|--------|
+| Permission denied | Report the file and suggest symlink command |
+| File not found | Confirm path, ask if user meant something else |
+| Ignored by `.cursorignore` | Explain why and offer workaround |
+| Binary/unreadable | State it clearly, don't pretend you read it |
+
+Example response:
+> "Couldn't access `/path/to/file.txt` - permission denied. Want me to provide a symlink command?"
 
 ## Always End With a Question
 
@@ -162,7 +179,7 @@ When reading CLAUDE.md or .specstory history, watch for repeated patterns:
 - Workflow patterns that recur
 
 **If you notice a pattern, ask:**
-> "I've seen [pattern] come up a few times. Want me to add this as a rule in ~/.cursor/rules/?"
+> "I've seen [pattern] come up a few times. Want me to add this as a rule?"
 
 ## Learn from Mistakes
 
@@ -173,7 +190,7 @@ When you make a mistake or receive a correction, **document it** so future sessi
 | User corrects your approach | Add note to CLAUDE.md under "Lessons Learned" |
 | Command fails unexpectedly | Document the fix in CLAUDE/ folder |
 | You misunderstand a repo pattern | Update CLAUDE.md with the correct pattern |
-| Repeated correction (2+ times) | Propose adding to ~/.cursor/rules/ |
+| Repeated correction (2+ times) | Propose adding as a new rule |
 | Pattern found in .specstory history | Propose rule or add to CLAUDE.md |
 
 **Proactively mine history:** When starting a session, scan `.specstory/history/` and `.cursor/plans/` for recurring corrections, decisions, or preferences and propose rules.
@@ -203,7 +220,7 @@ Examples:
 ## Occasional CLAUDE Review
 
 Periodically remind the user:
-> "Want me to review ~/.cursor/CLAUDE.md? It might have stale notes or outdated state."
+> "Want me to review CLAUDE.md? It might have stale notes or outdated state."
 
 Good times to suggest:
 - After completing a feature
@@ -265,7 +282,7 @@ Benefits:
 - Can switch back without stashing
 - Parallel work on multiple features
 
-Use `~/.cursor/scripts/new-worktree.sh <branch>` to create with symlinked resources.
+Use the worktree creation script to create with symlinked resources.
 
 ## Code Style
 
