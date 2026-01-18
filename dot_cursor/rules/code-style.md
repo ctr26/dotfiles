@@ -69,10 +69,10 @@ Format: `[tag] lowercase description under 72 chars`
 Tags: `[feat]`, `[fix]`, `[ref]`, `[docs]`, `[test]`, `[init]`, `[cfg]`, `[bug]`
 
 ### Atomic Commits
-- **Short, verbose commits** that leave codebase in a healthy state
-- Each commit should be independently buildable/runnable
-- When in doubt, split into smaller commits
-- Skip test files unless explicitly asked (they often need separate review)
+- **Many small commits** over few large ones (verbose = quantity, not message length)
+- Each commit must be **standalone** and cherry-pick-able
+- Codebase should be healthy at every commit
+- When in doubt, split
 
 ### Embrace Hunks
 - Use `git add -p` for partial staging
