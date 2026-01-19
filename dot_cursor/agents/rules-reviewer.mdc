@@ -1,12 +1,13 @@
 ---
 name: 'Rules Reviewer'
+tag: AGENT-REVIEWER
 model: claude-opus-4-20250514
 description: 'Meta-reviewer for cursor config - applies ML Engineer, ML Scientist, and RSE lenses to find inconsistencies and improvements'
 ---
 
 # Rules Reviewer Agent
 
-You review the `~/.cursor` configuration (rules, commands, agents) from multiple specialist perspectives. You surface issues via structured questions and synthesize improvement recommendations.
+You review the cursor configuration (rules, commands, agents) from multiple specialist perspectives. You surface issues via structured questions and synthesize improvement recommendations.
 
 ## Review Mode
 
@@ -43,12 +44,7 @@ Apply three perspectives to every file:
 
 ### Phase 1: Gather Files
 
-```bash
-# List all config files
-find ~/.cursor/rules -name "*.md" -o -name "*.mdc" 2>/dev/null
-find ~/.cursor/commands -name "*.md" 2>/dev/null
-find ~/.cursor/agents -name "*.mdc" 2>/dev/null
-```
+List all config files in the rules, commands, and agents folders.
 
 ### Phase 2: Cross-File Analysis
 
@@ -182,9 +178,9 @@ When user requests partial review:
 
 | Request | Scope |
 |---------|-------|
-| "review rules" | `~/.cursor/rules/` only |
-| "review commands" | `~/.cursor/commands/` only |
-| "review agents" | `~/.cursor/agents/` only |
+| "review rules" | Rules folder only |
+| "review commands" | Commands folder only |
+| "review agents" | Agents folder only |
 | "review ml" | Files mentioning ML/training/sweep |
 | "review git" | Files mentioning git/commit/worktree |
 
@@ -203,7 +199,7 @@ When user requests partial review:
 
 ## CLAUDE.md Integration
 
-After review, update `~/.cursor/CLAUDE.md` with:
+After review, update `CLAUDE.md` with:
 
 ```markdown
 ## Last Config Review
@@ -214,4 +210,4 @@ After review, update `~/.cursor/CLAUDE.md` with:
 - [Summary of major changes made]
 ```
 
-Store detailed review report in `~/.cursor/CLAUDE/review-{date}.md`.
+Store detailed review report in `CLAUDE/review-{date}.md`.

@@ -1,6 +1,10 @@
+---
+tag: config/review
+scope: global
+---
 # Config Review
 
-Review the `~/.cursor` configuration for inconsistencies, redundancy, and improvements.
+Review the cursor configuration for inconsistencies, redundancy, and improvements.
 
 **When to use:** Periodically audit your rules, commands, and agents for quality.
 
@@ -29,12 +33,10 @@ Before reviewing, state:
 
 ### 1. Gather Files
 
-```bash
-# Count files to review
-echo "Rules: $(find ~/.cursor/rules -name '*.md' -o -name '*.mdc' 2>/dev/null | wc -l)"
-echo "Commands: $(find ~/.cursor/commands -name '*.md' 2>/dev/null | wc -l)"
-echo "Agents: $(find ~/.cursor/agents -name '*.mdc' 2>/dev/null | wc -l)"
-```
+Count files in each config folder:
+- Rules: `.md` and `.mdc` files
+- Commands: `.md` files  
+- Agents: `.mdc` files
 
 ### 2. Scope Selection
 
@@ -45,9 +47,9 @@ ask_question(
   title="Review Scope",
   options=[
     {"id": "full", "label": "Full review (rules + commands + agents)"},
-    {"id": "rules", "label": "Rules only (~/.cursor/rules/)"},
-    {"id": "commands", "label": "Commands only (~/.cursor/commands/)"},
-    {"id": "agents", "label": "Agents only (~/.cursor/agents/)"},
+    {"id": "rules", "label": "Rules only"},
+    {"id": "commands", "label": "Commands only"},
+    {"id": "agents", "label": "Agents only"},
     {"id": "ml", "label": "ML-related files only"},
     {"id": "git", "label": "Git-related files only"}
   ]
@@ -96,7 +98,7 @@ After all questions answered, produce summary report.
 
 ## Output Format
 
-Save review report to `~/.cursor/CLAUDE/review-{YYYYMMDD}.md`:
+Save review report to `CLAUDE/review-{YYYYMMDD}.md`:
 
 ```markdown
 ## Config Review - [Date]
@@ -131,7 +133,7 @@ Save review report to `~/.cursor/CLAUDE/review-{YYYYMMDD}.md`:
 
 | User Says | Scope |
 |-----------|-------|
-| "review rules" | `~/.cursor/rules/` only |
+| "review rules" | Rules folder only |
 | "review ml stuff" | Files with ML/training/sweep/slurm keywords |
 | "review git commands" | `commands/git/` + git-related rules |
 | "quick review" | High-level scan, major issues only |

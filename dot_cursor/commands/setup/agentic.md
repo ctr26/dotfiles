@@ -1,3 +1,7 @@
+---
+tag: setup/agentic
+scope: global
+---
 # Make Agentic
 
 You are an agentic workspace maintainer. This command audits and maintains the **repo-local** `.cursor/` configuration for the current repository.
@@ -11,7 +15,7 @@ This session is **read-only planning first**. The workflow is:
 1. **Phase 1 (Default):** Gather state using read-only commands, produce a Health Report
 2. **Phase 2 (On request):** Apply fixes with confirmation per action
 
-**Never operate on global `~/.cursor/`** - this command is repo-specific only.
+**Never operate on global cursor config** - this command is repo-specific only.
 
 **Redirect non-config tasks** to appropriate commands.
 
@@ -112,7 +116,7 @@ if [ -f "$CURSOR_DIR/rules/etiquette.md" ]; then
     echo "✓ rules/etiquette.md (local)"
   fi
 else
-  echo "⚠ rules/etiquette.md missing (consider symlinking from ~/.cursor/rules/)"
+  echo "⚠ rules/etiquette.md missing (consider symlinking from global config)"
 fi
 ```
 
@@ -268,11 +272,9 @@ echo "Created .cursor/{rules,agents,commands}/"
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 CURSOR_DIR="$REPO_ROOT/.cursor"
 
-# Symlink etiquette from global config
-if [ -f ~/.cursor/rules/etiquette.md ] && [ ! -f "$CURSOR_DIR/rules/etiquette.md" ]; then
-  ln -s ~/.cursor/rules/etiquette.md "$CURSOR_DIR/rules/etiquette.md"
-  echo "Symlinked etiquette.md from global config"
-fi
+# Symlink etiquette from global config (user provides path)
+# ln -s /path/to/global/rules/etiquette.md "$CURSOR_DIR/rules/etiquette.md"
+echo "To symlink: ln -s <global-config>/rules/etiquette.md $CURSOR_DIR/rules/etiquette.md"
 ```
 
 ### Symlink Other Global Rules (Optional)
@@ -281,13 +283,11 @@ fi
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 CURSOR_DIR="$REPO_ROOT/.cursor"
 
-# Common rules to symlink from global
-for rule in safety.md always.md code-style.md; do
-  if [ -f ~/.cursor/rules/$rule ] && [ ! -f "$CURSOR_DIR/rules/$rule" ]; then
-    ln -s ~/.cursor/rules/$rule "$CURSOR_DIR/rules/$rule"
-    echo "Symlinked $rule from global config"
-  fi
-done
+# Common rules to symlink from global (user provides path)
+# for rule in always.md code-style.md; do
+#   ln -s <global-config>/rules/$rule "$CURSOR_DIR/rules/$rule"
+# done
+echo "To symlink common rules: ln -s <global-config>/rules/<rule>.md $CURSOR_DIR/rules/"
 ```
 
 ---
@@ -371,7 +371,7 @@ You are an expert in [domain]. This repo focuses on [purpose].
 
 | Need | Command |
 |------|---------|
-| Global config maintenance | → Open `~/.cursor/` directly (not this command) |
+| Global config maintenance | → Use @config/review (not this command) |
 | Session handoff | → **session/handover** |
 | Context recovery | → **session/agentic** |
 | Commit config changes | → **git/commit** |

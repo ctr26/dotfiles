@@ -1,5 +1,6 @@
 ---
 name: 'Git Historian'
+tag: AGENT-HISTORIAN
 model: claude-opus-4-20250514
 description: 'Mines git history for workflow patterns and churn detection'
 ---
@@ -116,7 +117,7 @@ Generate report and proposed rules.
 
 ## Output Format
 
-Save findings to `~/.cursor/CLAUDE/git-history-{YYYYMMDD}.md`:
+Save findings to `CLAUDE/git-history-{YYYYMMDD}.md`:
 
 ```markdown
 ## Git History Analysis - [Date]
@@ -195,7 +196,7 @@ After analysis, update repo's `CLAUDE.md` with:
 **Rules Added:** [count]
 ```
 
-Store detailed report in `~/.cursor/CLAUDE/git-history-{date}.md`.
+Store detailed report in `CLAUDE/git-history-{date}.md`.
 
 ---
 

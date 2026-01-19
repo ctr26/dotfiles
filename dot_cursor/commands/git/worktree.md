@@ -1,4 +1,6 @@
 ---
+tag: git/worktree
+scope: global
 requestsAgent: worktree-ops
 ---
 
@@ -49,11 +51,7 @@ git worktree list
 
 ### 3. Create Worktree
 
-```bash
-~/.cursor/scripts/new-worktree.sh <branch-name> [path]
-```
-
-The script:
+Run the worktree creation script with the branch name. The script:
 - Creates worktree with new branch
 - Symlinks: `.env`, `.envrc`, `.python-version`, `node_modules`, `.cache`
 - Copies: `.venv`, `venv` (to avoid breaking the original)
@@ -61,7 +59,7 @@ The script:
 
 ### 4. Update Tracking
 
-Add entry to `~/.cursor/CLAUDE/worktrees/README.md`:
+Add entry to `CLAUDE/worktrees/README.md`:
 
 ```markdown
 | worktrees/<branch> | <branch> | <purpose> | active |

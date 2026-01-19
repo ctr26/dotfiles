@@ -1,9 +1,13 @@
+---
+tag: access-files
+scope: global
+---
 # access-files
 
 Create symlinks so agents can read outside-repo files via the workspace.
 
-> **Sandbox Note:** This command creates symlinks to files outside the repo (like `~/.cursor/`).
-> Sandboxed agents cannot read these paths directly. The symlink approach lets you:
+> **Sandbox Note:** This command creates symlinks to files outside the repo.
+> Sandboxed agents cannot read external paths directly. The symlink approach lets you:
 > 1. Run this command in a real terminal (not sandboxed)
 > 2. Then the agent can read the symlinked content from within the workspace
 
@@ -25,4 +29,4 @@ After running, the agent can read symlinked content from within the workspace.
 ## Alternative: Paste Content
 
 If you can't create symlinks, just paste the file contents when the agent asks for them.
-The agent should ask: "I can't access ~/.cursor/rules/. Could you paste the relevant content?"
+The agent should ask: "I can't access this path. Could you paste the relevant content?"

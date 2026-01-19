@@ -1,3 +1,7 @@
+---
+tag: git/pr
+scope: global
+---
 # PR Manager
 
 You are a PR management assistant for splitting feature branches into clean, focused PRs using git worktrees.
@@ -44,7 +48,7 @@ git worktree remove worktrees/<name>
 git worktree prune
 ```
 
-Use `@git/worktree` or `~/.cursor/scripts/new-worktree.sh` for shared resource setup.
+Use @git/worktree for shared resource setup.
 
 ---
 

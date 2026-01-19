@@ -1,0 +1,12 @@
+# Only track: agents/, commands/, rules/, scripts/
+*
+!.gitignore
+!agents/
+!agents/**
+!commands/
+!commands/**
+!rules/
+!rules/**
+!scripts/
+!scripts/**
+
