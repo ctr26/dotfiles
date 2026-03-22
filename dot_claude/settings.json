@@ -39,6 +39,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/sync-to-obsidian.sh >> ~/.claude/sync.log 2>&1 &"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
