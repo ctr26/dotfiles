@@ -6,5 +6,8 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 [ -f "$HOME/.env" ] && source "$HOME/.env"
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
+# Claude Code experimental features
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
 # Safety net: re-assert system paths at the end in case anything above clobbered them
 export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"

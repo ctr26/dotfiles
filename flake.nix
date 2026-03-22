@@ -7,9 +7,13 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: 
+  outputs = { self, nixpkgs, home-manager, nixos-wsl, ... }@inputs:
   let
     # Default username - can be overridden
     defaultUsername = "user";
@@ -34,7 +38,27 @@
       ];
     };
     
-    # Function to create a minimal services-only configuration  
+    # Function to create a NixOS-WSL configuration for a specific username
+    mkWslConfig = username: nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit username; };
+      modules = [
+        nixos-wsl.nixosModules.wsl
+        ./dot_config/nix/wsl-configuration.nix
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.${username} = {
+            imports = [ ./dot_config/nix/home.nix ];
+            home.username = username;
+            home.homeDirectory = "/home/${username}";
+          };
+        }
+      ];
+    };
+
+    # Function to create a minimal services-only configuration
     mkServicesConfig = username: nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = { inherit username; };
@@ -72,6 +96,10 @@
       # Specific user configurations (examples)
       nixos-ctr26 = mkNixosConfig "ctr26";
       
+      # WSL configurations
+      wsl = mkWslConfig defaultUsername;
+      wsl-ctr26 = mkWslConfig "ctr26";
+
       # Minimal services-only configurations (Docker, SSH, etc.)
       services = mkServicesConfig defaultUsername;
       services-ctr26 = mkServicesConfig "ctr26";
