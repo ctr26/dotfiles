@@ -1,0 +1,117 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Grep",
+      "Glob",
+      "Bash",
+      "WebSearch",
+      "WebFetch",
+      "Agent",
+      "Task",
+      "Skill",
+      "NotebookEdit",
+      "mcp__*"
+    ],
+    "deny": [
+      "Bash(rm -rf /*:*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -f:*)",
+      "Bash(git checkout .:*)",
+      "Bash(git branch -D:*)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)",
+      "Read(./**/credentials*)",
+      "Read(./**/secrets/**)"
+    ],
+    "defaultMode": "plan"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "tmux rename-window \"$(basename \"$(git rev-parse --show-toplevel 2>/dev/null)\" 2>/dev/null || basename \"$PWD\")\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "sh ~/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "deep-project@piercelamb-plugins": true,
+    "deep-plan@piercelamb-plugins": true,
+    "deep-implement@piercelamb-plugins": true,
+    "github@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "hookify@claude-plugins-official": true,
+    "learning-output-style@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true,
+    "qodo-skills@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "document-skills@anthropic-agent-skills": true,
+    "scientific-skills@claude-scientific-skills": true,
+    "single-cell-rna-qc@life-sciences": true,
+    "scvi-tools@life-sciences": true,
+    "nextflow-development@life-sciences": true,
+    "10x-genomics@life-sciences": true,
+    "tooluniverse@life-sciences": true,
+    "biorender@life-sciences": true,
+    "synapse@life-sciences": true,
+    "owkin@life-sciences": true,
+    "instrument-data-to-allotrope@life-sciences": true,
+    "clinical-trial-protocol@life-sciences": true,
+    "wiley-scholar-gateway@life-sciences": true,
+    "pubmed@life-sciences": true,
+    "biorxiv@life-sciences": true,
+    "clinical-trials@life-sciences": true,
+    "chembl@life-sciences": true,
+    "open-targets@life-sciences": true,
+    "medidata@life-sciences": true
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    },
+    "life-sciences": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/life-sciences"
+      }
+    },
+    "claude-scientific-skills": {
+      "source": {
+        "source": "github",
+        "repo": "K-Dense-AI/claude-scientific-skills"
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+# Machine-local .claude files — do NOT sync these
+.claude/settings.local.json
+.claude/plans
+.claude/todos
+.claude/tasks
+.claude/plugins
+.claude/projects
+.claude/memory
+.claude/channels
+.claude/sessions
+.claude/session-env
+.claude/cache
+.claude/downloads
+.claude/paste-cache
+.claude/shell-snapshots
+.claude/backups
+.claude/debug
+.claude/file-history
+.claude/agents
+.claude/history.jsonl
+.claude/stats-cache.json
+.claude/statsig
+.claude/telemetry
+.claude/security_warnings_state_*
+
+# Machine-local MCP config (contains tokens)
+.mcp.json

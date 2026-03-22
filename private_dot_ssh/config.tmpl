@@ -1,9 +1,29 @@
-# Global SSH settings
+# =============================================================================
+# Global defaults
+# =============================================================================
 Host *
     AddKeysToAgent yes
     ForwardAgent yes
     ServerAliveInterval 60
     ServerAliveCountMax 3
+
+# =============================================================================
+# GitHub — ctr26 (work/OSS)
+# =============================================================================
+Host github-ctr26
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_rsa_ctr26
+    IdentitiesOnly yes
+
+# =============================================================================
+# GitHub — craggles17 (personal)
+# =============================================================================
+Host github-craggles17
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_craggles17
+    IdentitiesOnly yes
 
 {{- if or (lookPath "sft") (stat "/usr/local/bin/sft") }}
 
@@ -24,9 +44,8 @@ Match exec "/usr/local/bin/sft resolve -q  %h"
 {{- end }}
 
 # =============================================================================
-# Personal
+# Personal infrastructure
 # =============================================================================
-
 Host router
     HostName craggles.duckdns.org
     User admin
@@ -46,4 +65,18 @@ Host arch
     HostName arch.
     User craggles
     ProxyJump proxmox
+
+# =============================================================================
+# GCP — managed by: gcloud compute config-ssh (entries appended below)
+# =============================================================================
+{{- if stat (joinPath .chezmoi.homeDir ".ssh/google_compute_engine") }}
+
+Host dev-vm.europe-west2-c.sixth-embassy-415210
+    HostName 34.147.171.150
+    IdentityFile {{ .chezmoi.homeDir }}/.ssh/google_compute_engine
+    UserKnownHostsFile={{ .chezmoi.homeDir }}/.ssh/google_compute_known_hosts
+    HostKeyAlias=compute.743109729887390176
+    IdentitiesOnly=yes
+    CheckHostIP=no
+{{- end }}
 

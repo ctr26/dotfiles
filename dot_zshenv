@@ -1,0 +1,10 @@
+# Ensure essential system paths are always present (Arch/EndeavourOS + WSL)
+# These MUST come first — without /usr/bin, nothing works on Arch
+typeset -U PATH
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
+
+[ -f "$HOME/.env" ] && source "$HOME/.env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# Safety net: re-assert system paths at the end in case anything above clobbered them
+export PATH="$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
