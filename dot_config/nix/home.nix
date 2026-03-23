@@ -135,7 +135,7 @@
     ranger                # File manager
     bat                   # Syntax-highlighted cat
     btop                  # Modern process monitor
-    nvtop                 # GPU process monitor
+    nvtopPackages.nvidia  # GPU process monitor
     eza                   # Modern ls replacement
     jq                    # JSON query tool
     yq-go                 # YAML query tool
