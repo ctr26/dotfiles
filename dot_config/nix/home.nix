@@ -48,7 +48,7 @@
   # ============================================================================
   
   home.packages = with pkgs; [
-    # System utilities (packages only)
+    # System utilities
     autojump              # Directory jumping
     fzf                   # Fuzzy finder
     ripgrep               # Fast grep
@@ -59,19 +59,57 @@
     wget                  # File downloader
     unzip                 # Archive extraction
     chezmoi               # Dotfile manager
-    
-    # Development tools (packages only)
+    rsync                 # File sync
+    socat                 # Socket relay
+    inetutils             # ping, ftp, telnet, etc.
+    nano                  # Simple editor
+    bc                    # Calculator
+    dos2unix              # Line ending converter
+    ncdu                  # Disk usage analyser
+    lolcat                # Rainbow output
+    figlet                # ASCII art text
+    neofetch              # System info
+
+    # File deduplication
+    fdupes                # Find duplicate files
+    jdupes                # Fast duplicate finder
+    rdfind                # Redundant file finder
+
+    # Archive / transfer
+    aria2                 # Multi-protocol downloader
+
+    # Search / filesystem
+    dnsutils              # dig, nslookup (from bind)
+
+    # Development tools
     git                   # Version control
     gh                    # GitHub CLI
-    gnumake               # Build automation tool
+    gnumake               # Build automation
     docker                # Container runtime
     docker-compose        # Container orchestration
     ruff                  # Python linter + formatter
     mypy                  # Python type checker
+    ccache                # Compiler cache
+    doxygen               # Documentation generator
+    maturin               # Build Rust extensions for Python
+    pandoc                # Document converter
+    xmlto                 # XML to other formats
+    fnm                   # Fast Node version manager
+    keychain              # SSH/GPG key manager
+
+    # Spell checking
+    aspell                # Spell checker
+    hunspell              # Spell checker (LibreOffice-compatible)
+    nuspell               # Modern spell checker
+    hspell                # Hebrew spell checker
 
     # Infrastructure
     terraform             # Infrastructure as code
     google-cloud-sdk      # GCP CLI
+    kubernetes-helm       # Helm package manager for k8s
+    kubectl               # Kubernetes CLI
+    vagrant               # VM manager
+    sshfs                 # Mount remote filesystems over SSH
 
     # Languages and runtimes
     nodejs                # JavaScript runtime
@@ -80,19 +118,30 @@
     rust-analyzer         # Rust language server
     uv                    # Fast Python package manager
 
-    # Editors and IDEs (packages only)
-    # vscode              # Visual Studio Code (unfree - uncomment if needed)
+    # Media
+    ffmpeg                # Audio/video processing
 
-    # Terminal utilities (packages only)
+    # Terminal utilities
     tmux                  # Terminal multiplexer
-    ranger                # File manager with vim-like keybindings
+    ranger                # File manager
     bat                   # Syntax-highlighted cat
     btop                  # Modern process monitor
+    nvtop                 # GPU process monitor
     eza                   # Modern ls replacement
     jq                    # JSON query tool
     yq-go                 # YAML query tool
-    
-    # Fonts (new nerd-fonts structure)
+
+    # Editors and IDEs
+    # vscode              # (unfree - uncomment if needed)
+    # obsidian            # (unfree - uncomment if needed)
+
+    # Password / secrets
+    _1password-cli        # 1Password CLI
+
+    # Email
+    himalaya              # TUI email client
+
+    # Fonts
     nerd-fonts.fira-code
     nerd-fonts.droid-sans-mono
     nerd-fonts.jetbrains-mono
