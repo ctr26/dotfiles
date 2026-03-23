@@ -50,7 +50,26 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.users.${username} = {
-            imports = [ ./dot_config/nix/home.nix ];
+            imports = [ ./dot_config/nix/home.nix ./dot_config/nix/home-wsl.nix ];
+            home.username = username;
+            home.homeDirectory = "/home/${username}";
+          };
+        }
+      ];
+    };
+
+    # Function to create a GCP NixOS VM configuration
+    mkGcpConfig = username: nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      specialArgs = { inherit username; };
+      modules = [
+        ./dot_config/nix/gcp-base.nix
+        home-manager.nixosModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.${username} = {
+            imports = [ ./dot_config/nix/home.nix ./dot_config/nix/home-gcp.nix ];
             home.username = username;
             home.homeDirectory = "/home/${username}";
           };
@@ -104,6 +123,10 @@
       services = mkServicesConfig defaultUsername;
       services-ctr26 = mkServicesConfig "ctr26";
       services-nixos = mkServicesConfig "nixos";
+
+      # GCP VM configurations (NixOS + home-manager with gcloud/terraform/etc.)
+      gcp = mkGcpConfig defaultUsername;
+      gcp-ctr26 = mkGcpConfig "ctr26";
       
       # Users can add more configurations here
     };

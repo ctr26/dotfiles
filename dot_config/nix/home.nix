@@ -66,24 +66,31 @@
     gnumake               # Build automation tool
     docker                # Container runtime
     docker-compose        # Container orchestration
-    
+    ruff                  # Python linter + formatter
+    mypy                  # Python type checker
+
+    # Infrastructure
+    terraform             # Infrastructure as code
+    google-cloud-sdk      # GCP CLI
+
     # Languages and runtimes
     nodejs                # JavaScript runtime
     python3               # Python interpreter
     go                    # Go compiler
     rust-analyzer         # Rust language server
-    
+    uv                    # Fast Python package manager
+
     # Editors and IDEs (packages only)
     # vscode              # Visual Studio Code (unfree - uncomment if needed)
-    
+
     # Terminal utilities (packages only)
     tmux                  # Terminal multiplexer
     ranger                # File manager with vim-like keybindings
-    
-    # Window management (if using X11/i3)
-    i3                    # Window manager
-    polybar               # Status bar
-    rofi                  # Application launcher
+    bat                   # Syntax-highlighted cat
+    btop                  # Modern process monitor
+    eza                   # Modern ls replacement
+    jq                    # JSON query tool
+    yq-go                 # YAML query tool
     
     # Fonts (new nerd-fonts structure)
     nerd-fonts.fira-code
