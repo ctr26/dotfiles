@@ -25,3 +25,6 @@
 
 # Machine-local MCP config (contains tokens)
 .mcp.json
+
+# Secrets file (tokens, API keys)
+.env
