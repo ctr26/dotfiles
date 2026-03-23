@@ -14,6 +14,15 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
+  # CRITICAL for non-NixOS (Arch/EndeavourOS): preserve system PATH entries.
+  # Without this, ~/.nix-profile/bin is prepended in a way that can shadow or
+  # skip /usr/bin, /usr/local/bin — breaking pacman tools (base-devel, gcc,
+  # make, binutils, clang, etc.) and any system service binaries.
+  targets.genericLinux.enable = true;
+
+  # Allow unfree packages (obsidian, 1password, etc.)
+  nixpkgs.config.allowUnfree = true;
+
   # Enable nix-index for command-not-found functionality
   programs.nix-index.enable = true;
 

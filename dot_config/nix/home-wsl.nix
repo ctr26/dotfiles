@@ -4,6 +4,9 @@
 # Import alongside home.nix — adds WSL packages and disables WSL-incompatible services.
 # Usage in flake.nix: imports = [ ./home.nix ./home-wsl.nix ];
 {
+  # WSL runs on a modified Linux kernel; genericLinux must stay enabled (set in home.nix)
+  # so pacman/apt system paths (/usr/bin etc.) remain accessible.
+
   # WSL: GPG SSH agent doesn't integrate with Windows SSH agent
   services.gpg-agent = {
     enableSshSupport = lib.mkForce false;
