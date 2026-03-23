@@ -16,7 +16,6 @@ antigen bundle neovim/neovim
 antigen bundle sudo
 antigen bundle z
 antigen bundle cp
-# Broken
 antigen bundle tmux
 antigen bundle tmuxinator
 # Additional bundles
