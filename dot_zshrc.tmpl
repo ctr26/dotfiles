@@ -151,3 +151,41 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+# OpenClaw Completion
+[[ -f "$HOME/.openclaw/completions/openclaw.zsh" ]] && source "$HOME/.openclaw/completions/openclaw.zsh"
+{{- if eq .chezmoi.os "darwin" }}
+export PATH="/opt/homebrew/bin:$PATH"
+{{- else }}
+export PATH="/opt/brew/bin:$PATH"
+{{- end }}
+
+# Fix npm prefix and add local bin to PATH
+unset NPM_CONFIG_PREFIX
+export PATH="$HOME/.local/bin:$PATH"
+# GITHUB_PERSONAL_ACCESS_TOKEN in ~/.env (sourced by .zshenv)
+command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --shell zsh)"
+
+# Auto-switch gh account based on .gh-account file in project tree
+_gh_auto_switch() {
+  local dir="$PWD"
+  while [[ "$dir" != "/" ]]; do
+    if [[ -f "$dir/.gh-account" ]]; then
+      local want="$(< "$dir/.gh-account")"
+      want="${want%$'\n'}"
+      local current="$(gh auth status 2>&1 | grep 'Active account: true' -B1 | head -1 | awk '{print $NF}')"
+      if [[ -n "$want" && "$want" != "$current" ]]; then
+        gh auth switch --user "$want" 2>/dev/null
+      fi
+      return
+    fi
+    dir="${dir:h}"
+  done
+}
+autoload -U add-zsh-hook
+add-zsh-hook chpwd _gh_auto_switch
+_gh_auto_switch  # run once at shell start
+
+[[ -s {{ .chezmoi.homeDir }}/.cache/yay/autojump/pkg/autojump/etc/profile.d/autojump.sh ]] && source {{ .chezmoi.homeDir }}/.cache/yay/autojump/pkg/autojump/etc/profile.d/autojump.sh
+
+autoload -U compinit && compinit -u
+
