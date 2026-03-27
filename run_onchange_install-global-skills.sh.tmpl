@@ -3,7 +3,7 @@
 # Reinstalls global agent skills when the lockfile changes
 # Hash: {{ include "dot_agents/dot_skill-lock.json" | sha256sum }}
 
-set -e
+set -euo pipefail
 
 if ! command -v npx >/dev/null 2>&1; then
   echo "npx not found, skipping skills install"
@@ -24,24 +24,32 @@ fi
 
 echo "Installing global agent skills from lockfile..."
 
-# Extract unique source repos from the lockfile and add each explicitly
-# This avoids experimental_install which has known bugs (#666, #781)
-SOURCES=$(python3 -c "
-import json, sys
+# Install each skill individually by registry name, fall back to GitHub repo
+# This gives precise control over which skills are installed (no --all splat)
+SKILLS=$(python3 -c "
+import json
 with open('$LOCK_FILE') as f:
     d = json.load(f)
-sources = set()
-for v in d.get('skills', {}).values():
+for name, v in sorted(d.get('skills', {}).items()):
     src = v.get('source', '')
-    if src and v.get('sourceType') == 'github':
-        sources.add(src)
-for s in sorted(sources):
-    print(s)
+    src_type = v.get('sourceType', '')
+    if src_type == 'github':
+        print(f'{name}\t{src}')
 ")
 
-for repo in $SOURCES; do
-  echo "  Adding skills from $repo..."
-  npx -y skills@latest add "$repo" --global --all 2>&1 || echo "  Warning: failed to add $repo"
+INSTALLED=0
+FAILED=0
+
+echo "$SKILLS" | while IFS='	' read -r name repo; do
+  [ -z "$name" ] && continue
+  # Try registry name first (fast, no git clone), fall back to GitHub repo
+  if npx -y skills@latest add "$name" --global 2>/dev/null; then
+    echo "  ✓ $name"
+  elif npx -y skills@latest add "$repo" --global 2>/dev/null; then
+    echo "  ✓ $name (from $repo)"
+  else
+    echo "  ✗ $name — failed"
+  fi
 done
 
-echo "Skills installed for: claude-code, gemini-cli, openclaw, codex"
+echo "Done. Skills installed for: claude-code, gemini-cli, openclaw, codex"

@@ -1,0 +1,131 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ctr26-dotfiles",
+  "description": "Craig Russell's curated skill bundle for AI coding agents",
+  "owner": {
+    "name": "Craig Russell",
+    "email": "craig.russell.phd@gmail.com"
+  },
+  "metadata": {
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "superpowers",
+      "description": "Core agent workflows: brainstorming, planning, TDD, code review, git worktrees, parallel dispatch",
+      "source": {
+        "source": "github",
+        "repo": "obra/superpowers"
+      },
+      "category": "development"
+    },
+    {
+      "name": "anthropic-skills",
+      "description": "Official Anthropic skills: documents, design, frontend, MCP builder, API, templates",
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      },
+      "category": "productivity"
+    },
+    {
+      "name": "anthropic-knowledge-work",
+      "description": "Anthropic knowledge work plugins: memory management",
+      "source": {
+        "source": "github",
+        "repo": "anthropics/knowledge-work-plugins"
+      },
+      "category": "productivity"
+    },
+    {
+      "name": "vercel-agent-skills",
+      "description": "Vercel deployment, React best practices, composition patterns",
+      "source": {
+        "source": "github",
+        "repo": "vercel-labs/agent-skills"
+      },
+      "category": "development"
+    },
+    {
+      "name": "vercel-skills",
+      "description": "Skill discovery and management",
+      "source": {
+        "source": "github",
+        "repo": "vercel-labs/skills"
+      },
+      "category": "development"
+    },
+    {
+      "name": "vercel-agent-browser",
+      "description": "Browser automation for AI agents",
+      "source": {
+        "source": "github",
+        "repo": "vercel-labs/agent-browser"
+      },
+      "category": "development"
+    },
+    {
+      "name": "awesome-copilot",
+      "description": "Documentation writer, Excalidraw diagrams, gh CLI, git commit, PRD generation",
+      "source": {
+        "source": "github",
+        "repo": "github/awesome-copilot"
+      },
+      "category": "development"
+    },
+    {
+      "name": "hashicorp-agent-skills",
+      "description": "Terraform style guide and test patterns",
+      "source": {
+        "source": "github",
+        "repo": "hashicorp/agent-skills"
+      },
+      "category": "infrastructure"
+    },
+    {
+      "name": "obsidian-skills",
+      "description": "Obsidian CLI, Bases, and Markdown flavored syntax",
+      "source": {
+        "source": "github",
+        "repo": "kepano/obsidian-skills"
+      },
+      "category": "productivity"
+    },
+    {
+      "name": "marketing-skills",
+      "description": "Copywriting for marketing pages",
+      "source": {
+        "source": "github",
+        "repo": "coreyhaines31/marketingskills"
+      },
+      "category": "marketing"
+    },
+    {
+      "name": "stitch-skills",
+      "description": "Prompt enhancement for UI generation",
+      "source": {
+        "source": "github",
+        "repo": "google-labs-code/stitch-skills"
+      },
+      "category": "design"
+    },
+    {
+      "name": "inferen-skills",
+      "description": "Technical blog writing",
+      "source": {
+        "source": "github",
+        "repo": "inferen-sh/skills"
+      },
+      "category": "writing"
+    },
+    {
+      "name": "openhands-skills",
+      "description": "SSH connection management",
+      "source": {
+        "source": "github",
+        "repo": "openhands/skills"
+      },
+      "category": "infrastructure"
+    }
+  ]
+}
