@@ -40,6 +40,12 @@
 {{- $isSSH := ne (env "SSH_CONNECTION") "" -}}
 {{- $isHeadless := or $isHPC $isSSH (and $isNixOS (not (stdinIsATTY))) -}}
 
+encryption = "age"
+
+[age]
+identity = "~/.config/chezmoi/key.txt"
+recipient = "age18hj3luujpmvf4n7k9e60xumfzc06nf5wdupehy380hrghplxjctqvzffus"
+
 [data]
 name = "Craig Russell"
 email = "craig.russell.phd@gmail.com"
