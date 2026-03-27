@@ -17,9 +17,7 @@ if [ ! -f "$LOCK_FILE" ]; then
   exit 0
 fi
 
-echo "Reinstalling global agent skills from lockfile..."
+echo "Installing global agent skills from lockfile..."
+npx -y skills@latest experimental_install
 
-# Extract unique source repos from the lockfile
-# Each source needs: npx skills add <repo> --skill <name> --yes --global
-# For now, just ensure the lockfile is in place — skills CLI reads it on next use
-echo "Skill lockfile synced. Run 'npx skills install' to restore skills on a new machine."
+echo "Skills installed for: claude-code, gemini-cli, openclaw, codex"

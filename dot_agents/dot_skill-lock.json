@@ -155,6 +155,15 @@
       "skillFolderHash": "ebf9e8e83e73eb4b113578a1c354aaf9f9ce20b0",
       "installedAt": "2026-03-27T21:06:26.686Z",
       "updatedAt": "2026-03-27T21:06:26.686Z"
+    },
+    "memory-management": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/anthropics/knowledge-work-plugins.git",
+      "skillPath": "productivity/skills/memory-management/SKILL.md",
+      "skillFolderHash": "9272207d07020b38b62f636f6016e5185c4da01b",
+      "installedAt": "2026-03-27T21:19:23.130Z",
+      "updatedAt": "2026-03-27T21:19:23.130Z"
     }
   },
   "dismissed": {
