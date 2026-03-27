@@ -1,11 +1,10 @@
-# Machine-local .claude files — do NOT sync these
+# Claude — sync settings.json, CLAUDE.md, skills, plugins; ignore machine-local state
 .claude/settings.local.json
 .claude/plans
 .claude/todos
 .claude/tasks
-.claude/plugins
+.claude/plugins/cache
 .claude/projects
-.claude/memory
 .claude/channels
 .claude/sessions
 .claude/session-env

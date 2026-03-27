@@ -16,31 +16,39 @@
 
 {{- /* Determine environment type */ -}}
 {{- $envType := "" -}}
+{{- $isNixOS := stat "/etc/NIXOS" -}}
 {{- if $hasSlurm -}}
 {{-   $envType = "hpc" -}}
 {{- else if eq .chezmoi.os "darwin" -}}
 {{-   $envType = "macos" -}}
+{{- else if $isNixOS -}}
+{{-   $envType = "nixos" -}}
+{{- else if env "WSL_DISTRO_NAME" -}}
+{{-   $envType = "wsl" -}}
+{{- else if stdinIsATTY -}}
+{{-   $envType = promptChoiceOnce . "envType" "Environment type" (list "linux" "wsl" "hpc" "nixos") -}}
 {{- else -}}
-{{- /* On non-macOS Linux, prompt for environment type */ -}}
-{{-   $envType = promptChoiceOnce . "envType" "Environment type" (list "linux" "wsl" "hpc") -}}
+{{-   $envType = "linux" -}}
 {{- end -}}
 
 {{- /* Derived flags */ -}}
 {{- $isHPC := eq $envType "hpc" -}}
 {{- $isWSL := eq $envType "wsl" -}}
 {{- $isDarwin := eq $envType "macos" -}}
-{{- $isLinux := eq $envType "linux" -}}
+{{- $isLinux := or (eq $envType "linux") (eq $envType "nixos") -}}
+{{- $isNixOS := eq $envType "nixos" -}}
 {{- $isSSH := ne (env "SSH_CONNECTION") "" -}}
-{{- $isHeadless := or $isHPC $isSSH -}}
+{{- $isHeadless := or $isHPC $isSSH (and $isNixOS (not (stdinIsATTY))) -}}
 
 [data]
 name = "Craig Russell"
-email = "craig.russell@recursionpharma.com"
+email = "craig.russell.phd@gmail.com"
 envType = {{ $envType | quote }}
 isHPC = {{ $isHPC }}
 isWSL = {{ $isWSL }}
 isDarwin = {{ $isDarwin }}
 isLinux = {{ $isLinux }}
+isNixOS = {{ $isNixOS }}
 isSSH = {{ $isSSH }}
 isHeadless = {{ $isHeadless }}
 hasSlurm = {{ $hasSlurm }}
