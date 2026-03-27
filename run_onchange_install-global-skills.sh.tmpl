@@ -17,7 +17,31 @@ if [ ! -f "$LOCK_FILE" ]; then
   exit 0
 fi
 
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "python3 not found, skipping skills install"
+  exit 0
+fi
+
 echo "Installing global agent skills from lockfile..."
-npx -y skills@latest experimental_install
+
+# Extract unique source repos from the lockfile and add each explicitly
+# This avoids experimental_install which has known bugs (#666, #781)
+SOURCES=$(python3 -c "
+import json, sys
+with open('$LOCK_FILE') as f:
+    d = json.load(f)
+sources = set()
+for v in d.get('skills', {}).values():
+    src = v.get('source', '')
+    if src and v.get('sourceType') == 'github':
+        sources.add(src)
+for s in sorted(sources):
+    print(s)
+")
+
+for repo in $SOURCES; do
+  echo "  Adding skills from $repo..."
+  npx -y skills@latest add "$repo" --global --all 2>&1 || echo "  Warning: failed to add $repo"
+done
 
 echo "Skills installed for: claude-code, gemini-cli, openclaw, codex"
