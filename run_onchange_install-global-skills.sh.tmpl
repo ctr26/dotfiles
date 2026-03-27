@@ -1,0 +1,25 @@
+#!/bin/sh
+# chezmoi:template
+# Reinstalls global agent skills when the lockfile changes
+# Hash: {{ include "dot_agents/dot_skill-lock.json" | sha256sum }}
+
+set -e
+
+if ! command -v npx >/dev/null 2>&1; then
+  echo "npx not found, skipping skills install"
+  exit 0
+fi
+
+LOCK_FILE="{{ .chezmoi.homeDir }}/.agents/.skill-lock.json"
+
+if [ ! -f "$LOCK_FILE" ]; then
+  echo "No skill-lock.json found, skipping"
+  exit 0
+fi
+
+echo "Reinstalling global agent skills from lockfile..."
+
+# Extract unique source repos from the lockfile
+# Each source needs: npx skills add <repo> --skill <name> --yes --global
+# For now, just ensure the lockfile is in place — skills CLI reads it on next use
+echo "Skill lockfile synced. Run 'npx skills install' to restore skills on a new machine."
