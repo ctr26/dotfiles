@@ -23,8 +23,8 @@ Host github-ctr26
 Host github-craggles17
     HostName github.com
     User git
-    IdentityFile ~/.ssh/id_ed25519
     IdentityFile ~/.ssh/id_rsa
+    IdentityFile ~/.ssh/id_ed25519
     IdentitiesOnly yes
 
 {{- if or (lookPath "sft") (stat "/usr/local/bin/sft") }}
