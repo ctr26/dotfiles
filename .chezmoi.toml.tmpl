@@ -40,8 +40,14 @@
 {{- $isSSH := ne (env "SSH_CONNECTION") "" -}}
 {{- $isHeadless := or $isHPC $isSSH (and $isNixOS (not (stdinIsATTY))) -}}
 
-{{- $name := promptStringOnce . "name" "Full name" -}}
-{{- $email := promptStringOnce . "email" "Email" -}}
+{{- $defaultName := "Craig Russell" -}}
+{{- $defaultEmail := "craig.russell.phd@gmail.com" -}}
+{{- if eq .chezmoi.username "craggles17" -}}
+{{-   $defaultName = "craggles" -}}
+{{-   $defaultEmail = "craggles17@gmail.com" -}}
+{{- end -}}
+{{- $name := promptStringOnce . "name" "Full name" $defaultName -}}
+{{- $email := promptStringOnce . "email" "Email" $defaultEmail -}}
 
 encryption = "age"
 
