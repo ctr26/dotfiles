@@ -101,6 +101,60 @@
       "skillFolderHash": "01cfb6a412faf9d680880cc3f631c419121a9916",
       "installedAt": "2026-03-27T20:33:32.882Z",
       "updatedAt": "2026-03-27T20:33:32.882Z"
+    },
+    "terraform-style-guide": {
+      "source": "hashicorp/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/hashicorp/agent-skills.git",
+      "skillPath": "terraform/code-generation/skills/terraform-style-guide/SKILL.md",
+      "skillFolderHash": "41487ea35027d0ca9930aed05d16840209e0a181",
+      "installedAt": "2026-03-27T20:54:38.899Z",
+      "updatedAt": "2026-03-27T20:54:38.899Z"
+    },
+    "terraform-test": {
+      "source": "hashicorp/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/hashicorp/agent-skills.git",
+      "skillPath": "terraform/code-generation/skills/terraform-test/SKILL.md",
+      "skillFolderHash": "4b296f72fefb4891ec985cd7f459599e269301e6",
+      "installedAt": "2026-03-27T20:54:41.894Z",
+      "updatedAt": "2026-03-27T20:54:41.894Z"
+    },
+    "obsidian-cli": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
+      "skillPath": "skills/obsidian-cli/SKILL.md",
+      "skillFolderHash": "96254a554e480359de7b685571876f2e7f9ba57d",
+      "installedAt": "2026-03-27T21:04:48.443Z",
+      "updatedAt": "2026-03-27T21:04:48.443Z"
+    },
+    "obsidian-markdown": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
+      "skillPath": "skills/obsidian-markdown/SKILL.md",
+      "skillFolderHash": "5caf5d9e7de204f3904216857545f2aa36bcfcac",
+      "installedAt": "2026-03-27T21:04:51.502Z",
+      "updatedAt": "2026-03-27T21:04:51.502Z"
+    },
+    "obsidian-bases": {
+      "source": "kepano/obsidian-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/kepano/obsidian-skills.git",
+      "skillPath": "skills/obsidian-bases/SKILL.md",
+      "skillFolderHash": "4bef60bb848bfb02b4172b552626d5741b0d4057",
+      "installedAt": "2026-03-27T21:04:54.210Z",
+      "updatedAt": "2026-03-27T21:04:54.210Z"
+    },
+    "ssh": {
+      "source": "openhands/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/openhands/skills.git",
+      "skillPath": "skills/ssh/SKILL.md",
+      "skillFolderHash": "ebf9e8e83e73eb4b113578a1c354aaf9f9ce20b0",
+      "installedAt": "2026-03-27T21:06:26.686Z",
+      "updatedAt": "2026-03-27T21:06:26.686Z"
     }
   },
   "dismissed": {
