@@ -1,5 +1,4 @@
-# Global Gitignore
-# Configure with: git config --global core.excludesfile ~/.config/git/ignore
+# Global Gitignore (XDG-native: auto-discovered at ~/.config/git/ignore)
 
 # =============================================================================
 # Python
