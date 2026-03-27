@@ -40,6 +40,9 @@
 {{- $isSSH := ne (env "SSH_CONNECTION") "" -}}
 {{- $isHeadless := or $isHPC $isSSH (and $isNixOS (not (stdinIsATTY))) -}}
 
+{{- $name := promptStringOnce . "name" "Full name" -}}
+{{- $email := promptStringOnce . "email" "Email" -}}
+
 encryption = "age"
 
 [age]
@@ -47,8 +50,8 @@ identity = "~/.config/chezmoi/key.txt"
 recipient = "age18hj3luujpmvf4n7k9e60xumfzc06nf5wdupehy380hrghplxjctqvzffus"
 
 [data]
-name = "Craig Russell"
-email = "craig.russell.phd@gmail.com"
+name = {{ $name | quote }}
+email = {{ $email | quote }}
 envType = {{ $envType | quote }}
 isHPC = {{ $isHPC }}
 isWSL = {{ $isWSL }}
