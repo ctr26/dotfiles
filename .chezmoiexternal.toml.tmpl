@@ -1,3 +1,4 @@
+{{ if ne .chezmoi.os "windows" }}
 [".oh-my-zsh"]
 type = "git-repo"
 url = "https://github.com/ohmyzsh/ohmyzsh.git"
@@ -43,7 +44,6 @@ type = "git-repo"
 url = "https://github.com/dexpota/kitty-themes.git"
 refreshPeriod = "168h"
 
-
 [".config/polybar/polybar-scripts"]
 type = "git-repo"
 url = "https://github.com/polybar/polybar-scripts"
@@ -63,3 +63,4 @@ refreshPeriod = "168h"
 type = "git-repo"
 url = "https://github.com/wting/autojump.git"
 refreshPeriod = "168h"
+{{ end }}

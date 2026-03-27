@@ -4,6 +4,10 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !gh auth git-credential
+{{ if eq .chezmoi.os "windows" }}
+[core]
+	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
+{{ end }}
 [user]
 	name = {{ .name }}
 	email = {{ .email }}
