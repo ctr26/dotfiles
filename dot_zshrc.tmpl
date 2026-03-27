@@ -127,6 +127,8 @@ prompt pure
 source $ZSH/oh-my-zsh.sh
 ## source $HOME/.autojump/bin/autojump.zsh
 source $HOME/antigen/antigen.zsh
+# Auto-source .env files without prompting
+ZSH_DOTENV_PROMPT=false
 antigen init $HOME/.antigenrc
 
 # source '/usr/share/zsh-antidote/antidote.zsh'
