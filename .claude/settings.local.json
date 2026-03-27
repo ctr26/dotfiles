@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv:*)",
+      "Bash(mkdir:*)",
+      "Bash(rmdir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git tag:*)",
+      "Bash(git push:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:stoddart.github.io)",
+      "WebFetch(domain:www.chezmoi.io)",
+      "Bash(chmod:*)",
+      "Bash(make test)",
+      "Bash(ls:*)",
+      "Bash(vagrant:*)",
+      "Bash(VBoxManage:*)",
+      "Bash(rm:*)",
+      "Bash(VAGRANT_WSL_ENABLE_WINDOWS_ACCESS=\"1\" vagrant version)",
+      "Bash(nix flake check:*)"
+    ],
+    "deny": []
+  }
+}
