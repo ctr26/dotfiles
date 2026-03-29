@@ -69,6 +69,7 @@
     unzip                 # Archive extraction
     chezmoi               # Dotfile manager
     rsync                 # File sync
+    mosh                  # Mobile shell (roaming SSH)
     socat                 # Socket relay
     inetutils             # ping, ftp, telnet, etc.
     nano                  # Simple editor
