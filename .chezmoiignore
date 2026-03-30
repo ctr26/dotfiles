@@ -27,3 +27,32 @@
 
 # Secrets file (tokens, API keys)
 .env
+
+{{ if eq .chezmoi.os "windows" }}
+# Skip all Unix shell/terminal configs
+.zshrc
+.zshenv
+.bashrc
+.antigenrc
+.condarc
+.vimrc
+.config/i3/**
+.config/kitty/**
+.config/polybar/**
+.config/ranger/**
+.config/tmux/**
+.config/nix/**
+.config/nvim/**
+.oh-my-zsh/**
+.zsh/**
+.tmux/**
+.vim/**
+antigen/**
+.local/share/autojump/**
+.claude/statusline-command.sh
+{{ end }}
+
+{{ if ne .chezmoi.os "windows" }}
+# Skip Windows-only files
+Documents/PowerShell/**
+{{ end }}

@@ -23,10 +23,12 @@
 {{-   $envType = "macos" -}}
 {{- else if $isNixOS -}}
 {{-   $envType = "nixos" -}}
+{{- else if eq .chezmoi.os "windows" -}}
+{{-   $envType = "windows" -}}
 {{- else if env "WSL_DISTRO_NAME" -}}
 {{-   $envType = "wsl" -}}
 {{- else if stdinIsATTY -}}
-{{-   $envType = promptChoiceOnce . "envType" "Environment type" (list "linux" "wsl" "hpc" "nixos") -}}
+{{-   $envType = promptChoiceOnce . "envType" "Environment type" (list "linux" "wsl" "hpc" "nixos" "windows") -}}
 {{- else -}}
 {{-   $envType = "linux" -}}
 {{- end -}}
@@ -37,17 +39,29 @@
 {{- $isDarwin := eq $envType "macos" -}}
 {{- $isLinux := or (eq $envType "linux") (eq $envType "nixos") -}}
 {{- $isNixOS := eq $envType "nixos" -}}
+{{- $isWindows := eq $envType "windows" -}}
 {{- $isSSH := ne (env "SSH_CONNECTION") "" -}}
 {{- $isHeadless := or $isHPC $isSSH (and $isNixOS (not (stdinIsATTY))) -}}
 
-{{- $defaultName := "Craig Russell" -}}
-{{- $defaultEmail := "craig.russell.phd@gmail.com" -}}
-{{- if eq .chezmoi.username "craggles17" -}}
-{{-   $defaultName = "craggles" -}}
-{{-   $defaultEmail = "craggles17@gmail.com" -}}
+{{- /* Identity lookup: 1Password → prompt fallback */ -}}
+{{- $user := .chezmoi.username -}}
+{{- $nameField := printf "%s-name" $user -}}
+{{- $emailField := printf "%s-email" $user -}}
+{{- $defaultName := "" -}}
+{{- $defaultEmail := "" -}}
+{{- if lookPath "op" -}}
+{{-   $defaultName = onepasswordRead (printf "op://Personal/chezmoi-identity/%s" $nameField) -}}
+{{-   $defaultEmail = onepasswordRead (printf "op://Personal/chezmoi-identity/%s" $emailField) -}}
 {{- end -}}
-{{- $name := promptStringOnce . "name" "Full name" $defaultName -}}
-{{- $email := promptStringOnce . "email" "Email" $defaultEmail -}}
+{{- $name := "" -}}
+{{- $email := "" -}}
+{{- if $defaultName -}}
+{{-   $name = promptStringOnce . "name" "Full name" $defaultName -}}
+{{-   $email = promptStringOnce . "email" "Email" $defaultEmail -}}
+{{- else -}}
+{{-   $name = promptStringOnce . "name" "Full name" -}}
+{{-   $email = promptStringOnce . "email" "Email" -}}
+{{- end -}}
 
 encryption = "age"
 
@@ -65,6 +79,7 @@ isDarwin = {{ $isDarwin }}
 isLinux = {{ $isLinux }}
 isNixOS = {{ $isNixOS }}
 isSSH = {{ $isSSH }}
+isWindows = {{ $isWindows }}
 isHeadless = {{ $isHeadless }}
 hasSlurm = {{ $hasSlurm }}
 hasSft = {{ $hasSft }}
