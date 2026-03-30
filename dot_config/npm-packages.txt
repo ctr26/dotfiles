@@ -1,0 +1,7 @@
+# Global npm packages — managed by chezmoi
+# Edit this file and run `chezmoi apply` to sync
+# One package per line (name or name@version)
+
+clawhub
+netlify-cli
+openclaw

@@ -43,9 +43,35 @@
 {{- $isSSH := ne (env "SSH_CONNECTION") "" -}}
 {{- $isHeadless := or $isHPC $isSSH (and $isNixOS (not (stdinIsATTY))) -}}
 
+{{- /* Identity lookup: 1Password → prompt fallback */ -}}
+{{- $user := .chezmoi.username -}}
+{{- $nameField := printf "%s-name" $user -}}
+{{- $emailField := printf "%s-email" $user -}}
+{{- $defaultName := "" -}}
+{{- $defaultEmail := "" -}}
+{{- if lookPath "op" -}}
+{{-   $defaultName = onepasswordRead (printf "op://Personal/chezmoi-identity/%s" $nameField) -}}
+{{-   $defaultEmail = onepasswordRead (printf "op://Personal/chezmoi-identity/%s" $emailField) -}}
+{{- end -}}
+{{- $name := "" -}}
+{{- $email := "" -}}
+{{- if $defaultName -}}
+{{-   $name = promptStringOnce . "name" "Full name" $defaultName -}}
+{{-   $email = promptStringOnce . "email" "Email" $defaultEmail -}}
+{{- else -}}
+{{-   $name = promptStringOnce . "name" "Full name" -}}
+{{-   $email = promptStringOnce . "email" "Email" -}}
+{{- end -}}
+
+encryption = "age"
+
+[age]
+identity = "~/.config/chezmoi/key.txt"
+recipient = "age18hj3luujpmvf4n7k9e60xumfzc06nf5wdupehy380hrghplxjctqvzffus"
+
 [data]
-name = "Craig Russell"
-email = "craig.russell.phd@gmail.com"
+name = {{ $name | quote }}
+email = {{ $email | quote }}
 envType = {{ $envType | quote }}
 isHPC = {{ $isHPC }}
 isWSL = {{ $isWSL }}

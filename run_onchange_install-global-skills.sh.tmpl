@@ -1,0 +1,55 @@
+#!/bin/sh
+# chezmoi:template
+# Reinstalls global agent skills when the lockfile changes
+# Hash: {{ include "dot_agents/dot_skill-lock.json" | sha256sum }}
+
+set -euo pipefail
+
+if ! command -v npx >/dev/null 2>&1; then
+  echo "npx not found, skipping skills install"
+  exit 0
+fi
+
+LOCK_FILE="{{ .chezmoi.homeDir }}/.agents/.skill-lock.json"
+
+if [ ! -f "$LOCK_FILE" ]; then
+  echo "No skill-lock.json found, skipping"
+  exit 0
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "python3 not found, skipping skills install"
+  exit 0
+fi
+
+echo "Installing global agent skills from lockfile..."
+
+# Install each skill individually by registry name, fall back to GitHub repo
+# This gives precise control over which skills are installed (no --all splat)
+SKILLS=$(python3 -c "
+import json
+with open('$LOCK_FILE') as f:
+    d = json.load(f)
+for name, v in sorted(d.get('skills', {}).items()):
+    src = v.get('source', '')
+    src_type = v.get('sourceType', '')
+    if src_type == 'github':
+        print(f'{name}\t{src}')
+")
+
+INSTALLED=0
+FAILED=0
+
+echo "$SKILLS" | while IFS='	' read -r name repo; do
+  [ -z "$name" ] && continue
+  # Try registry name first (fast, no git clone), fall back to GitHub repo
+  if npx -y skills@latest add "$name" --global 2>/dev/null; then
+    echo "  ✓ $name"
+  elif npx -y skills@latest add "$repo" --global 2>/dev/null; then
+    echo "  ✓ $name (from $repo)"
+  else
+    echo "  ✗ $name — failed"
+  fi
+done
+
+echo "Done. Skills installed for: claude-code, gemini-cli, openclaw, codex"

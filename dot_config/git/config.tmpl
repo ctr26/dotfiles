@@ -1,13 +1,23 @@
-[credential "https://github.com"]
-	helper = 
-	helper = !gh auth git-credential
-[credential "https://gist.github.com"]
-	helper = 
-	helper = !gh auth git-credential
-{{ if eq .chezmoi.os "windows" }}
-[core]
-	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
-{{ end }}
 [user]
 	name = {{ .name }}
 	email = {{ .email }}
+
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+[init]
+	defaultBranch = main
+
+[pull]
+	rebase = false
+
+[core]
+	autocrlf = input
+{{ if eq .chezmoi.os "windows" }}
+	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
+{{ end }}
