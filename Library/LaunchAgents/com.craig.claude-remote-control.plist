@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.craig.claude-remote-control</string>
+
+  <!--
+    Server-mode `claude remote-control` daemon.
+    - Sources ~/.env (so OP_SERVICE_ACCOUNT_TOKEN reaches spawned sessions).
+    - --spawn worktree: each on-demand session gets its own git worktree.
+    - --capacity 128: max concurrent sessions.
+    Sessions appear at https://claude.ai/code (or the Claude mobile app), keyed
+    by `--remote-control-session-name-prefix` (default = $(hostname)).
+  -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>-lc</string>
+    <string>set -a; [ -f "$HOME/.env" ] &amp;&amp; . "$HOME/.env"; set +a; exec /Users/ctr26/.local/bin/claude remote-control --spawn worktree --capacity 128</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/ctr26</string>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <!--
+    Throttle restarts. Default minimum is 10s; bump to 30s so a crash-loop
+    (e.g. worktree mode in a non-git cwd) doesn't spam logs.
+  -->
+  <key>ThrottleInterval</key>
+  <integer>30</integer>
+
+  <key>ProcessType</key>
+  <string>Interactive</string>
+
+  <key>StandardOutPath</key>
+  <string>/Users/ctr26/.claude-code/logs/stdout.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/Users/ctr26/.claude-code/logs/stderr.log</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/Users/ctr26/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>/Users/ctr26</string>
+    <key>LANG</key>
+    <string>en_US.UTF-8</string>
+  </dict>
+</dict>
+</plist>
