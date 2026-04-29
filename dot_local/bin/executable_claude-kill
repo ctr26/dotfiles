@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""claude-kill <N> — remove slot N from the slot map.
+
+The on-disk transcript JSONL is preserved (it's conversation history). To
+fully delete it, find it via `claude-list` first, then rm the .jsonl file.
+"""
+import json
+import sys
+from pathlib import Path
+
+SLOTS_FILE = Path.home() / ".claude-code" / "slots.json"
+PROJECTS_DIR = Path.home() / ".claude" / "projects"
+
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        print("usage: claude-kill <N>", file=sys.stderr)
+        sys.exit(2)
+
+    key = sys.argv[1]
+    if not SLOTS_FILE.exists():
+        print(f"no slots file at {SLOTS_FILE}", file=sys.stderr)
+        sys.exit(1)
+
+    data = json.loads(SLOTS_FILE.read_text())
+    slots = data.get("slots", {})
+    if key not in slots:
+        print(f"slot '{key}' not registered", file=sys.stderr)
+        sys.exit(1)
+
+    slot = slots.pop(key)
+
+    tmp = SLOTS_FILE.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, indent=2) + "\n")
+    tmp.replace(SLOTS_FILE)
+
+    print(f"removed slot {key} ({slot['uuid']}) from map.")
+
+    if PROJECTS_DIR.exists():
+        for p in PROJECTS_DIR.glob(f"*/{slot['uuid']}.jsonl"):
+            print(f"transcript preserved at: {p}")
+            return
+    print("(no transcript file found — slot was empty)")
+
+
+if __name__ == "__main__":
+    main()

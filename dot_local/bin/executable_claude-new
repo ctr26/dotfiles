@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""claude-new [name] — pick the next free slot, register a fresh UUID, launch.
+
+Working dir defaults to $HOME (matches `claude-init`). Override by editing
+~/.claude-code/slots.json after registration.
+"""
+import json
+import os
+import sys
+import uuid
+from pathlib import Path
+
+SLOTS_FILE = Path.home() / ".claude-code" / "slots.json"
+DEFAULT_CWD = str(Path.home())
+
+
+def main() -> None:
+    if SLOTS_FILE.exists():
+        data = json.loads(SLOTS_FILE.read_text())
+    else:
+        data = {"version": 1, "slots": {}}
+
+    slots = data.setdefault("slots", {})
+    used = {int(k) for k in slots.keys() if k.isdigit()}
+    k = 1
+    while k in used:
+        k += 1
+
+    name = sys.argv[1] if len(sys.argv) > 1 else f"slot-{k}"
+    new_uuid = str(uuid.uuid4())
+    slots[str(k)] = {"uuid": new_uuid, "name": name, "cwd": DEFAULT_CWD}
+
+    SLOTS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = SLOTS_FILE.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, indent=2) + "\n")
+    tmp.replace(SLOTS_FILE)
+
+    print(f"registered slot {k}: {new_uuid} ({name})", file=sys.stderr)
+    os.chdir(DEFAULT_CWD)
+    os.execvp("claude", ["claude", "--session-id", new_uuid, "-n", name])
+
+
+if __name__ == "__main__":
+    main()

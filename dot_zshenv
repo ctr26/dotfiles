@@ -3,6 +3,11 @@
 typeset -U PATH
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH"
 
+# User scripts (chezmoi-managed) — claude-attach/list/init/new/kill etc.
+# Must be in zshenv so SSH non-interactive sessions (e.g. \`ssh host claude-attach 1\`)
+# can resolve them; zshrc is interactive-only.
+export PATH="$HOME/.local/bin:$PATH"
+
 [ -f "$HOME/.env" ] && source "$HOME/.env"
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
