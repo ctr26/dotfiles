@@ -9,6 +9,10 @@
     Server-mode `claude remote-control` daemon.
     - Sources ~/.env (so OP_SERVICE_ACCOUNT_TOKEN reaches spawned sessions).
     - --spawn worktree: each on-demand session gets its own git worktree.
+        Worktrees are placed under ~/.claude/ (not the source dir).
+        $HOME has been `git init`-ed with a permissive `~/.gitignore` so
+        the requires-a-git-repository check passes; the repo itself is
+        only here to satisfy that check, not for tracking dotfiles.
     - --capacity 128: max concurrent sessions.
     Sessions appear at https://claude.ai/code (or the Claude mobile app), keyed
     by `--remote-control-session-name-prefix` (default = $(hostname)).
@@ -30,8 +34,8 @@
   <true/>
 
   <!--
-    Throttle restarts. Default minimum is 10s; bump to 30s so a crash-loop
-    (e.g. worktree mode in a non-git cwd) doesn't spam logs.
+    Throttle restarts. Default minimum is 10s; bump to 30s so any crash-loop
+    doesn't spam logs.
   -->
   <key>ThrottleInterval</key>
   <integer>30</integer>
