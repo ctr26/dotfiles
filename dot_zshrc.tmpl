@@ -71,16 +71,26 @@ ZSH_THEME="robbyrussell"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 
-# plugins=(git
-#         autojump
-#         sudo
-#         z
-#         colorize
-#         cp
-#         zsh-syntax-highlighting
-#         zsh-autosuggestions
-#         docker
-#         tmux)
+plugins=(
+    git
+    pip
+    docker
+    colorize
+    magic-enter
+    lein
+    command-not-found
+    vim
+    sudo
+    z
+    cp
+    tmux
+    tmuxinator
+    zsh-syntax-highlighting
+    zsh-autosuggestions
+    zsh-completions
+    zsh-colored-man-pages
+    conda-zsh-completion
+)
 
 
 # User configuration
@@ -126,13 +136,9 @@ prompt pure
 
 source $ZSH/oh-my-zsh.sh
 ## source $HOME/.autojump/bin/autojump.zsh
-source $HOME/antigen/antigen.zsh
+
 # Auto-source .env files without prompting
 ZSH_DOTENV_PROMPT=false
-antigen init $HOME/.antigenrc
-
-# source '/usr/share/zsh-antidote/antidote.zsh'
-# antidote lo ad
 
 
 # >>> conda initialize >>>
