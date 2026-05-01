@@ -1,41 +1,165 @@
 {
+  "env": {
+    "CLAUDE_CODE_USE_VERTEX": "1",
+    "CLOUD_ML_REGION": "global",
+    "ANTHROPIC_VERTEX_PROJECT_ID": "vertexai-sandbox-e8a925d0",
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
+    "DISABLE_ERROR_REPORTING": "1",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "NODE_EXTRA_CA_CERTS": "/Users/craig.russell/.netskope-ca.pem",
+    "XDG_RUNTIME_DIR": "/Users/craig.russell/xdg-runtime",
+    "TMUX_ASSISTANT_RESURRECT_DIR": "/Users/craig.russell/xdg-runtime/tmux-assistant-resurrect"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
+      "Bash",
       "Read",
       "Edit",
       "Write",
-      "Grep",
       "Glob",
-      "Bash",
+      "Grep",
       "WebSearch",
       "WebFetch",
-      "Agent",
       "Task",
       "Skill",
+      "Agent",
       "NotebookEdit",
+      "ToolSearch",
       "mcp__*"
     ],
     "deny": [
-      "Bash(rm -rf /*:*)",
-      "Bash(git push --force:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(git clean -f:*)",
-      "Bash(git checkout .:*)",
-      "Bash(git branch -D:*)",
-      "Read(./**/.env)",
-      "Read(./**/.env.*)",
-      "Read(./**/credentials*)",
-      "Read(./**/secrets/**)"
+      "Bash(sudo *)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(dd if=/dev/zero of=/dev/*)",
+      "Bash(dd if=/dev/random of=/dev/*)",
+      "Bash(mkfs *)",
+      "Bash(fdisk *)",
+      "Bash(parted *)",
+      "Bash(nc -l *)",
+      "Bash(netcat -l *)",
+      "Bash(socat *)",
+      "Bash(base64 -d | sh *)",
+      "Bash(base64 -d | bash *)",
+      "Bash(passwd *)",
+      "Bash(nmap *)",
+      "Bash(masscan *)",
+      "Bash(xmrig *)",
+      "Bash(monero *)",
+      "Bash(bitcoin *)",
+      "Bash(miner *)",
+      "Bash(git push --force origin master *)",
+      "Bash(git push --force origin main *)",
+      "Bash(git push -f origin master *)",
+      "Bash(git push -f origin main *)",
+      "Bash(git push --force origin trunk *)",
+      "Bash(git push -f origin trunk *)",
+      "Bash(git reset --hard origin/master *)",
+      "Bash(git reset --hard origin/main *)",
+      "Bash(git reset --hard origin/trunk *)",
+      "Bash(env | base64 *)",
+      "Bash(printenv | base64 *)",
+      "Bash(set | base64 *)",
+      "Bash(bash -i >& /dev/tcp/*)",
+      "Bash(sh -i >& /dev/tcp/*)",
+      "Bash(exec < /dev/tcp/*)",
+      "Bash(exec > /dev/tcp/*)",
+      "Bash(exec 3<>/dev/tcp/*)",
+      "Bash(systemctl mask *)",
+      "Bash(systemctl disable *)",
+      "Bash(curl *169.254.169.254*)",
+      "Bash(wget *169.254.169.254*)",
+      "Bash(curl *metadata.google.internal*)",
+      "Bash(wget *metadata.google.internal*)",
+      "Bash(history | grep -i password *)",
+      "Bash(history | grep -i token *)",
+      "Bash(history | grep -i secret *)",
+      "Bash(grep -r password /etc/*)",
+      "Bash(grep -r token /etc/*)",
+      "Bash(grep -r secret /etc/*)",
+      "Bash(find / -name id_rsa *)",
+      "Bash(find / -name *.pem *)",
+      "Bash(shutdown *)",
+      "Bash(reboot *)",
+      "Bash(halt *)",
+      "Bash(poweroff *)",
+      "Bash(init 0 *)",
+      "Bash(init 6 *)",
+      "Bash(rm /var/log/*)",
+      "Bash(rm -rf /var/log/*)",
+      "Bash(truncate -s 0 /var/log/*)",
+      "Bash(insmod *)",
+      "Bash(rmmod *)",
+      "Bash(modprobe *)",
+      "Bash(sysctl -w *)",
+      "Bash(chmod -R 777 /*)",
+      "Bash(chmod 777 /etc/*)",
+      "Bash(chmod 777 /bin/*)",
+      "Bash(chmod 777 /usr/*)",
+      "Bash(find / -type f -delete *)",
+      "Bash(find / -type d -delete *)",
+      "Bash(rm -rf /home/*)",
+      "Bash(rm -rf /var/*)",
+      "Bash(rm -rf /opt/*)",
+      "Bash(rm -rf /etc/*)",
+      "Bash(rm -rf /bin/*)",
+      "Bash(rm -rf /usr/*)",
+      "Bash(gdb -p *)",
+      "Bash(LD_PRELOAD=*)"
+    ],
+    "ask": [
+      "Bash(kill *)",
+      "Bash(pkill *)"
     ],
     "defaultMode": "plan"
   },
+  "model": "claude-opus-4-7[1m]",
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/craig.russell/.claude/scripts/enforce-worktree.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "Hook input: $ARGUMENTS\n\nExtract tool_input.file_path. If the path contains any of: .env, .ssh/, id_rsa, id_ed25519, .pem, credentials, .netrc, .gnupg — output exactly the JSON {\"decision\":\"block\",\"reason\":\"<path> is a sensitive file — edit manually outside Claude Code\"} and stop. Otherwise produce no output.",
+            "model": "claude-haiku-4-5-20251001",
+            "timeout": 30,
+            "statusMessage": "Checking for sensitive file..."
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "tmux rename-window \"$(basename \"$(git rev-parse --show-toplevel 2>/dev/null)\" 2>/dev/null || basename \"$PWD\")\" 2>/dev/null || true"
+            "command": "bash /Users/craig.russell/.claude/scripts/mcp-preflight.sh 2>/dev/null || true",
+            "timeout": 15,
+            "statusMessage": "Checking MCP server health..."
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/craig.russell/.config/tmux/plugins/tmux-assistant-resurrect/hooks/claude-session-track.sh'"
           }
         ]
       }
@@ -45,7 +169,46 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.claude/sync-to-obsidian.sh >> ~/.claude/sync.log 2>&1 &"
+            "command": "python3 /Users/craig.russell/projects/claude-to-obsidian.py 2>/dev/null || true",
+            "timeout": 30,
+            "statusMessage": "Syncing sessions to Obsidian..."
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/craig.russell/.claude/scripts/obsidian-log.sh 2>/dev/null || true",
+            "timeout": 15,
+            "statusMessage": "Logging compaction to Obsidian..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "Hook input: $ARGUMENTS\n\nExtract tool_input.file_path. If it ends in .py and the file exists, invoke the `ruff` skill to format and lint-fix it. For any other file type, produce no output and stop immediately.",
+            "model": "claude-haiku-4-5-20251001",
+            "timeout": 60,
+            "statusMessage": "Auto-formatting Python..."
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/craig.russell/.config/tmux/plugins/tmux-assistant-resurrect/hooks/claude-session-cleanup.sh'"
           }
         ]
       }
@@ -53,75 +216,70 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "sh ~/.claude/statusline-command.sh"
+    "command": "~/.claude/statusline.sh",
+    "padding": 0
   },
   "enabledPlugins": {
-    "deep-project@piercelamb-plugins": true,
-    "deep-plan@piercelamb-plugins": true,
-    "deep-implement@piercelamb-plugins": true,
-    "github@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "commit-commands@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true,
+    "rxrx-software@rxrx": true,
+    "frontend-design@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": false,
     "code-review@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "pr-review-toolkit@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
-    "playwright@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "claude-code-setup@claude-plugins-official": true,
-    "agent-sdk-dev@claude-plugins-official": true,
-    "explanatory-output-style@claude-plugins-official": true,
-    "plugin-dev@claude-plugins-official": true,
+    "commit-commands@claude-plugins-official": true,
     "hookify@claude-plugins-official": true,
-    "learning-output-style@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
-    "coderabbit@claude-plugins-official": true,
+    "learning-output-style@claude-plugins-official": false,
+    "huggingface-skills@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
     "qodo-skills@claude-plugins-official": true,
-    "chrome-devtools-mcp@claude-plugins-official": true,
-    "document-skills@anthropic-agent-skills": true,
-    "scientific-skills@claude-scientific-skills": true,
-    "single-cell-rna-qc@life-sciences": true,
-    "scvi-tools@life-sciences": true,
-    "nextflow-development@life-sciences": true,
-    "10x-genomics@life-sciences": true,
-    "tooluniverse@life-sciences": true,
-    "biorender@life-sciences": true,
-    "synapse@life-sciences": true,
-    "owkin@life-sciences": true,
-    "instrument-data-to-allotrope@life-sciences": true,
-    "clinical-trial-protocol@life-sciences": true,
-    "wiley-scholar-gateway@life-sciences": true,
-    "pubmed@life-sciences": true,
-    "biorxiv@life-sciences": true,
-    "clinical-trials@life-sciences": true,
-    "chembl@life-sciences": true,
-    "open-targets@life-sciences": true,
-    "medidata@life-sciences": true
+    "rxrx-data-science@rxrx": true,
+    "rxrx-science@rxrx": true,
+    "asana@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "atlassian@claude-plugins-official": true,
+    "rxrx-atlassian-mcp@rxrx": true,
+    "discord@claude-plugins-official": true,
+    "slack@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "vercel@claude-plugins-official": true,
+    "playground@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": true,
+    "claude-session-driver@superpowers-marketplace": true,
+    "double-shot-latte@superpowers-marketplace": true,
+    "elements-of-style@superpowers-marketplace": true,
+    "episodic-memory@superpowers-marketplace": true,
+    "superpowers@superpowers-marketplace": true,
+    "superpowers-dev@superpowers-marketplace": true,
+    "superpowers-developing-for-claude-code@superpowers-marketplace": true,
+    "superpowers-lab@superpowers-marketplace": true,
+    "fullstory@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "atomic-agents@claude-plugins-official": true,
+    "data-engineering@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
-    "anthropic-agent-skills": {
+    "rxrx": {
       "source": {
         "source": "github",
-        "repo": "anthropics/skills"
-      }
+        "repo": "recursionpharma/rxrx-claude-plugin-marketplace"
+      },
+      "autoUpdate": true
     },
-    "life-sciences": {
+    "superpowers-marketplace": {
       "source": {
         "source": "github",
-        "repo": "anthropics/life-sciences"
-      }
-    },
-    "claude-scientific-skills": {
-      "source": {
-        "source": "github",
-        "repo": "K-Dense-AI/claude-scientific-skills"
+        "repo": "obra/superpowers-marketplace"
       }
     }
-  }
+  },
+  "companyAnnouncements": [
+    "The Recursion AI Coding Guild is here to help.  Please slack #guild-ai-coding for support or feedback!",
+    "Check out Recursion's internal plugin marketplace here: https://go/gh/rxrx-claude-plugin-marketplace"
+  ],
+  "skipDangerousModePermissionPrompt": true,
+  "editorMode": "vim"
 }
