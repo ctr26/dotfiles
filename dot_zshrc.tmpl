@@ -79,7 +79,6 @@ plugins=(
     magic-enter
     lein
     command-not-found
-    vim
     sudo
     z
     cp
@@ -88,7 +87,7 @@ plugins=(
     zsh-syntax-highlighting
     zsh-autosuggestions
     zsh-completions
-    zsh-colored-man-pages
+    colored-man-pages
     conda-zsh-completion
 )
 
@@ -132,6 +131,10 @@ fpath+=($HOME/.zsh/pure)
 
 autoload -U promptinit; promptinit
 prompt pure
+
+# Stop Pure from rewriting the terminal title on every preexec/precmd —
+# leave the title to the terminal emulator (Ghostty/iTerm/Kitty).
+prompt_pure_set_title() { :; }
 
 
 source $ZSH/oh-my-zsh.sh
