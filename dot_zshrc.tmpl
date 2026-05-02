@@ -71,26 +71,24 @@ ZSH_THEME="robbyrussell"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 
-# Auto-source .env files without prompting (must be set before omz loads)
-ZSH_DOTENV_PROMPT=false
-
 plugins=(
     git
     pip
     docker
     colorize
-    colored-man-pages
     magic-enter
+    lein
     command-not-found
     sudo
     z
     cp
     tmux
     tmuxinator
-    dotenv
     zsh-syntax-highlighting
     zsh-autosuggestions
     zsh-completions
+    colored-man-pages
+    conda-zsh-completion
 )
 
 
@@ -134,11 +132,16 @@ fpath+=($HOME/.zsh/pure)
 autoload -U promptinit; promptinit
 prompt pure
 
+# Stop Pure from rewriting the terminal title on every preexec/precmd —
+# leave the title to the terminal emulator (Ghostty/iTerm/Kitty).
+prompt_pure_set_title() { :; }
+
 
 source $ZSH/oh-my-zsh.sh
+## source $HOME/.autojump/bin/autojump.zsh
 
-# source '/usr/share/zsh-antidote/antidote.zsh'
-# antidote lo ad
+# Auto-source .env files without prompting
+ZSH_DOTENV_PROMPT=false
 
 
 # >>> conda initialize >>>
@@ -173,13 +176,6 @@ export PATH="$HOME/.local/bin:$PATH"
 # GITHUB_PERSONAL_ACCESS_TOKEN in ~/.env (sourced by .zshenv)
 command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --shell zsh)"
 
-# Modern CLI tool integrations (mise, direnv, zoxide, fzf)
-command -v mise &>/dev/null && eval "$(mise activate zsh)"
-command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
-command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
-[ -f /opt/homebrew/opt/fzf/shell/key-bindings.zsh ] && source /opt/homebrew/opt/fzf/shell/key-bindings.zsh
-[ -f /opt/homebrew/opt/fzf/shell/completion.zsh ] && source /opt/homebrew/opt/fzf/shell/completion.zsh
-
 # Auto-switch gh account based on .gh-account file in project tree
 _gh_auto_switch() {
   local dir="$PWD"
@@ -203,43 +199,4 @@ _gh_auto_switch  # run once at shell start
 [[ -s {{ .chezmoi.homeDir }}/.cache/yay/autojump/pkg/autojump/etc/profile.d/autojump.sh ]] && source {{ .chezmoi.homeDir }}/.cache/yay/autojump/pkg/autojump/etc/profile.d/autojump.sh
 
 autoload -U compinit && compinit -u
-
-# =============================================================================
-# 1Password — SSH agent + CLI integration
-# =============================================================================
-# Route SSH agent traffic through the 1Password desktop app.
-# Requires: 1Password → Settings → Developer → "Use the SSH agent" enabled.
-export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-
-# 1Password CLI completions
-if command -v op >/dev/null 2>&1; then
-    eval "$(op completion zsh)"
-    compdef _op op
-fi
-
-# Run a command with secrets injected from a 1Password .env template.
-# Usage: oprun pnpm dev          (reads ./.env.tpl by default)
-#        OPRUN_ENV_FILE=foo.tpl oprun python app.py
-oprun() { op run --env-file="${OPRUN_ENV_FILE:-.env.tpl}" -- "$@"; }
-
-# =============================================================================
-# Claude Code <-> Cowork plugin parity
-# =============================================================================
-# Top-level `claude plugin ...` subcommands run outside any Claude Code session,
-# so the in-session hook events (PreToolUse, PostToolUse, SessionStart, etc.)
-# don't catch them. This wrapper intercepts the CLI, runs the command, and
-# then prints a parity diff against the Cowork plugin set.
-# Disable with: CLAUDE_PLUGIN_PARITY=0
-claude() {
-  if [[ "$1" == "plugin" || "$1" == "plugins" ]] && [[ "${CLAUDE_PLUGIN_PARITY:-1}" != "0" ]]; then
-    command claude "$@"
-    local rc=$?
-    if [[ -x "$HOME/.local/bin/claude-plugin-parity" ]]; then
-      print -P "%F{8}---%f %F{6}claude-plugin-parity%f"
-      "$HOME/.local/bin/claude-plugin-parity" || true
-    fi
-    return $rc
-  fi
-  command claude "$@"
-}
 
