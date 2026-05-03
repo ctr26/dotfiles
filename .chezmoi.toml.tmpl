@@ -43,6 +43,16 @@
 {{- $isSSH := ne (env "SSH_CONNECTION") "" -}}
 {{- $isHeadless := or $isHPC $isSSH (and $isNixOS (not (stdinIsATTY))) -}}
 
+{{- /* Persona selection — sets the default identity / gh user / claude profile.
+     Stored in chezmoi.toml so each machine gets one default persona; runtime
+     switching uses ~/.config/personas/<name>.env via the `persona` shell function. */ -}}
+{{- $persona := "" -}}
+{{- if stdinIsATTY -}}
+{{-   $persona = promptChoiceOnce . "persona" "Default persona for this machine" (list "professional" "personal") -}}
+{{- else -}}
+{{-   $persona = "professional" -}}
+{{- end -}}
+
 {{- /* Identity lookup: 1Password → prompt fallback */ -}}
 {{- $user := .chezmoi.username -}}
 {{- $nameField := printf "%s-name" $user -}}
@@ -72,6 +82,7 @@ recipient = "age18hj3luujpmvf4n7k9e60xumfzc06nf5wdupehy380hrghplxjctqvzffus"
 [data]
 name = {{ $name | quote }}
 email = {{ $email | quote }}
+persona = {{ $persona | quote }}
 envType = {{ $envType | quote }}
 isHPC = {{ $isHPC }}
 isWSL = {{ $isWSL }}

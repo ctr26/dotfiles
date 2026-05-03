@@ -1,6 +1,11 @@
+{{- /* Active persona is the machine default chosen at chezmoi init.
+       Per-tree includeIf below overrides per directory regardless of active persona.
+       `dig` falls back to "professional" if chezmoi.toml predates the persona prompt. */ -}}
+{{- $persona := dig "persona" "professional" . -}}
+{{- $active := index .personas $persona -}}
 [user]
-	name = {{ .name }}
-	email = {{ .email }}
+	name = {{ $active.gitName }}
+	email = {{ $active.gitEmail }}
 
 [credential "https://github.com"]
 	helper =
@@ -14,10 +19,44 @@
 	defaultBranch = main
 
 [pull]
-	rebase = false
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+
+[fetch]
+	prune = true
+
+[rebase]
+	autoStash = true
+
+[diff]
+	colorMoved = default
+
+[merge]
+	conflictStyle = zdiff3
+
+[rerere]
+	enabled = true
 
 [core]
 	autocrlf = input
 {{ if eq .chezmoi.os "windows" }}
 	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
 {{ end }}
+
+# ---------------------------------------------------------------------------
+# Per-tree persona overrides — kick in regardless of which persona is "active"
+# on this machine. Adjust the gitdir patterns to match your project layout.
+# ---------------------------------------------------------------------------
+[includeIf "gitdir:~/work/"]
+	path = ~/.config/git/persona-professional.gitconfig
+
+[includeIf "gitdir:~/projects/professional/"]
+	path = ~/.config/git/persona-professional.gitconfig
+
+[includeIf "gitdir:~/personal/"]
+	path = ~/.config/git/persona-personal.gitconfig
+
+[includeIf "gitdir:~/projects/personal/"]
+	path = ~/.config/git/persona-personal.gitconfig
