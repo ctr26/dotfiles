@@ -1021,51 +1021,75 @@ git add audit/2026-05-03/web-console-checklist.md
 git commit -m "audit: web-console MCP disable checklist"
 ```
 
-### Task 16: Agent SDK / personal subagent recommendations
+### Task 16: Hook & prose-preference recommendations (Layer 4)
 
 **Files:**
-- Create: `audit/2026-05-03/agent-sdk-recommendations.md`
+- Create: `audit/2026-05-03/hook-recommendations.md`
 
-- [ ] **Step 1: Inventory current personal subagents**
+**Note:** Per the user's standing rule, this task does **not** propose
+new custom skills or new subagents. Only hooks (settings.json or
+hookify) and prose preferences in `~/.claude/CLAUDE.md` are in scope.
+Personas system is abandoned — do not propose persona work.
+
+- [ ] **Step 1: Inventory current hooks**
 
 ```bash
-ls ~/.claude/plans/ 2>/dev/null
-ls ~/.claude/agents/ 2>/dev/null
+jq '.hooks' ~/.claude/settings.json
+ls ~/.claude/plugins/marketplaces/*/hookify*/rules 2>/dev/null
 ```
 
-- [ ] **Step 2: Write recommendations**
+- [ ] **Step 2: Inventory current personal subagents (read-only)**
 
-Create `audit/2026-05-03/agent-sdk-recommendations.md`:
+```bash
+ls ~/.claude/agents/ 2>/dev/null
+ls ~/.claude/plans/ 2>/dev/null | head -10
+```
+
+Goal: just understand what's already there. No new subagents in
+recommendations.
+
+- [ ] **Step 3: Write recommendations**
+
+Create `audit/2026-05-03/hook-recommendations.md`:
 
 ```markdown
-# Agent SDK / Personal Subagent Recommendations (2026-05-03)
+# Hook & Prose Recommendations (2026-05-03)
 
-Based on the audit, the following personal subagent patterns are worth
-keeping or codifying:
+Per CLAUDE.md preference: prose first, then hooks for triggered
+behavior. **No new skills or subagents.**
 
-## Existing patterns observed in `~/.claude/plans/`
+## Existing hooks (Layer 1 / `~/.claude/settings.json`)
 
-(List each, with one-line summary of when it triggers.)
+- `SessionStart` — tmux window rename
+- `Stop` — Obsidian sync (working per memory note)
 
-## Suggested additions
+## Candidate prose additions to `~/.claude/CLAUDE.md`
 
-- **persona-router**: a small subagent that picks the right gitconfig
-  persona (professional vs. personal) given repo URL — formalize the
-  logic already in the chezmoi templates.
-- **dotfile-pr-reviewer**: subagent specialized for chezmoi-template
-  diffs (knows about template syntax, externals, prefixes).
+(Captured from this audit's findings — only items the audit produced
+direct evidence for.)
 
-## Not worth doing (YAGNI)
+- (e.g.) "When working in the chezmoi repo, prefer `chezmoi edit` over
+  direct edits in `~/`."
+- (other prose items derived from telemetry/probe findings)
 
-- A bespoke eval harness — covered by ECC AgentShield if it ever
-  becomes a need (out of scope per spec).
+## Candidate hooks (only if a clear trigger exists)
+
+| Trigger | Behavior | Why it must be a hook |
+|---|---|---|
+| (e.g.) PreToolUse on `Bash` matching `chezmoi apply` | dry-run via `chezmoi diff` first | Conditional on the command, not a preference |
+
+## Explicitly NOT recommended
+
+- New custom subagents under `~/.claude/agents/`
+- New custom skills under `~/.claude/skills/`
+- Persona-conditional logic
 ```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-git add audit/2026-05-03/agent-sdk-recommendations.md
-git commit -m "audit: Agent SDK recommendations"
+git add audit/2026-05-03/hook-recommendations.md
+git commit -m "audit: hook and prose-preference recommendations"
 ```
 
 ### Task 17: Roll-up summary and final commit
@@ -1102,7 +1126,7 @@ Run against ECC `<SHA>` from <commit-date>.
 - [`probes.md`](probes.md) — synthetic probe results
 - [`action-list.md`](action-list.md) — confirmed kill/keep/fix/install
 - [`web-console-checklist.md`](web-console-checklist.md) — manual MCP steps
-- [`agent-sdk-recommendations.md`](agent-sdk-recommendations.md)
+- [`hook-recommendations.md`](hook-recommendations.md)
 
 ## Reproduction
 
