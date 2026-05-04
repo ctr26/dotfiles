@@ -1,0 +1,13 @@
+# ~/.bashrc — minimal. User is zsh-first; bash exists for Linux servers.
+{{ if ne .chezmoi.os "darwin" -}}
+# Linux-only system bashrc + autojump + docker-via-XDG.
+[ -f /etc/bashrc ] && . /etc/bashrc
+[[ -s "$HOME/.autojump/bin/autojump.sh" ]] && source "$HOME/.autojump/bin/autojump.sh"
+[ -n "$XDG_RUNTIME_DIR" ] && export DOCKER_HOST="unix://$XDG_RUNTIME_DIR/docker.sock"
+{{- end }}
+
+# Cross-OS: ensure ~/.local/bin and ~/bin are on PATH.
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$HOME/bin:$PATH" ;;
+esac

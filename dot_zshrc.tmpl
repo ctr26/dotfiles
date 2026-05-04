@@ -8,7 +8,8 @@ ZSH=~/.oh-my-zsh
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="robbyrussell"
+ZSH_THEME=""   # Pure prompt is loaded after oh-my-zsh.sh below; setting OMZ
+               # theme empty avoids robbyrussell stomping on PROMPT.
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -82,7 +83,7 @@ plugins=(
     sudo
     z
     cp
-    tmux
+    tmux         # aliases (ta/ts/tl) + completion. Autostart stays OFF (no ZSH_TMUX_AUTOSTART).
     tmuxinator
     zsh-syntax-highlighting
     zsh-autosuggestions
@@ -118,17 +119,19 @@ plugins=(
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-ZSH_TMUX_AUTOSTART=true
-ZSH_TMUX_AUTOCONNECT=true
-ZSH_TMUX_AUTOSTART_ONCE=true
 ZSH_CACHE_DIR=$HOME/.cache/oh-my-zsh
+[[ ! -d $ZSH_CACHE_DIR ]] && mkdir -p "$ZSH_CACHE_DIR"
 
-if [[ ! -d $ZSH_CACHE_DIR ]]; then
-  mkdir $ZSH_CACHE_DIR
-fi
+# Auto-source .env files without prompting (must be set before omz dotenv plugin)
+ZSH_DOTENV_PROMPT=false
 
+# Disable conda's PROMPT mangling — pure prompt below owns it.
+export CONDA_CHANGEPS1=false
+
+source $ZSH/oh-my-zsh.sh
+
+# Pure prompt — loaded AFTER oh-my-zsh so OMZ themes can't override it.
 fpath+=($HOME/.zsh/pure)
-
 autoload -U promptinit; promptinit
 prompt pure
 
@@ -137,66 +140,49 @@ prompt pure
 prompt_pure_set_title() { :; }
 
 
-source $ZSH/oh-my-zsh.sh
-## source $HOME/.autojump/bin/autojump.zsh
-
-# Auto-source .env files without prompting
-ZSH_DOTENV_PROMPT=false
-
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('$HOME/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "$HOME/miniconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="$HOME/miniconda3/bin:$PATH"
-        {{- if eq .chezmoi.os "darwin" }}
-        export PATH="/opt/homebrew/Caskroom/miniconda/base/bin:$PATH"
-        {{ end }}
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
+# >>> conda lazy-load >>>
+# Replaces eager `conda init` block. First `conda <cmd>` invocation initializes
+# conda properly; until then no PATH pollution and no startup cost.
+conda() {
+  unset -f conda
+  local _setup
+  _setup="$('$HOME/miniconda3/bin/conda' 'shell.zsh' 'hook' 2>/dev/null)"
+  if [ $? -eq 0 ]; then
+    eval "$_setup"
+  elif [ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]; then
+    . "$HOME/miniconda3/etc/profile.d/conda.sh"
+{{- if eq .chezmoi.os "darwin" }}
+  elif [ -f "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh" ]; then
+    . "/opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh"
+{{- end }}
+  fi
+  conda "$@"
+}
+# <<< conda lazy-load <<<
 
 # OpenClaw Completion
 [[ -f "$HOME/.openclaw/completions/openclaw.zsh" ]] && source "$HOME/.openclaw/completions/openclaw.zsh"
-{{- if eq .chezmoi.os "darwin" }}
-export PATH="/opt/homebrew/bin:$PATH"
-{{- else }}
-export PATH="/opt/brew/bin:$PATH"
+
+# Homebrew PATH on Linux only — on macOS, .zprofile already sourced `brew shellenv`.
+{{- if ne .chezmoi.os "darwin" }}
+[ -x /opt/brew/bin/brew ] && export PATH="/opt/brew/bin:$PATH"
 {{- end }}
 
-# Fix npm prefix and add local bin to PATH
+# fnm (Node version manager). $HOME/.local/bin is set in .zshenv (so SSH
+# non-interactive sessions can resolve user scripts). Don't re-export here.
 unset NPM_CONFIG_PREFIX
-export PATH="$HOME/.local/bin:$PATH"
-# GITHUB_PERSONAL_ACCESS_TOKEN in ~/.env (sourced by .zshenv)
 command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --shell zsh)"
 
-# Auto-switch gh account based on .gh-account file in project tree
-_gh_auto_switch() {
-  local dir="$PWD"
-  while [[ "$dir" != "/" ]]; do
-    if [[ -f "$dir/.gh-account" ]]; then
-      local want="$(< "$dir/.gh-account")"
-      want="${want%$'\n'}"
-      local current="$(gh auth status 2>&1 | grep 'Active account: true' -B1 | head -1 | awk '{print $NF}')"
-      if [[ -n "$want" && "$want" != "$current" ]]; then
-        gh auth switch --user "$want" 2>/dev/null
-      fi
-      return
-    fi
-    dir="${dir:h}"
-  done
-}
-autoload -U add-zsh-hook
-add-zsh-hook chpwd _gh_auto_switch
-_gh_auto_switch  # run once at shell start
+# Persona switcher — defines `persona` shell function + chpwd auto-switch on
+# .persona files. Replaces the old _gh_auto_switch hook (persona() now does
+# the gh switching as part of changing identity).
+[[ -f "$HOME/.zsh/personas.zsh" ]] && source "$HOME/.zsh/personas.zsh"
 
+{{- if ne .chezmoi.os "darwin" }}
+# Linux-only autojump (yay-installed)
 [[ -s {{ .chezmoi.homeDir }}/.cache/yay/autojump/pkg/autojump/etc/profile.d/autojump.sh ]] && source {{ .chezmoi.homeDir }}/.cache/yay/autojump/pkg/autojump/etc/profile.d/autojump.sh
+{{- end }}
 
-autoload -U compinit && compinit -u
+# NOTE: compinit was previously called twice (once by oh-my-zsh.sh, once below
+# with `-u` which weakens security checks). OMZ already runs compinit; deleted.
 

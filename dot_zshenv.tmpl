@@ -1,0 +1,27 @@
+# ~/.zshenv — runs for ALL zsh invocations (interactive AND non-interactive).
+# On macOS this runs BEFORE /etc/zprofile's path_helper. Keep PATH minimal here;
+# the canonical Apple paths come from path_helper, and tool paths come from
+# .zprofile (login shells) or .zshrc (interactive shells).
+
+typeset -U path PATH
+
+# User scripts: must be in zshenv so SSH non-interactive sessions
+# (e.g. `ssh host claude-attach 1`) can resolve them.
+path=("$HOME/.local/bin" $path)
+
+# Per-user secrets/env (sourced even by scripts).
+[ -f "$HOME/.env" ] && source "$HOME/.env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# Claude Code experimental flags must be visible to non-interactive children
+# (MCP servers etc.).
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+{{ if ne .chezmoi.os "darwin" -}}
+
+# Linux/WSL: ensure system bin dirs exist on PATH (path_helper is macOS-only).
+# This was the original purpose of the old hard-coded prepend; gated by OS now.
+for _p in /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin; do
+  [[ -d "$_p" ]] && path+=("$_p")
+done
+unset _p
+{{- end }}
