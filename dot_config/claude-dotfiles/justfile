@@ -1,0 +1,104 @@
+# ~/.config/claude-dotfiles/justfile — the "specific manager for Claude stuff"
+#
+# Run `just` (no args) to see all recipes.
+# Run `just <recipe>` to execute one.
+#
+# State of play (Phase 6 scaffolding):
+#   - Today, ~/.claude/settings.json is owned by chezmoi (dot_claude/settings.json).
+#   - This justfile ships profile TEMPLATES (profiles/*.json) and the recipes
+#     that will eventually own ~/.claude/settings.json.
+#   - One-time migration: run `just init` to populate _base.json from your
+#     current settings, edit the persona overrides, then run `just migrate`
+#     to take ownership away from chezmoi.
+#
+# Profile model: profiles/_base.json is merged with profiles/<name>.json
+# (deep merge via jq) and the result is written to ~/.claude/settings.json.
+
+set shell := ["bash", "-euo", "pipefail", "-c"]
+set dotenv-load := false
+
+config_dir   := justfile_directory()
+profiles_dir := config_dir / "profiles"
+target       := env_var('HOME') / ".claude/settings.json"
+state_file   := config_dir / ".active-profile"
+
+# default: show available recipes + active profile
+default:
+    @echo "active profile: $(cat '{{state_file}}' 2>/dev/null || echo '<none>')"
+    @echo
+    @just --list --unsorted
+
+# list available profiles (filename → label)
+list:
+    @echo "profiles:"
+    @ls -1 '{{profiles_dir}}' 2>/dev/null | grep -E '^[^_].*\.json$' | sed 's/\.json$//' | sed 's/^/  - /' || echo "  (none — run `just init`)"
+
+# bootstrap: copy current ~/.claude/settings.json into profiles/_base.json
+init:
+    @mkdir -p '{{profiles_dir}}'
+    @if [[ -f '{{target}}' ]] && [[ ! -s '{{profiles_dir}}/_base.json' ]]; then \
+      cp '{{target}}' '{{profiles_dir}}/_base.json'; \
+      echo "✓ seeded {{profiles_dir}}/_base.json from current ~/.claude/settings.json"; \
+    else \
+      echo "skip: _base.json already populated or no source ~/.claude/settings.json"; \
+    fi
+    @for p in professional personal; do \
+      if [[ ! -f "{{profiles_dir}}/$p.json" ]]; then echo '{}' > "{{profiles_dir}}/$p.json"; echo "✓ created empty {{profiles_dir}}/$p.json"; fi; \
+    done
+
+# show what `just profile <name>` would write, without writing
+preview NAME:
+    @[[ -f '{{profiles_dir}}/_base.json' ]]    || { echo "no _base.json — run \`just init\`"; exit 1; }
+    @[[ -f '{{profiles_dir}}/{{NAME}}.json' ]] || { echo "no profile: {{NAME}}"; exit 1; }
+    @jq -s '.[0] * .[1]' '{{profiles_dir}}/_base.json' '{{profiles_dir}}/{{NAME}}.json'
+
+# switch to a profile (writes ~/.claude/settings.json + records active state)
+profile NAME:
+    @[[ -f '{{profiles_dir}}/_base.json' ]]    || { echo "no _base.json — run \`just init\`"; exit 1; }
+    @[[ -f '{{profiles_dir}}/{{NAME}}.json' ]] || { echo "no profile: {{NAME}} (try \`just list\`)"; exit 1; }
+    @if [[ -f '{{target}}' ]] && [[ ! -f '{{target}}.pre-claudejust' ]]; then cp '{{target}}' '{{target}}.pre-claudejust'; fi
+    @jq -s '.[0] * .[1]' '{{profiles_dir}}/_base.json' '{{profiles_dir}}/{{NAME}}.json' > '{{target}}.tmp'
+    @mv '{{target}}.tmp' '{{target}}'
+    @echo '{{NAME}}' > '{{state_file}}'
+    @echo "✓ profile → {{NAME}} (wrote {{target}})"
+    @if [[ -f "{{config_dir}}/../../.local/share/chezmoi/dot_claude/settings.json" ]]; then \
+      echo "⚠  chezmoi still owns dot_claude/settings.json — run \`just migrate\` to hand over"; \
+    fi
+
+# show currently active profile (or '<none>')
+active:
+    @cat '{{state_file}}' 2>/dev/null || echo "<none>"
+
+# validate ~/.claude/settings.json: JSON well-formed, hooks resolvable
+doctor:
+    @if [[ ! -f '{{target}}' ]]; then echo "✗ no {{target}}"; exit 1; fi
+    @if jq -e . '{{target}}' >/dev/null; then echo "✓ {{target}} is valid JSON"; else echo "✗ invalid JSON"; exit 1; fi
+    @echo "active: $(cat '{{state_file}}' 2>/dev/null || echo '<none>')"
+    @command -v claude >/dev/null && echo "✓ claude CLI on PATH" || echo "✗ no claude CLI"
+
+# wraps the existing claude-plugin-parity script
+plugin-parity:
+    @if [[ -x "$HOME/.local/bin/claude-plugin-parity" ]]; then \
+      "$HOME/.local/bin/claude-plugin-parity"; \
+    else echo "no $HOME/.local/bin/claude-plugin-parity found"; exit 1; fi
+
+# install a marketplace plugin and re-run parity
+plugin-install M:
+    claude plugin install '{{M}}'
+    just plugin-parity
+
+# pull updates from the upstream claude-dotfiles repo (if/when this is git-backed)
+sync:
+    @if [[ -d '{{config_dir}}/.git' ]]; then \
+      git -C '{{config_dir}}' pull --ff-only; \
+    else echo "{{config_dir}} is not a git repo (today it's chezmoi-managed) — skip"; fi
+
+# one-time: hand ownership of ~/.claude/settings.json from chezmoi to this justfile.
+# Removes dot_claude/settings.json from the chezmoi source AND adds the live
+# path to .chezmoiignore. Manual step — review the diff first.
+migrate:
+    @echo "Manual migration steps:"
+    @echo "  1. rm  ~/.local/share/chezmoi/dot_claude/settings.json"
+    @echo "  2. add '.claude/settings.json' to ~/.local/share/chezmoi/.chezmoiignore"
+    @echo "  3. (cd ~/.local/share/chezmoi && git add -A && git commit -m 'chore(claude): hand settings.json to claude-dotfiles justfile')"
+    @echo "  4. just profile <name>   # claudejust now owns ~/.claude/settings.json"
